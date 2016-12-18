@@ -1,0 +1,39 @@
+.test-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.test-questions {
+  width: 100%;
+}
+
+.optChecked {
+  background-color: #00ee00;
+}
+
+.option-img {
+  max-height: 100px;
+}
+
+.result {
+  font-weight: bold;
+  min-width: 1em;
+}
+
+.result .wrong {
+  color: red;
+}
+
+.result .correct {
+  color: #00ee00;
+}
+
+.submit-block .submit {
+  float: right;
+}
+
+.submit-block .alert {
+  float: left;
+  color: red;
+  margin: auto;
+}

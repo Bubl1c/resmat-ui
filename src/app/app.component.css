@@ -1,0 +1,16 @@
+.appbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.24);
+}
+
+.appbar img {
+  margin-right: -50px;
+  width: 50px;
+}
+
+.appbar h2 {
+  margin: auto;
+  font-weight: 400;
+}

@@ -1,0 +1,32 @@
+<form class="test-content mui-panel">
+  <div class="test-question mui--text-subhead">
+    <span class="test-number">{{ currentTest.sequence }}.</span>
+    {{ currentTest?.question }}
+  </div>
+  <table class="test-questions">
+    <tr class="option" *ngFor="let option of currentTest?.options">
+      <td class="result">
+        <div [hidden]="!currentTest.submitted || !option.checked">
+          <span class="wrong" [hidden]="option.id === currentTest.correct">&#9747;</span>
+          <span class="correct" [hidden]="option.id != currentTest.correct">&#10003;</span>
+        </div>
+      </td>
+      <td>
+        <input type="radio" name="radiogroup"
+               [checked]="option.checked"
+               [value]="option.id"
+               (change)="onOptionChecked(option)">
+      </td>
+      <td>
+        <span *ngIf="option.type === 'words'">{{ option.value }}</span>
+        <img class="option-img" *ngIf="option.type === 'img'" src="{{ option.value }}">
+      </td>
+    </tr>
+  </table>
+  <div class="submit-block">
+    <div class="alert mui--text-title" *ngIf="currentTest.submitted && !correctAnswer">
+      Відповідь не вірна, оберіть інший варіант.
+    </div>
+    <button class="submit mui-btn mui-btn--raised" (click)="submit()">Зберегти</button>
+  </div>
+</form>
