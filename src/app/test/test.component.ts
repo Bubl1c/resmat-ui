@@ -54,7 +54,7 @@ export class TestComponent implements OnInit {
     }
   }
 
-  nextTest() {
+  nextAssignment() {
     this.reset();
     this.passed.emit(1); //TODO: think what to pass to parent
   }

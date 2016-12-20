@@ -36,29 +36,8 @@
   font-style: italic;
 }
 
-.submit {
-  align-self: flex-end;
-}
-
 .mui-invalid {
   border-color: #F44336;
   border-width: 2px;
-}
-
-.wrong {
-  color: red;
-}
-
-.correct {
-  color: #00ee00;
-}
-
-.submit-block .submit, .submit-block .next {
-  float: right;
-}
-
-.submit-block .alert {
-  float: left;
-  margin: auto;
 }
 

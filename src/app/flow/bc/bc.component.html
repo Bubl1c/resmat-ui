@@ -12,7 +12,7 @@
         <td class="var-value">
           <div class="mui-textfield">
             <input type="text" [(ngModel)]="ic.typedValue"
-                               [ngClass]="{ 'mui-invalid': isSubmitted && !isValid(ic) }" required>
+                               [ngClass]="{ 'mui-invalid': isSubmitted && !ic.valid }" required>
           </div>
         </td>
         <td class="var-units">{{ic.units}}</td>
@@ -26,29 +26,13 @@
         <td class="var-value">
           <div class="mui-textfield">
             <input type="text" [(ngModel)]="oc.typedValue"
-                               [ngClass]="{ 'mui-invalid': isSubmitted && !isValid(oc) }">
+                               [ngClass]="{ 'mui-invalid': isSubmitted && !oc.valid }">
           </div>
         </td>
         <td class="var-units">{{oc.units}}</td>
       </tr>
     </table>
   </div>
-  <div class="submit-block">
-    <div class="wrong alert mui--text-title" *ngIf="isSubmitted && !isCorrectAnswer">
-      Відповідь не вірна, оберіть інший варіант.
-    </div>
-    <div class="correct alert mui--text-title" *ngIf="isSubmitted && isCorrectAnswer">
-      Відповідь правильна.
-    </div>
-    <button class="submit mui-btn mui-btn--raised"
-            (click)="submit()"
-            *ngIf="!isSubmitted || !isCorrectAnswer">
-      Зберегти
-    </button>
-    <button class="next mui-btn mui-btn--primary"
-            (click)="nextTest()"
-            *ngIf="isSubmitted && isCorrectAnswer">
-      Продовжити
-    </button>
-  </div>
+  <app-submit [isSubmitted]="isSubmitted" [isCorrectAnswer]="isCorrectAnswer"
+              (onSubmit)="submit()" (onNext)="nextAssignment()"></app-submit>
 </div>

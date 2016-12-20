@@ -1,0 +1,16 @@
+.wrong {
+  color: red;
+}
+
+.correct {
+  color: #00ee00;
+}
+
+.submit-block .submit, .submit-block .next {
+  float: right;
+}
+
+.submit-block .alert {
+  float: left;
+  margin: auto;
+}

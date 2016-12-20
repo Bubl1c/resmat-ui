@@ -5,6 +5,7 @@ export interface ICondition {
   name: string;
   expectedValue: string;
   typedValue: string;
+  valid: boolean;
   units: string;
 }
 
@@ -32,26 +33,27 @@ export class BcComponent implements OnInit {
   ngOnInit() {
   }
 
-  isValid(condition: ICondition): boolean {
-    console.log('Is valid: ', condition);
-    return condition.typedValue.trim() === condition.expectedValue;
-  }
-
   submit() {
     this.isSubmitted = true;
+    for(let c of this.inside) {
+      c.valid = this.isValid(c);
+    }
+    for(let c of this.outside) {
+      c.valid = this.isValid(c);
+    }
     this.isCorrectAnswer =
-      this.inside.filter(c => !this.isValid(c)).length === 0 &&
-      this.outside.filter(c => !this.isValid(c)).length === 0;
+      this.inside.filter(c => !c.valid).length === 0 &&
+      this.outside.filter(c => !c.valid).length === 0;
   }
 
-  nextTest() {
+  nextAssignment() {
     this.passed.emit(1); //TODO: think what to pass to parent
   }
 
-}
+  private isValid(condition: ICondition): boolean {
+    return condition.typedValue.trim() === condition.expectedValue;
+  }
 
-function c(name: string, expected: string, units: string): ICondition {
-  return { name: MathSymbolConverter.convertString(name), expectedValue: expected, typedValue: '', units: units }
 }
 
 const insideConditions = [
@@ -63,7 +65,17 @@ const insideConditions = [
 
 const outsideConditions = [
   c('w(b)', '0', 'м'),
-  c('{phi}{(a)}', '?', 'рад'),
-  c('Mr(a)', '0', 'кНм/м'),
-  c('Qr(a)', '?', 'кН/м')
+  c('{phi}{(b)}', '?', 'рад'),
+  c('Mr(b)', '0', 'кНм/м'),
+  c('Qr(b)', '?', 'кН/м')
 ];
+
+function c(name: string, expected: string, units: string): ICondition {
+  return {
+    name: MathSymbolConverter.convertString(name),
+    expectedValue: expected,
+    typedValue: expected,
+    units: units,
+    valid: false
+  }
+}

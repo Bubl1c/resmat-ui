@@ -1,0 +1,18 @@
+<div class="submit-block">
+  <div class="wrong alert mui--text-title" *ngIf="isSubmitted && !isCorrectAnswer">
+    Відповідь не вірна, оберіть інший варіант.
+  </div>
+  <div class="correct alert mui--text-title" *ngIf="isSubmitted && isCorrectAnswer">
+    Відповідь правильна.
+  </div>
+  <button class="submit mui-btn mui-btn--raised"
+          (click)="submit()"
+          *ngIf="!isSubmitted || !isCorrectAnswer">
+    Зберегти
+  </button>
+  <button class="next mui-btn mui-btn--primary"
+          (click)="next()"
+          *ngIf="isSubmitted && isCorrectAnswer">
+    Продовжити
+  </button>
+</div>

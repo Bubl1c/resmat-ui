@@ -44,3 +44,8 @@
 .ital {
   font-style: italic;
 }
+
+.exam-panel {
+  position: relative;
+}
+

@@ -13,6 +13,7 @@ import { ExamSeedData } from "./exam/exam.data";
 import { TestComponent } from './test/test.component';
 import { FlowComponent } from './flow/flow.component';
 import { BcComponent } from './flow/bc/bc.component';
+import { SubmitComponent } from './flow/submit/submit.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { BcComponent } from './flow/bc/bc.component';
     ExamComponent,
     TestComponent,
     FlowComponent,
-    BcComponent
+    BcComponent,
+    SubmitComponent
   ],
   imports: [
     BrowserModule,

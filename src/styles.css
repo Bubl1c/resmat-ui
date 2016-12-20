@@ -1,0 +1,14 @@
+.help-materials {
+  position: absolute;
+  left: -20px;
+  color: #2196F3 !important;
+  text-decoration: none !important;
+}
+
+.help-materials.bottom {
+  bottom: -10px;
+}
+
+.help-materials.top {
+  top: -10px;
+}
