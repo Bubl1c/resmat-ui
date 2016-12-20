@@ -3,6 +3,7 @@ import { ITest } from "../test/test.component";
 
 export interface IAssignments {
   current: string;
+  sequence: number;
   test: TestAssignment;
   bc: BoundaryConditionsAssignment;
 }
@@ -21,6 +22,7 @@ export class FlowComponent implements OnInit {
   ngOnInit() {
     this.assignments = {
       current: BoundaryConditionsAssignment.alias,
+      sequence: 1,
       test: new TestAssignment(),
       bc: new BoundaryConditionsAssignment()
     };
@@ -28,6 +30,7 @@ export class FlowComponent implements OnInit {
 
   nextAssignment(event: any) {
     console.log('Going to next assignment: ', event);
+    this.assignments.sequence++;
     switch (this.assignments.current) {
       case TestAssignment.alias:
         if(this.assignments.test.hasNext()) {

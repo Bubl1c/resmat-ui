@@ -1,5 +1,6 @@
 <div class="bc-container mui-container">
   <div class="mui--text-subhead">
+    <span class="test-number">{{ sequence }}.</span>
     Введіть значення граничних умов, невідомі умови позначити знаком «?»:
   </div>
   <div class="bc-data">
@@ -8,7 +9,12 @@
       <tr *ngFor="let ic of inside">
         <td class="var-name"><span [innerHTML]="ic.name"></span></td>
         <td>=</td>
-        <td><div class="mui-textfield"><input type="text"></div></td>
+        <td class="var-value">
+          <div class="mui-textfield">
+            <input type="text" [(ngModel)]="ic.typedValue"
+                               [ngClass]="{ 'mui-invalid': isSubmitted && !isValid(ic) }" required>
+          </div>
+        </td>
         <td class="var-units">{{ic.units}}</td>
       </tr>
     </table>
@@ -17,10 +23,32 @@
       <tr *ngFor="let oc of outside">
         <td class="var-name"><span [innerHTML]="oc.name"></span></td>
         <td>=</td>
-        <td><div class="mui-textfield"><input type="text"></div></td>
+        <td class="var-value">
+          <div class="mui-textfield">
+            <input type="text" [(ngModel)]="oc.typedValue"
+                               [ngClass]="{ 'mui-invalid': isSubmitted && !isValid(oc) }">
+          </div>
+        </td>
         <td class="var-units">{{oc.units}}</td>
       </tr>
     </table>
   </div>
-  <button class="submit mui-btn mui-btn--raised" (click)="submit()">Зберегти</button>
+  <div class="submit-block">
+    <div class="wrong alert mui--text-title" *ngIf="isSubmitted && !isCorrectAnswer">
+      Відповідь не вірна, оберіть інший варіант.
+    </div>
+    <div class="correct alert mui--text-title" *ngIf="isSubmitted && isCorrectAnswer">
+      Відповідь правильна.
+    </div>
+    <button class="submit mui-btn mui-btn--raised"
+            (click)="submit()"
+            *ngIf="!isSubmitted || !isCorrectAnswer">
+      Зберегти
+    </button>
+    <button class="next mui-btn mui-btn--primary"
+            (click)="nextTest()"
+            *ngIf="isSubmitted && isCorrectAnswer">
+      Продовжити
+    </button>
+  </div>
 </div>

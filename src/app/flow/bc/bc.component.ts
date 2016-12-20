@@ -3,7 +3,7 @@ import { MathSymbolConverter } from "../../exam/exam.component";
 
 export interface ICondition {
   name: string;
-  expectedValue: number;
+  expectedValue: string;
   typedValue: string;
   units: string;
 }
@@ -14,9 +14,12 @@ export interface ICondition {
   styleUrls: ['./bc.component.css']
 })
 export class BcComponent implements OnInit {
+  @Input()
+  sequence: number;
   inside: ICondition[];
   outside: ICondition[];
   isSubmitted: boolean;
+  isCorrectAnswer: boolean;
 
   @Output() passed: EventEmitter<number>;
 
@@ -30,29 +33,37 @@ export class BcComponent implements OnInit {
   }
 
   isValid(condition: ICondition): boolean {
-    return +condition.typedValue.replace('?', '-1') === condition.expectedValue;
+    console.log('Is valid: ', condition);
+    return condition.typedValue.trim() === condition.expectedValue;
   }
 
   submit() {
+    this.isSubmitted = true;
+    this.isCorrectAnswer =
+      this.inside.filter(c => !this.isValid(c)).length === 0 &&
+      this.outside.filter(c => !this.isValid(c)).length === 0;
+  }
+
+  nextTest() {
     this.passed.emit(1); //TODO: think what to pass to parent
   }
 
 }
 
-function c(name: string, expected: number, units: string): ICondition {
+function c(name: string, expected: string, units: string): ICondition {
   return { name: MathSymbolConverter.convertString(name), expectedValue: expected, typedValue: '', units: units }
 }
 
 const insideConditions = [
-  c('w(a)', -1, 'м'),
-  c('{phi}{(a)}', -1, 'рад'),
-  c('Mr(a)', 0, 'кНм/м'),
-  c('Qr(a)', 0, 'кН/м')
+  c('w(a)', '?', 'м'),
+  c('{phi}{(a)}', '?', 'рад'),
+  c('Mr(a)', '0', 'кНм/м'),
+  c('Qr(a)', '0', 'кН/м')
 ];
 
 const outsideConditions = [
-  c('w(b)', 0, 'м'),
-  c('{phi}{(a)}', -1, 'рад'),
-  c('Mr(a)', 0, 'кНм/м'),
-  c('Qr(a)', -1, 'кН/м')
+  c('w(b)', '0', 'м'),
+  c('{phi}{(a)}', '?', 'рад'),
+  c('Mr(a)', '0', 'кНм/м'),
+  c('Qr(a)', '?', 'кН/м')
 ];
