@@ -1,0 +1,26 @@
+<div class="bc-container mui-container">
+  <div class="mui--text-subhead">
+    Введіть значення граничних умов, невідомі умови позначити знаком «?»:
+  </div>
+  <div class="bc-data">
+    <table>
+      <caption>На внутрішньому контурі</caption>
+      <tr *ngFor="let ic of inside">
+        <td class="var-name"><span [innerHTML]="ic.name"></span></td>
+        <td>=</td>
+        <td><div class="mui-textfield"><input type="text"></div></td>
+        <td class="var-units">{{ic.units}}</td>
+      </tr>
+    </table>
+    <table>
+      <caption>На зовнішньому контурі</caption>
+      <tr *ngFor="let oc of outside">
+        <td class="var-name"><span [innerHTML]="oc.name"></span></td>
+        <td>=</td>
+        <td><div class="mui-textfield"><input type="text"></div></td>
+        <td class="var-units">{{oc.units}}</td>
+      </tr>
+    </table>
+  </div>
+  <button class="submit mui-btn mui-btn--raised" (click)="submit()">Зберегти</button>
+</div>

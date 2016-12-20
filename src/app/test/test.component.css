@@ -7,12 +7,8 @@
   width: 100%;
 }
 
-.optChecked {
-  background-color: #00ee00;
-}
-
 .option-img {
-  max-height: 100px;
+  max-height: 60px;
 }
 
 .result {
@@ -20,20 +16,19 @@
   min-width: 1em;
 }
 
-.result .wrong {
+.wrong {
   color: red;
 }
 
-.result .correct {
+.correct {
   color: #00ee00;
 }
 
-.submit-block .submit {
+.submit-block .submit, .submit-block .next {
   float: right;
 }
 
 .submit-block .alert {
   float: left;
-  color: red;
   margin: auto;
 }

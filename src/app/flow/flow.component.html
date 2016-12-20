@@ -1,0 +1,11 @@
+<div class="mui-panel" hidden>Flow progress will be here</div>
+<div class="mui-panel">
+  <app-test [hidden]="assignments.current != 'test'"
+            [test]="assignments.test?.current"
+            [sequence]="assignments.test?.sequence"
+            (passed)="nextAssignment($event)">
+  </app-test>
+  <app-bc [hidden]="assignments.current != 'bc'"
+          (passed)="nextAssignment($event)">
+  </app-bc>
+</div>

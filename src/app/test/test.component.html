@@ -1,14 +1,14 @@
-<form class="test-content mui-panel">
+<form class="test-content">
   <div class="test-question mui--text-subhead">
-    <span class="test-number">{{ currentTest.sequence }}.</span>
-    {{ currentTest?.question }}
+    <span class="test-number">{{ sequence }}.</span>
+    {{ test?.question }}
   </div>
   <table class="test-questions">
-    <tr class="option" *ngFor="let option of currentTest?.options">
+    <tr class="option" *ngFor="let option of test?.options">
       <td class="result">
-        <div [hidden]="!currentTest.submitted || !option.checked">
-          <span class="wrong" [hidden]="option.id === currentTest.correct">&#9747;</span>
-          <span class="correct" [hidden]="option.id != currentTest.correct">&#10003;</span>
+        <div *ngIf="isSubmitted && option.checked">
+          <span class="wrong" *ngIf="!isCorrectAnswer">&#9747;</span>
+          <span class="correct" *ngIf="isCorrectAnswer">&#10003;</span>
         </div>
       </td>
       <td>
@@ -24,9 +24,21 @@
     </tr>
   </table>
   <div class="submit-block">
-    <div class="alert mui--text-title" *ngIf="currentTest.submitted && !correctAnswer">
+    <div class="wrong alert mui--text-title" *ngIf="isSubmitted && !isCorrectAnswer">
       Відповідь не вірна, оберіть інший варіант.
     </div>
-    <button class="submit mui-btn mui-btn--raised" (click)="submit()">Зберегти</button>
+    <div class="correct alert mui--text-title" *ngIf="isSubmitted && isCorrectAnswer">
+      Відповідь правильна.
+    </div>
+    <button class="submit mui-btn mui-btn--raised"
+            (click)="submit()"
+            *ngIf="!isSubmitted || !isCorrectAnswer">
+      Зберегти
+    </button>
+    <button class="next mui-btn mui-btn--primary"
+            (click)="nextTest()"
+            *ngIf="isSubmitted && isCorrectAnswer">
+      Продовжити
+    </button>
   </div>
 </form>

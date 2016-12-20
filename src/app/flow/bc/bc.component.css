@@ -1,0 +1,37 @@
+.bc-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.bc-data {
+  display: flex;
+  justify-content: space-around;
+  font-size: 16px;
+  margin-top: 1em;
+}
+
+.bc-data .mui-textfield {
+  padding: 0px;
+  margin: 0px;
+}
+
+.bc-data input {
+  width: 80px;
+  text-align: center;
+}
+
+.bc-data table {
+  min-width: 220px;
+}
+
+.bc-data table caption {
+  font-weight: bold;
+}
+
+.var-name, .var-units {
+  font-style: italic;
+}
+
+.submit {
+  align-self: flex-end;
+}

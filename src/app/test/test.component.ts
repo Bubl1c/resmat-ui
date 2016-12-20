@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 
 export interface ITest {
-  sequence: number;
+  id: number;
   question: string;
   options: IOption[];
-  correct: number;
-  submitted: boolean;
+  correctOption: number;
 }
 
 export interface IOption {
@@ -21,41 +20,48 @@ export interface IOption {
   styleUrls: ['./test.component.css']
 })
 export class TestComponent implements OnInit {
-  currentTest: ITest;
-  correctAnswer: boolean;
+  @Input()
+  test: ITest;
+  @Input()
+  sequence: number;
+
+  @Output() passed: EventEmitter<number>;
+
+  isCorrectAnswer: boolean;
+  isSubmitted: boolean;
 
   constructor() {
-    this.currentTest = {
-      sequence: 1,
-      question: 'Коефіцієнт Пуассона – це',
-      options: [
-        { id: 1, type: 'words', value: 'Міра зміни поперечних розмірів ізотропного тіла при деформації розтягу', checked: true},
-        { id: 2, type: 'words', value: 'Міра зміни відносної деформації по відношенню до нормального напруження', checked: false},
-        { id: 3, type: 'words', value: 'Міра зміни видовження ізотропного тіла при деформації розтягу', checked: false},
-        { id: 4, type: 'words', value: 'Відношення нормальних напружень при розтягу до поперечної деформації', checked: false}
-      ],
-      correct: 1,
-      submitted: false
-    }
+    this.passed = new EventEmitter<number>();
   }
 
   ngOnInit() {
   }
 
   onOptionChecked(option: IOption) {
-    this.currentTest.submitted = false;
-    for (let opt of this.currentTest.options) {
-      if(opt.id === option.id) {
-        opt.checked = true;
-        this.correctAnswer = opt.id === this.currentTest.correct;
-      } else  {
-        opt.checked = false;
-      }
+    this.reset();
+    for (let opt of this.test.options) {
+      opt.checked = opt.id === option.id;
     }
   }
 
   submit() {
-    this.currentTest.submitted = true;
+    this.isSubmitted = true;
+    for (let opt of this.test.options) {
+      if(opt.checked) {
+        this.isCorrectAnswer = opt.id === this.test.correctOption;
+        break;
+      }
+    }
+  }
+
+  nextTest() {
+    this.reset();
+    this.passed.emit(1); //TODO: think what to pass to parent
+  }
+
+  private reset() {
+    this.isCorrectAnswer = false;
+    this.isSubmitted = false;
   }
 
 }

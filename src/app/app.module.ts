@@ -11,13 +11,17 @@ import { LoginComponent } from './login/login.component';
 import { ExamComponent } from './exam/exam.component';
 import { ExamSeedData } from "./exam/exam.data";
 import { TestComponent } from './test/test.component';
+import { FlowComponent } from './flow/flow.component';
+import { BcComponent } from './flow/bc/bc.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     ExamComponent,
-    TestComponent
+    TestComponent,
+    FlowComponent,
+    BcComponent
   ],
   imports: [
     BrowserModule,

@@ -49,7 +49,7 @@ export class ExamComponent implements OnInit {
 
 }
 
-class MathSymbolConverter {
+export class MathSymbolConverter {
   private static mappings = {
     mu: '&mu;',
     phi: '&phi;'
@@ -66,6 +66,16 @@ class MathSymbolConverter {
     let mappedLetters = letters.map(ltr => this.mapLetter(ltr));
     schemaVar.name = mappedLetters.join('');
     return schemaVar;
+  }
+
+  static convertString(str: string): string {
+    if(str.indexOf(this.specialSymbolMark) === -1) {
+      return str;
+    }
+    let letters: string[] = str.match(this.matchingRegex);
+    let mappedLetters = letters.map(ltr => this.mapLetter(ltr));
+    str = mappedLetters.join('');
+    return str;
   }
 
   private static mapLetter(letter: string): string {
