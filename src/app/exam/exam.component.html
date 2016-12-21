@@ -1,7 +1,7 @@
 <div class="exam-container mui-container">
-  <div class="exam-panel mui-panel">
+  <div class="mui-panel relative">
     <h3 class="exam-name">{{exam?.name}}</h3>
-    <div class="exam-assignment">
+    <div class="exam-assignment" *ngIf="!isCollapsed">
       <div class="exam-schema">
         <img src="{{exam?.schemaUrl}}" alt="Схема завдання">
       </div>
@@ -18,7 +18,10 @@
         </div>
       </div>
     </div>
-    <a class="help-materials bottom mui-btn mui-btn--flat" href="img/equations.png" download>Допоміжні матеріали</a>
+    <a class="help-materials left bottom mui-btn mui-btn--flat" href="img/equations.png" download>Допоміжні матеріали</a>
+    <a class="help-materials right bottom mui-btn mui-btn--flat" (click)="toggle()">
+      {{ isCollapsed ? 'Розгорнути' : 'Згорнути' }}
+    </a>
   </div>
   <app-flow></app-flow>
 </div>

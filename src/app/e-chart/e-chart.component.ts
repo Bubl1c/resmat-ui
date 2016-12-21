@@ -31,7 +31,7 @@ export class EChartComponent implements OnInit {
     this.chart.title = MathSymbolConverter.convertString(this.chart.title);
     this.lineChartData = this.defaultDataset(this.chart.y);
     this.lineChartLabels = this.chart.x;
-    this.lineChartOptions = this.defaultOptions(this.chart.title);
+    this.lineChartOptions = this.defaultOptions(this.chart);
     this.lineChartColors = this.defaultColors;
   }
 
@@ -43,24 +43,29 @@ export class EChartComponent implements OnInit {
     }];
   }
 
-  private defaultOptions(_title: string) {
+  private defaultOptions(chart: IChart) {
     return {
       animation: false,
       responsive: true,
       tooltips: {
         callbacks: {
           title: function(tooltipItem, data) { return '' },
-          label: function(tooltipItem, data) { return tooltipItem.yLabel }
+          label: function(tooltipItem, data) {
+            return /*chart.bottom ? -(tooltipItem.yLabel) : */tooltipItem.yLabel;
+          }
         }
       },
-      // title: {
-      //   display: true,
-      //   text: _title
-      // },
       scales: {
-        xAxes: [{ display: false }],
-        yAxes: [{
+        xAxes: [{
+          display: true,
           ticks: {
+            beginAtZero: true
+          }
+        }],
+        yAxes: [{
+          display: true,
+          ticks: {
+            reverse: chart.bottom,
             beginAtZero: true
           }
         }]

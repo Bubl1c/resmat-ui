@@ -17,6 +17,9 @@ import { BcComponent } from './flow/bc/bc.component';
 import { SubmitComponent } from './flow/submit/submit.component';
 import { EChartComponent } from './e-chart/e-chart.component';
 import { ChartSetComponent } from './flow/chart-set/chart-set.component';
+import { XResultsComponent } from './flow/x-results/x-results.component';
+import { CutComponent } from './flow/cut/cut.component';
+import { StrengthComponent } from './flow/strength/strength.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +31,10 @@ import { ChartSetComponent } from './flow/chart-set/chart-set.component';
     BcComponent,
     SubmitComponent,
     EChartComponent,
-    ChartSetComponent
+    ChartSetComponent,
+    XResultsComponent,
+    CutComponent,
+    StrengthComponent
   ],
   imports: [
     BrowserModule,

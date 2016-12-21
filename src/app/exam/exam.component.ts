@@ -25,6 +25,8 @@ export class ExamComponent implements OnInit {
   errorMessage: string;
   exam: IExam;
 
+  isCollapsed: boolean;
+
   constructor(private examService: ExamService) {
     this.errorMessage = '';
   }
@@ -46,13 +48,19 @@ export class ExamComponent implements OnInit {
     this.loadExam('eef')
   }
 
+  toggle() {
+    this.isCollapsed = !this.isCollapsed;
+  }
+
 }
 
 export class MathSymbolConverter {
   private static mappings = {
     mu: '&mu;',
     phi: '&phi;',
-    theta: '&Theta;'
+    theta: '&Theta;',
+    sigma: '&sigma;',
+    tau: '&Tau;'
   };
 
   private static specialSymbolMark = "{";

@@ -21,11 +21,11 @@ export class ChartSetComponent implements OnInit {
 
   ngOnInit() {
     this.title = MathSymbolConverter.convertString(this.title);
-    for(let chart of this.data) {
-      if(true/*chart.bottom*/) {
-        chart.y = chart.y.map(n => -n);
-      }
-    }
+    // for(let chart of this.data) {
+    //   if(true/*chart.bottom*/) {
+    //     chart.y = chart.y.map(n => -n);
+    //   }
+    // }
   }
 
   next() {

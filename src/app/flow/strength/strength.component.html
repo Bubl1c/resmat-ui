@@ -1,11 +1,7 @@
-<form class="test-content relative">
-  <a class="help-materials left bottom mui-btn mui-btn--flat" *ngIf="test.helpImg"
-     [href]="test.helpImg" download>
-    Допоміжні матеріали
-  </a>
-  <div class="test-question mui--text-subhead">
+<div class="content">
+  <div class="mui--text-subhead">
     <span class="test-number">{{ sequence }}.</span>
-    {{ test?.question }}
+    Чи забезпечується міцність перерізу?
   </div>
   <table class="test-questions">
     <tr class="option" *ngFor="let option of test?.options">
@@ -29,4 +25,4 @@
   </table>
   <app-submit [isSubmitted]="isSubmitted" [isCorrectAnswer]="isCorrectAnswer"
               (onSubmit)="submit()" (onNext)="nextAssignment()"></app-submit>
-</form>
+</div>

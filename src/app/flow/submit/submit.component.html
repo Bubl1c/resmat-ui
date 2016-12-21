@@ -15,4 +15,8 @@
           *ngIf="isSubmitted && isCorrectAnswer">
     Продовжити
   </button>
+  <button class="back mui-btn mui-btn--flat mui-btn--primary" *ngIf="isBack"
+          (click)="back()">
+    Назад
+  </button>
 </div>

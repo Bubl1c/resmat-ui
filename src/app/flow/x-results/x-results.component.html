@@ -1,0 +1,17 @@
+<div class="container mui-container">
+  <div class="mui--text-subhead">
+    <span class="test-number">{{ sequence }}.</span>
+    Введіть пораховані значення невідомих Х:
+  </div>
+  <div class="data">
+    <div class="variable" *ngFor="let variable of variables">
+      <span class="var-name" [innerHTML]="variable.name + ' = '"></span>
+      <div class="mui-textfield">
+        <input type="text" [(ngModel)]="variable.typedValue"
+               [ngClass]="{ 'mui-invalid': isSubmitted && !variable.valid }" required>
+      </div>
+    </div>
+  </div>
+  <app-submit class="submit" [isSubmitted]="isSubmitted" [isCorrectAnswer]="isCorrectAnswer"
+              (onSubmit)="submit()" (onNext)="nextAssignment()"></app-submit>
+</div>

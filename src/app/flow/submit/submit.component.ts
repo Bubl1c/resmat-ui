@@ -13,26 +13,33 @@ export class SubmitComponent implements OnInit {
   @Input()
   isCorrectAnswer: boolean;
 
-  @Output()
-  onSubmit: EventEmitter<any>;
+  @Input()
+  isBack: boolean;
 
   @Output()
-  onNext: EventEmitter<any>;
+  onSubmit: EventEmitter<number>;
+
+  @Output()
+  onNext: EventEmitter<number>;
 
   constructor() {
-    this.onSubmit = new EventEmitter();
-    this.onNext = new EventEmitter();
+    this.onSubmit = new EventEmitter<number>();
+    this.onNext = new EventEmitter<number>();
   }
 
   ngOnInit() {
   }
 
   submit() {
-    this.onSubmit.emit();
+    this.onSubmit.emit(1);
   }
 
   next() {
-    this.onNext.emit();
+    this.onNext.emit(1);
+  }
+
+  back() {
+    this.onNext.emit(-1);
   }
 
 }

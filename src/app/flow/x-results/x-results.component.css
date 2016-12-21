@@ -1,0 +1,45 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.data {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  font-size: 16px;
+  margin-top: 1em;
+}
+
+.data .mui-textfield {
+  padding: 0px;
+  margin: 0px;
+}
+
+.data input {
+  width: 80px;
+  text-align: center;
+}
+
+.variable {
+  display: flex;
+}
+
+.var-value {
+  width: 80px;
+}
+
+.var-name {
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.submit {
+  margin-top: 1em;
+}
+
+.mui-invalid {
+  border-color: #F44336;
+  border-width: 2px;
+}
+

@@ -6,7 +6,7 @@
   color: #00ee00;
 }
 
-.submit-block .submit, .submit-block .next {
+.submit-block .submit, .submit-block .next, .submit-block .back {
   float: right;
 }
 

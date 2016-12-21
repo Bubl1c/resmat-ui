@@ -5,6 +5,7 @@ export interface ITest {
   question: string;
   options: IOption[];
   correctOption: number;
+  helpImg: string;
 }
 
 export interface IOption {

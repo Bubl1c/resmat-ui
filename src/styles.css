@@ -1,6 +1,9 @@
+.relative {
+  position: relative;
+}
+
 .help-materials {
   position: absolute;
-  left: -20px;
   color: #2196F3 !important;
   text-decoration: none !important;
 }
@@ -11,4 +14,12 @@
 
 .help-materials.top {
   top: -10px;
+}
+
+.help-materials.left {
+  left: -20px;
+}
+
+.help-materials.right {
+  right: -10px;
 }

@@ -3,14 +3,34 @@
   <app-test [hidden]="assignments.current != 'test'"
             [test]="assignments.test?.current"
             [sequence]="assignments.sequence"
-            (passed)="nextAssignment($event)">
-  </app-test>
+            (passed)="nextAssignment($event)"></app-test>
+
   <app-bc [hidden]="assignments.current != 'bc'"
           [sequence]="assignments.sequence"
-          (passed)="nextAssignment($event)">
-  </app-bc>
+          (passed)="nextAssignment($event)"></app-bc>
+
   <chart-set [hidden]="assignments.current != 'chart'"
              [data]="assignments.chart?.data"
              [title]="assignments.chart?.title"
              (passed)="nextAssignment($event)"></chart-set>
+
+  <x-results [hidden]="assignments.current != 'x-results'"
+             [sequence]="assignments.sequence"
+             [variables]="assignments.xResults?.results"
+             (passed)="nextAssignment($event)"></x-results>
+
+  <cut       [hidden]="assignments.current != 'cut'"
+             [sequence]="assignments.sequence"
+             [variables]="assignments.cut?.cutVariables"
+             (passed)="nextAssignment($event)"></cut>
+
+  <app-test [hidden]="assignments.current != 'strength'"
+            [test]="assignments.strength?.test"
+            [sequence]="assignments.sequence"
+            (passed)="nextAssignment($event)"></app-test>
+
+  <div style="text-align: center" [hidden]="assignments.current != 'final'">
+    <p>Вітаємо! Ви виконали всі завдання.</p>
+    <p>Ваш результат: ......</p>
+  </div>
 </div>
