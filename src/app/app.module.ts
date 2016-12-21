@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { InMemoryWebApiModule } from "angular-in-memory-web-api";
+import { ChartsModule } from 'ng2-charts/ng2-charts';
 
 import { AppRoutingModule } from "./app-routing.module";
 
@@ -14,6 +15,8 @@ import { TestComponent } from './test/test.component';
 import { FlowComponent } from './flow/flow.component';
 import { BcComponent } from './flow/bc/bc.component';
 import { SubmitComponent } from './flow/submit/submit.component';
+import { EChartComponent } from './e-chart/e-chart.component';
+import { ChartSetComponent } from './flow/chart-set/chart-set.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +26,9 @@ import { SubmitComponent } from './flow/submit/submit.component';
     TestComponent,
     FlowComponent,
     BcComponent,
-    SubmitComponent
+    SubmitComponent,
+    EChartComponent,
+    ChartSetComponent
   ],
   imports: [
     BrowserModule,
@@ -31,6 +36,7 @@ import { SubmitComponent } from './flow/submit/submit.component';
     HttpModule,
     AppRoutingModule,
     InMemoryWebApiModule.forRoot(ExamSeedData, { delay: 500 }),
+    ChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

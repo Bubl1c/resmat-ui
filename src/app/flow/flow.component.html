@@ -5,8 +5,12 @@
             [sequence]="assignments.sequence"
             (passed)="nextAssignment($event)">
   </app-test>
-  <app-bc [sequence]="assignments.sequence"
-          [hidden]="assignments.current != 'bc'"
+  <app-bc [hidden]="assignments.current != 'bc'"
+          [sequence]="assignments.sequence"
           (passed)="nextAssignment($event)">
   </app-bc>
+  <chart-set [hidden]="assignments.current != 'chart'"
+             [data]="assignments.chart?.data"
+             [title]="assignments.chart?.title"
+             (passed)="nextAssignment($event)"></chart-set>
 </div>

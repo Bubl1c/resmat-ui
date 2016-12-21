@@ -1,0 +1,10 @@
+<div class="chart-set-container">
+  <div class="chart-set-title mui--text-subhead" [innerHTML]="title"></div>
+  <div class="chart-container" *ngFor="let c of data">
+    <e-chart [chart]="c"></e-chart>
+  </div>
+  <button class="next mui-btn mui-btn--primary"
+          (click)="next()">
+    Продовжити
+  </button>
+</div>

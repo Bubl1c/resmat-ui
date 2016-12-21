@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ITest } from "../test/test.component";
+import { IChart } from "../e-chart/e-chart.component";
 
 export interface IAssignments {
   current: string;
   sequence: number;
   test: TestAssignment;
   bc: BoundaryConditionsAssignment;
+  chart: ChartAssignment;
 }
 
 @Component({
@@ -21,10 +23,11 @@ export class FlowComponent implements OnInit {
 
   ngOnInit() {
     this.assignments = {
-      current: BoundaryConditionsAssignment.alias,
+      current: ChartAssignment.alias,
       sequence: 1,
       test: new TestAssignment(),
-      bc: new BoundaryConditionsAssignment()
+      bc: new BoundaryConditionsAssignment(),
+      chart: new ChartAssignment()
     };
   }
 
@@ -40,7 +43,9 @@ export class FlowComponent implements OnInit {
         }
         break;
       case BoundaryConditionsAssignment.alias:
-        console.log('Switch to another BoundaryConditionsAssignment');
+        this.assignments.current = ChartAssignment.alias;
+        break;
+      case ChartAssignment.alias:
         this.assignments.current = TestAssignment.alias;
         break;
     }
@@ -77,6 +82,31 @@ export class TestAssignment {
   }
 }
 
+export class ChartAssignment {
+  static alias: string = "chart";
+  title: string = "Епюри";
+  data: IChart[];
+  constructor() {
+    this.data = [
+      this.c('W 10^(-3)', 0, true),
+      this.c('{phi}{ 10^(-3)}', 1),
+      this.c('Mr', 2, true),
+      this.c('{M}{theta}', 3, true),
+      this.c('Qr', 4)
+    ];
+  }
+
+  c(_title: string, yIndex: number, _bottom: boolean = false, _positive: boolean = true) {
+    return {
+      title: _title,
+      x: chartXData,
+      y: chartYData[yIndex],
+      bottom: _bottom,
+      positive: _positive
+    }
+  }
+}
+
 const tests: ITest[] = [
   {
     id: 2,
@@ -100,4 +130,14 @@ const tests: ITest[] = [
     ],
     correctOption: 1
   }
+];
+
+const chartXData = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1];
+
+const chartYData = [
+  [11.269, 10.733, 10.081, 9.268, 8.291, 7.160, 5.892, 4.511, 3.046, 1.530, 0.000],
+  [-5.280, -5.795, -7.301, -8.959, -10.567, -12.031, -13.286, -14.280, -14.965, -15.298, -15.233],
+  [0.000, 1.721, 1.960, 1.942, 1.822, 1.636, 1.398, 1.113, 0.784, 0.413, 0.000],
+  [4.685, 2.915, 2.551, 2.376, 2.240, 2.106, 1.964, 1.807, 1.632, 1.440, 1.229],
+  [0.000, -0.750, -1.333, -1.875, -2.400, -2.917, -3.429, -3.938, -4.444, -4.950, -5.455]
 ];

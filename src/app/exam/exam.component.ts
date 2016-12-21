@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ExamService } from "./exam-service.service";
-import { variable } from "@angular/compiler/src/output/output_ast";
 
 export interface ISchemaVar {
   name: string;
@@ -52,7 +51,8 @@ export class ExamComponent implements OnInit {
 export class MathSymbolConverter {
   private static mappings = {
     mu: '&mu;',
-    phi: '&phi;'
+    phi: '&phi;',
+    theta: '&Theta;'
   };
 
   private static specialSymbolMark = "{";

@@ -1,0 +1,10 @@
+<div class="chart-container">
+  <span class="chart-title" [innerHTML]="chart.title"></span>
+  <canvas baseChart width="400" height="200"
+          [datasets]="lineChartData"
+          [labels]="lineChartLabels"
+          [options]="lineChartOptions"
+          [colors]="lineChartColors"
+          [legend]="lineChartLegend"
+          [chartType]="lineChartType"></canvas>
+</div>

@@ -1,0 +1,25 @@
+.chart-container {
+  width: 400px;
+  height: 200px;
+  text-align: center;
+  position: relative;
+  margin: 1em;
+}
+
+.chart-title {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.f {
+  background-color: rgba(148,159,177,0.2);
+  border-color: rgba(148,159,177,1);
+
+  background-color: rgba(148,159,177,1);
+  border-color: #fff;
+
+  border-color: rgba(148,159,177,0.8);
+}
