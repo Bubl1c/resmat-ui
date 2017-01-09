@@ -2,7 +2,6 @@
 <div class="mui-panel">
   <app-test [hidden]="assignments.current != 'test'"
             [test]="assignments.test?.current"
-            [sequence]="assignments.sequence"
             (passed)="nextAssignment($event)"></app-test>
 
   <app-bc [hidden]="assignments.current != 'bc'"
@@ -26,7 +25,6 @@
 
   <app-test [hidden]="assignments.current != 'strength'"
             [test]="assignments.strength?.test"
-            [sequence]="assignments.sequence"
             (passed)="nextAssignment($event)"></app-test>
 
   <div style="text-align: center" [hidden]="assignments.current != 'final'">

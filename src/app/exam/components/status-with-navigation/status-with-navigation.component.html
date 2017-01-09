@@ -1,0 +1,15 @@
+<div class="status-with-navigation">
+  <div class="status-container">
+    <status [show]="showStatus" [success]="statusSuccess"
+            [successMessage]="statusSuccessMessage" [failureMessage]="statusFailureMessage"></status>
+  </div>
+  <div class="navigation-container">
+    <navigation [showBack]="showBack"
+                [showSubmit]="showSubmit"
+                [showContinue]="showContinue"
+                alignContent="right"
+                (onBack)="delegateBack($event)"
+                (onSubmit)="delegateSubmit($event)"
+                (onContinue)="delegateContinue($event)"></navigation>
+  </div>
+</div>

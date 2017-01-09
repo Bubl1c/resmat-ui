@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Http, Response } from "@angular/http";
 
 import { Observable } from "rxjs/Rx";
-import { IExam } from "./exam.component";
+import { ITest, IExam } from "./exam.model";
+import { hardcoded_tests } from "./exam.hardcoded.data";
 
 @Injectable()
 export class ExamService {
@@ -11,7 +12,19 @@ export class ExamService {
 
   constructor(private http: Http) { }
 
-  getExams (): Observable<IExam[]> {
+  getTests(): Observable<ITest[]> {
+    // return Observable
+    //   .create(observer => {
+    //     console.log("Fetching hardcoded tests");
+    //     observer.next(hardcoded_tests)
+    //   })
+    //   .delay(3000);
+    return this.http.get('api/tests')
+      .map(this.extractData)
+      .catch(this.handleError);
+  }
+
+  getExams (): Observable<IExam[]> { //TODO: beware duplicate requests
     return this.http.get(this.apiUrl)
       .map(this.extractData)
       .catch(this.handleError);

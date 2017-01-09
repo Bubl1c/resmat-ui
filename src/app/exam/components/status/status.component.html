@@ -1,0 +1,8 @@
+<div class="status-container" *ngIf="show">
+  <div class="wrong mui--text-title" *ngIf="!success">
+    {{ failureMessage }}
+  </div>
+  <div class="correct mui--text-title" *ngIf="success">
+    {{ successMessage }}
+  </div>
+</div>

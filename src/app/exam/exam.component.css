@@ -45,3 +45,12 @@
   font-style: italic;
 }
 
+.conditions {
+  text-align: center;
+}
+
+.mistakes-limit-exceeded {
+  color: red;
+  text-align: center;
+}
+

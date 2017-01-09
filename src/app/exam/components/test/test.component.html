@@ -1,0 +1,33 @@
+<form class="test-content relative">
+  <help-materials [imgUrl]="test.helpImg"></help-materials>
+  <div class="test-question mui--text-subhead">
+    <span class="test-number">{{ test.sequence }}.</span>
+    {{ test.question }}
+  </div>
+  <table class="test-questions">
+    <tr class="option" *ngFor="let option of test.options">
+      <td class="result">
+        <div *ngIf="option.checked && isVerified()">
+          <span class="wrong" *ngIf="test.status == -1">&#9747;</span>
+          <span class="correct" *ngIf="test.status == 1">&#10003;</span>
+        </div>
+      </td>
+      <td class="radiobutton">
+        <input type="radio" name="radiogroup"
+               [checked]="option.checked"
+               [value]="option.id"
+               (change)="onOptionChecked(option)">
+      </td>
+      <td>
+        <span *ngIf="option.type === 'words'">{{ option.value }}</span>
+        <img class="option-img" *ngIf="option.type === 'img'" src="{{ option.value }}">
+      </td>
+    </tr>
+  </table>
+  <status-with-navigation [showStatus]="isVerified()"
+                          [statusSuccess]="test.status == 1"
+                          statusSuccessMessage="Відповідь правильна."
+                          statusFailureMessage="Відповідь не вірна, оберіть інший варіант."
+                          [showSubmit]="test.status != 1"
+                          (onSubmit)="submit()" (onContinue)="nextAssignment()"></status-with-navigation>
+</form>

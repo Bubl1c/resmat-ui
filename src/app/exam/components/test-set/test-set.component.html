@@ -1,0 +1,13 @@
+<div class="loading" *ngIf="tests.length === 0">Завантаження...</div>
+<div class="test-set-container" *ngIf="tests.length > 0">
+  <div class="mui-panel" *ngFor="let test of tests"
+       [ngClass]="{ 'incorrect': isSubmitted && test.status != 1 }">
+    <app-test [test]="test"
+              (onSubmitted)="delegateTestSubmit($event)"></app-test>
+  </div>
+  <status-with-navigation [showStatus]="isSubmitted && !isAllCorrect"
+                          [statusSuccess]="isAllCorrect"
+                          statusFailureMessage="Спочатку дайте правильну відповідь на всі тести."
+                          [showContinue]="true"
+                          (onContinue)="submitAll($event)"></status-with-navigation>
+</div>

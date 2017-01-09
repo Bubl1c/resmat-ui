@@ -1,0 +1,11 @@
+.status-with-navigation {
+  display: flex;
+}
+
+.status-container {
+  flex-basis: 50%;
+}
+
+.navigation-container {
+  flex-basis: 50%;
+}

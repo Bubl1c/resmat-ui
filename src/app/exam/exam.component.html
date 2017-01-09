@@ -1,27 +1,19 @@
 <div class="exam-container mui-container">
-  <div class="mui-panel relative">
-    <h3 class="exam-name">{{exam?.name}}</h3>
-    <div class="exam-assignment" *ngIf="!isCollapsed">
-      <div class="exam-schema">
-        <img src="{{exam?.schemaUrl}}" alt="Схема завдання">
-      </div>
-      <div class="exam-schema-description">
-        <div class="schema-vars">
-          <div class="schema-var" *ngFor="let schemaVar of exam?.schemaVars">
-            <div class="var-data">
-              <span class="ital" [innerHTML]="schemaVar.name"></span>
-              <span>=</span>
-              <span>{{ schemaVar.value }}</span>
-              <span class="ital">{{ schemaVar.units }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div class="test-set-container">
+    <div class="conditions" *ngIf="testSet.mistakes <= testSet.mistakesLimit">
+      Кожна невірна відповідь буде зарахована як помилка.
+      <br/>
+      <b>Максимальна кількість помилок - {{ testSet.mistakesLimit }}</b>.
+      <br/>
+      Якщо буде допущена <b>{{ testSet.mistakesLimit + 1 }}</b> помилка - поточна спроба анулюється.
+      <br/>
+      Наступна спроба буде доступна за 24 години. Кількість доступних спроб - {{ testSet.maxAttempts }}.
     </div>
-    <a class="help-materials left bottom mui-btn mui-btn--flat" href="img/equations.png" download>Допоміжні матеріали</a>
-    <a class="help-materials right bottom mui-btn mui-btn--flat" (click)="toggle()">
-      {{ isCollapsed ? 'Розгорнути' : 'Згорнути' }}
-    </a>
+    <div class="mistakes-limit-exceeded" *ngIf="testSet.mistakes > testSet.mistakesLimit">
+      Ліміт помилок вичерпано. Наступна спроба буде доступна за 24 години.
+    </div>
+    <test-set [tests]="testSet.data" *ngIf="testSet.mistakes <= testSet.mistakesLimit"
+              (onTestSubmitted)="testSet.verify($event)"
+              (onSubmitted)="continue($event)"></test-set>
   </div>
-  <app-flow></app-flow>
 </div>

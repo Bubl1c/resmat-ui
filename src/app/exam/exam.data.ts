@@ -1,4 +1,4 @@
-import { InMemoryDbService } from "angular2-in-memory-web-api/index";
+import { InMemoryDbService } from "angular-in-memory-web-api";
 
 export class ExamSeedData implements InMemoryDbService {
   createDb() {
@@ -8,7 +8,7 @@ export class ExamSeedData implements InMemoryDbService {
 
     let exams = [
       {
-        code: '123',
+        id: '123',
         name: 'Розрахунок тонкої кільцевої пластини',
         schemaUrl: 'img/tasks/9.png',
         schemaVars: [

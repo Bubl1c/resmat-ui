@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { MathSymbolConverter } from "../../exam/exam.component";
+import { MathSymbolConverter } from "app/utils/MathSymbolConverter";
 
 export class ResultVariable {
   name: string;

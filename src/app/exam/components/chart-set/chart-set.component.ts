@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { MathSymbolConverter } from "../../exam/exam.component";
-import { IChart } from "../../e-chart/e-chart.component";
+import { IChart } from "../e-chart/e-chart.component";
+import { MathSymbolConverter } from "app/utils/MathSymbolConverter";
 
 @Component({
   selector: 'chart-set',

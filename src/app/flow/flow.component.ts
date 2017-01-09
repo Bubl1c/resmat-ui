@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ITest } from "../test/test.component";
-import { IChart } from "../e-chart/e-chart.component";
+import { IChart } from "../exam/components/e-chart/e-chart.component";
 import { ResultVariable } from "./x-results/x-results.component";
+import { ITest } from "../exam/exam.model";
 
 export interface IAssignments {
   current: string;
@@ -170,7 +170,6 @@ const tests: ITest[] = [
       { id: 3, type: 'words', value: 'Міра зміни видовження ізотропного тіла при деформації розтягу', checked: false},
       { id: 4, type: 'words', value: 'Відношення нормальних напружень при розтягу до поперечної деформації', checked: false}
     ],
-    correctOption: 1,
     helpImg: null
   },
   {
@@ -182,7 +181,6 @@ const tests: ITest[] = [
       { id: 3, type: 'img', value: 'img/tasks/hardness/h3.png', checked: false},
       { id: 4, type: 'img', value: 'img/tasks/hardness/h4.png', checked: false}
     ],
-    correctOption: 1,
     helpImg: null
   },
   {
@@ -194,7 +192,6 @@ const tests: ITest[] = [
       { id: 3, type: 'words', value: '1/м', checked: false},
       { id: 4, type: 'words', value: 'безрозмірна величина', checked: false}
     ],
-    correctOption: 4,
     helpImg: null
   },
   {
@@ -205,7 +202,6 @@ const tests: ITest[] = [
       { id: 2, type: 'words', value: 'Тонкі', checked: false},
       { id: 3, type: 'words', value: 'Мембрани', checked: false}
     ],
-    correctOption: 2,
     helpImg: 'img/class.png'
   }
 ];
@@ -242,6 +238,5 @@ const strength: ITest = {
     { id: 1, type: 'words', value: 'Забезпечується', checked: true},
     { id: 2, type: 'words', value: 'Не забезпечується', checked: false}
   ],
-  correctOption: 2,
   helpImg: null
 };

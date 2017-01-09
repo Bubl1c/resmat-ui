@@ -11,15 +11,21 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { ExamComponent } from './exam/exam.component';
 import { ExamSeedData } from "./exam/exam.data";
-import { TestComponent } from './test/test.component';
 import { FlowComponent } from './flow/flow.component';
 import { BcComponent } from './flow/bc/bc.component';
-import { SubmitComponent } from './flow/submit/submit.component';
-import { EChartComponent } from './e-chart/e-chart.component';
-import { ChartSetComponent } from './flow/chart-set/chart-set.component';
 import { XResultsComponent } from './flow/x-results/x-results.component';
 import { CutComponent } from './flow/cut/cut.component';
 import { StrengthComponent } from './flow/strength/strength.component';
+import { TaskComponent } from './exam/components/task/task.component';
+import { TestComponent } from "./exam/components/test/test.component";
+import { EChartComponent } from "./exam/components/e-chart/e-chart.component";
+import { ChartSetComponent } from "./exam/components/chart-set/chart-set.component";
+import { StatusComponent } from './exam/components/status/status.component';
+import { StatusWithNavigationComponent } from './exam/components/status-with-navigation/status-with-navigation.component';
+import { NavigationComponent } from './exam/components/navigation/navigation.component';
+import { TestSetComponent } from './exam/components/test-set/test-set.component';
+import { HelpMaterialsComponent } from './components/help-materials/help-materials.component';
+import { TestsSeedData } from "./exam/exam.hardcoded.data";
 
 @NgModule({
   declarations: [
@@ -29,12 +35,17 @@ import { StrengthComponent } from './flow/strength/strength.component';
     TestComponent,
     FlowComponent,
     BcComponent,
-    SubmitComponent,
     EChartComponent,
     ChartSetComponent,
     XResultsComponent,
     CutComponent,
-    StrengthComponent
+    StrengthComponent,
+    TaskComponent,
+    StatusComponent,
+    StatusWithNavigationComponent,
+    NavigationComponent,
+    TestSetComponent,
+    HelpMaterialsComponent
   ],
   imports: [
     BrowserModule,
@@ -42,6 +53,7 @@ import { StrengthComponent } from './flow/strength/strength.component';
     HttpModule,
     AppRoutingModule,
     InMemoryWebApiModule.forRoot(ExamSeedData, { delay: 500 }),
+    InMemoryWebApiModule.forRoot(TestsSeedData, { delay: 500 }),
     ChartsModule
   ],
   providers: [],

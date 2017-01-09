@@ -1,0 +1,17 @@
+<div class="nav-container"
+     [ngClass]="{ 'left': alignContent === 'left', 'center': alignContent === 'center', 'right': alignContent === 'right' }">
+  <button class="back mui-btn mui-btn--flat mui-btn--primary" *ngIf="showBack"
+          (click)="back()">
+    Назад
+  </button>
+  <button class="submit mui-btn mui-btn--raised"
+          (click)="submit()"
+          *ngIf="showSubmit">
+    Зберегти
+  </button>
+  <button class="next mui-btn mui-btn--primary"
+          (click)="continue()"
+          *ngIf="showContinue">
+    Продовжити
+  </button>
+</div>

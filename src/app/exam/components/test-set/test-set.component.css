@@ -1,0 +1,11 @@
+.mui-panel {
+  margin-bottom: 2px;
+}
+
+.incorrect {
+  border-color: #F44336;
+}
+
+.loading {
+  text-align: center;
+}
