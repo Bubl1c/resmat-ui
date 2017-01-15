@@ -1,19 +1,30 @@
 <div class="exam-container mui-container">
-  <div class="test-set-container">
-    <div class="conditions" *ngIf="testSet.mistakes <= testSet.mistakesLimit">
+  <div class="loading" *ngIf="isLoading"><h2>Завантаження...</h2></div>
+  <div class="exam-info" *ngIf="!isLoading">
+    <div>{{exam.name}}</div>
+    <div>Етап {{exam.currentStep.sequence}}. {{exam.currentStep.description}}</div>
+  </div>
+  <div class="test-set-container" *ngIf="step.type === 'test'">
+    <div class="conditions" *ngIf="step.mistakes <= step.mistakesLimit">
       Кожна невірна відповідь буде зарахована як помилка.
       <br/>
-      <b>Максимальна кількість помилок - {{ testSet.mistakesLimit }}</b>.
+      <b>Максимальна кількість помилок - {{ step.mistakesLimit }}</b>.
       <br/>
-      Якщо буде допущена <b>{{ testSet.mistakesLimit + 1 }}</b> помилка - поточна спроба анулюється.
+      Якщо буде допущена <b>{{ step.mistakesLimit + 1 }}</b> помилка - поточна спроба анулюється.
       <br/>
-      Наступна спроба буде доступна за 24 години. Кількість доступних спроб - {{ testSet.maxAttempts }}.
+      Наступна спроба буде доступна за 24 години. Кількість доступних спроб - {{ step.maxAttempts }}.
     </div>
-    <div class="mistakes-limit-exceeded" *ngIf="testSet.mistakes > testSet.mistakesLimit">
+    <div class="mistakes" title="Кількість допущених помилок" >
+      Кількість допущених помилок: <b>{{ step.mistakes }}</b>
+    </div>
+    <div class="mistakes-limit-exceeded" *ngIf="step.mistakes > step.mistakesLimit">
       Ліміт помилок вичерпано. Наступна спроба буде доступна за 24 години.
     </div>
-    <test-set [tests]="testSet.data" *ngIf="testSet.mistakes <= testSet.mistakesLimit"
-              (onTestSubmitted)="testSet.verify($event)"
+    <test-set [tests]="step.data" *ngIf="step.mistakes <= step.mistakesLimit"
+              (onTestSubmitted)="step.verify($event)"
               (onSubmitted)="continue($event)"></test-set>
+  </div>
+  <div class="task-container" *ngIf="step.type === 'task-flow'">
+    <task-flow *ngIf="!step.isLoading" [task]="step.taskData"></task-flow>
   </div>
 </div>

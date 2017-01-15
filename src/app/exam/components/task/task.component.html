@@ -1,12 +1,12 @@
-<div class="mui-panel relative">
-  <h3 class="exam-name">{{exam?.name}}</h3>
+<div class="task-container relative">
+  <h3 class="exam-name">{{task.name}}</h3>
   <div class="exam-assignment" *ngIf="!isCollapsed">
     <div class="exam-schema">
-      <img src="{{exam?.schemaUrl}}" alt="Схема завдання">
+      <img src="{{task.schemaUrl}}" alt="Схема завдання">
     </div>
     <div class="exam-schema-description">
       <div class="schema-vars">
-        <div class="schema-var" *ngFor="let schemaVar of exam?.schemaVars">
+        <div class="schema-var" *ngFor="let schemaVar of task.schemaVars">
           <div class="var-data">
             <span class="ital" [innerHTML]="schemaVar.name"></span>
             <span>=</span>
@@ -17,8 +17,16 @@
       </div>
     </div>
   </div>
-  <a class="help-materials left bottom mui-btn mui-btn--flat" href="img/equations.png" download>Допоміжні матеріали</a>
-  <a class="help-materials right bottom mui-btn mui-btn--flat" (click)="toggle()">
-    {{ isCollapsed ? 'Розгорнути' : 'Згорнути' }}
-  </a>
+  <help-materials imgUrl="img/equations.png"></help-materials>
+  <border-sticky-btn (onClick)="toggle()">
+    <!--<i class="material-icons">keyboard_arrow_up</i>-->
+    <!--<i class="material-icons">keyboard_arrow_down</i>-->
+    <i class="material-icons" [hidden]="isCollapsed">keyboard_arrow_up</i>
+    <i class="material-icons" [hidden]="!isCollapsed">keyboard_arrow_down</i>
+    <!--{{ isCollapsed ? 'Розгорнути' : 'Згорнути' }}-->
+  </border-sticky-btn>
+
+  <!--<a class="help-materials right bottom mui-btn mui-btn&#45;&#45;flat" (click)="toggle()">-->
+    <!--{{ isCollapsed ? 'Розгорнути' : 'Згорнути' }}-->
+  <!--</a>-->
 </div>

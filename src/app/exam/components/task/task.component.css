@@ -1,0 +1,46 @@
+.exam-container {
+  margin-top: 1em;
+}
+
+.exam-assignment {
+  height: 350px;
+  display: flex;
+  justify-content: center;
+}
+
+.exam-name {
+  text-align: center;
+  margin-top: 0px;
+}
+
+.exam-schema {
+  height: 100%;
+  flex: 1 1 auto;
+  text-align: right;
+}
+
+.exam-schema img {
+  height: 100%;
+  margin: auto;
+}
+
+.exam-schema-description {
+  display: flex;
+  flex: 2 2 auto;
+}
+
+.schema-vars {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.schema-vars .schema-var {
+  display: flex;
+  margin: 1em;
+}
+
+.ital {
+  font-style: italic;
+}

@@ -1,18 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-
-export interface ISchemaVar {
-  name: string;
-  value: string;
-  units: string;
-}
-
-export interface ITask {
-  code: string;
-  name: string;
-  schemaUrl: string;
-  schemaVars: ISchemaVar[];
-  description: string;
-}
+import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
+import { ISchemaVar } from "../../data/task-flow.api-protocol";
+import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
 
 @Component({
   selector: 'task',
@@ -22,7 +11,7 @@ export interface ITask {
 export class TaskComponent implements OnInit {
   errorMessage: string;
   @Input()
-  task: ITask;
+  task: IExamTaskFlowTaskData;
 
   isCollapsed: boolean;
 
@@ -31,6 +20,12 @@ export class TaskComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.task.schemaVars.map(this.convertSymbols)
+  }
+
+  private convertSymbols(schemaVar: ISchemaVar): ISchemaVar {
+    schemaVar.name = MathSymbolConverter.convertString(schemaVar.name);
+    return schemaVar;
   }
 
   toggle() {

@@ -1,12 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-
-export type PositionHOptions = 'left' | 'right';
-export type PositionVOptions = 'bottom' | 'top';
+import { PositionHOptions, PositionVOptions } from "../position-options";
 
 @Component({
   selector: 'help-materials',
-  templateUrl: './help-materials.component.html',
-  styleUrls: ['./help-materials.component.css']
+  templateUrl: './help-materials.component.html'
 })
 export class HelpMaterialsComponent implements OnInit {
 

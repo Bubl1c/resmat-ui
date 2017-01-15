@@ -1,51 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { ExamService } from "./exam-service.service";
-import { MathSymbolConverter } from "app/utils/MathSymbolConverter";
-import { TestSubmit, Test, TestStatus } from "./components/test/test.component";
-import { ISchemaVar, ITest } from "./exam.model";
-import { hardcoded_testCorrectOptions } from "./exam.hardcoded.data";
+import { ExamService } from "./data/exam-service.service";
+import { IExamData, ExamStepTypes, IExamStepData } from "./data/exam.api-protocol";
+import { TestSetExamStep } from "../steps/exam.test-set-step";
+import { ActivatedRoute } from "@angular/router";
+import { TaskFlowExamStep } from "../steps/exam.task-flow-step";
+import { ExamStep } from "../steps/exam.step";
 
-class TestSetAssignment {
-  data: Test[] = [];
-  mistakes: number = 0;
-  mistakesLimit: number = 5;
-  maxAttempts: number = 3;
-
-  constructor(private examService: ExamService) {
+class InitialExamStep extends ExamStep {
+  loadInitialData(): void {
   }
-
-  loadInitialData() {
-    this.examService.getTests().subscribe(response => {
-      this.data = this.mapITests(response);
-    })
-  }
-
-  verify(submitted: TestSubmit) {
-    console.log('Verifying submitted test: ', submitted);
-    let correctOption = hardcoded_testCorrectOptions.find(tco => tco.id === submitted.id);
-    let correctAnswer = false;
-    if(correctOption) {
-      correctAnswer = correctOption.correct === submitted.checked.id
-    }
-    let test = this.data.find(t => t.id == submitted.id);
-    if(!test) {
-      console.error("Submitted test is not found: " + submitted);
-    }
-    let that = this;
-    setTimeout(
-      function() {
-        if(!correctAnswer) that.mistakes++;
-        test.status = correctAnswer ? TestStatus.Correct : TestStatus.Wrong;
-      }, 500)
-  }
-
-  private mapITests(iTests: ITest[]): Test[] {
-    return iTests.map((t, i) => new Test(t, i + 1))
-  }
-}
-
-class TaskFlowAssignment {
   constructor() {
+    super(-1, "non-existing-type", "This kind of step used for initial exam condition. " +
+      "To hide all other steps and show loading bar.");
   }
 }
 
@@ -56,34 +22,42 @@ class TaskFlowAssignment {
   providers: [ExamService]
 })
 export class ExamComponent implements OnInit {
-  testSet: TestSetAssignment;
+  exam: IExamData;
+  step: ExamStep;
 
-  constructor(private examService: ExamService) {
-    this.testSet = new TestSetAssignment(examService);
-  }
+  isLoading: boolean = true;
 
-  // loadExam(code: string) {
-  //   this.examService.getExams().subscribe(
-  //     (exams: IExam[]) => {
-  //       console.log('Exams are loaded: ', exams);
-  //       let loadedExam = exams[0];
-  //       if(loadedExam) {
-  //         loadedExam.schemaVars = loadedExam.schemaVars.map(schemaVar => this.convertSymbols(schemaVar))
-  //       }
-  //       this.exam = loadedExam;
-  //     },
-  //     error =>  this.errorMessage = <any>error);
-  // }
-
-  private convertSymbols(schemaVar: ISchemaVar): ISchemaVar {
-    schemaVar.name = MathSymbolConverter.convertString(schemaVar.name);
-    return schemaVar;
+  constructor(private examService: ExamService, private route: ActivatedRoute) {
+    this.step = new InitialExamStep();
   }
 
   ngOnInit() {
-    // this.loadExam('eef')
-    this.testSet.loadInitialData();
+    let userIdParam = this.route.snapshot.params["id"];
+    this.examService.getExamForUser(userIdParam).subscribe((exam: IExamData) => {
+      console.log("Exam loaded: ", exam);
+      this.exam = exam;
+      this.isLoading = false;
+      this.loadStep(exam.id, exam.currentStep);
+    });
   }
+
+  private loadStep(examId: number, step: IExamStepData) {
+    switch(step.type) {
+      case ExamStepTypes.Test:
+        this.step = new TestSetExamStep(this.examService, examId, step.description);
+        break;
+      case ExamStepTypes.TaskFlow:
+        this.step = new TaskFlowExamStep(this.examService, examId, step.description);
+        break;
+      default: throw "Invalid exam step: " + step;
+    }
+    this.step.loadInitialData();
+  }
+
+  // this.route.params
+  // // (+) converts string 'id' to a number
+  //   .switchMap((params: Params) => this.service.getHero(+params['id']))
+  //   .subscribe((hero: Hero) => this.hero = hero);
 
   nextAssignment(event: any) {
     console.log('Going to next assignment: ', event);

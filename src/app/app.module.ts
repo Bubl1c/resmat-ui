@@ -10,8 +10,8 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { ExamComponent } from './exam/exam.component';
-import { ExamSeedData } from "./exam/exam.data";
-import { FlowComponent } from './flow/flow.component';
+import { ExamSeedData } from "./exam/data/mock/exam.data-service";
+// import { FlowComponent } from './flow/flow.component';
 import { BcComponent } from './flow/bc/bc.component';
 import { XResultsComponent } from './flow/x-results/x-results.component';
 import { CutComponent } from './flow/cut/cut.component';
@@ -25,7 +25,8 @@ import { StatusWithNavigationComponent } from './exam/components/status-with-nav
 import { NavigationComponent } from './exam/components/navigation/navigation.component';
 import { TestSetComponent } from './exam/components/test-set/test-set.component';
 import { HelpMaterialsComponent } from './components/help-materials/help-materials.component';
-import { TestsSeedData } from "./exam/exam.hardcoded.data";
+import { TaskFlowComponent } from './exam/components/task-flow/task-flow.component';
+import { BorderStickyBtnComponent } from './components/border-sticky-btn/border-sticky-btn.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,7 @@ import { TestsSeedData } from "./exam/exam.hardcoded.data";
     LoginComponent,
     ExamComponent,
     TestComponent,
-    FlowComponent,
+    // FlowComponent,
     BcComponent,
     EChartComponent,
     ChartSetComponent,
@@ -45,7 +46,9 @@ import { TestsSeedData } from "./exam/exam.hardcoded.data";
     StatusWithNavigationComponent,
     NavigationComponent,
     TestSetComponent,
-    HelpMaterialsComponent
+    HelpMaterialsComponent,
+    TaskFlowComponent,
+    BorderStickyBtnComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +56,6 @@ import { TestsSeedData } from "./exam/exam.hardcoded.data";
     HttpModule,
     AppRoutingModule,
     InMemoryWebApiModule.forRoot(ExamSeedData, { delay: 500 }),
-    InMemoryWebApiModule.forRoot(TestsSeedData, { delay: 500 }),
     ChartsModule
   ],
   providers: [],

@@ -14,8 +14,9 @@ export class LoginComponent implements OnInit {
   }
 
   login(login: string) {
-    console.log("Login successful: ", login)
-    this.router.navigate(['/exam']);
+    console.log("Login successful: ", login);
+    this.router.navigate(['users/' + login + '/exam']);
+    // this.router.navigate(['/exam']);
   }
 
 }

@@ -1,3 +1,30 @@
 .relative {
   position: relative;
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.border-sticky-item {
+  position: absolute;
+  color: #2196F3;
+  text-decoration: none;
+  z-index: 10;
+}
+
+.border-sticky-item.bottom {
+  bottom: -10px;
+}
+
+.border-sticky-item.top {
+  top: -10px;
+}
+
+.border-sticky-item.left {
+  left: -10px;
+}
+
+.border-sticky-item.right {
+  right: -10px;
+}

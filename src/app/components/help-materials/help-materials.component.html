@@ -1,5 +1,5 @@
 <!--As help-materials has ABSOLUTE position, make sure that PARENT block has RELATIVE position -->
-<a class="help-materials" [ngClass]="[positionH, positionV]"
+<a class="border-sticky-item" [ngClass]="[positionH, positionV]"
    *ngIf="imgUrl" [href]="imgUrl"
    title="{{ altText ? altText : 'Допоміжні матеріали' }}" download>
   <i *ngIf="!title" class="material-icons">library_books</i>

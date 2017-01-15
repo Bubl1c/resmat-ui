@@ -14,3 +14,9 @@
   margin: auto;
   font-weight: 400;
 }
+
+.appbar .logout {
+  margin-left: -60px;
+  margin-right: 10px;
+  color: white;
+}

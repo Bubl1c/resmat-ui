@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { TestSubmit, Test, TestStatus } from "../test/test.component";
+import { TestAnswer, Test, TestStatus } from "../test/test.component";
 
 @Component({
   selector: 'test-set',
@@ -21,7 +21,6 @@ export class TestSetComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log("Test set component loaded!!!!!!!")
   }
 
   delegateTestSubmit(submitted: any) {

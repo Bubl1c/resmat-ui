@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IChart } from "../exam/components/e-chart/e-chart.component";
 import { ResultVariable } from "./x-results/x-results.component";
-import { ITest } from "../exam/exam.model";
+import { ITestData } from "../exam/data/exam.api-protocol";
 
 export interface IAssignments {
   current: string;
@@ -90,7 +90,7 @@ export class BoundaryConditionsAssignment {
 
 export class TestAssignment {
   static alias: string = "test";
-  current: ITest;
+  current: ITestData;
   sequence: number;
   constructor() {
     this.sequence = 0;
@@ -150,7 +150,7 @@ export class ChartAssignment {
 
 export class StrengthAssignment {
   static alias: string = "strength";
-  test: ITest;
+  test: ITestData;
   constructor() {
     this.test = strength
   }
@@ -160,50 +160,50 @@ export class FinalAssignment {
   static alias: string = "final";
 }
 
-const tests: ITest[] = [
-  {
-    id: 1,
-    question: 'Коефіцієнт Пуассона – це',
-    options: [
-      { id: 1, type: 'words', value: 'Міра зміни поперечних розмірів ізотропного тіла при деформації розтягу', checked: true},
-      { id: 2, type: 'words', value: 'Міра зміни відносної деформації по відношенню до нормального напруження', checked: false},
-      { id: 3, type: 'words', value: 'Міра зміни видовження ізотропного тіла при деформації розтягу', checked: false},
-      { id: 4, type: 'words', value: 'Відношення нормальних напружень при розтягу до поперечної деформації', checked: false}
-    ],
-    helpImg: null
-  },
-  {
-    id: 2,
-    question: 'Формула для визначення циліндричної жорсткості',
-    options: [
-      { id: 1, type: 'img', value: 'img/tasks/hardness/h1.png', checked: true},
-      { id: 2, type: 'img', value: 'img/tasks/hardness/h2.png', checked: false},
-      { id: 3, type: 'img', value: 'img/tasks/hardness/h3.png', checked: false},
-      { id: 4, type: 'img', value: 'img/tasks/hardness/h4.png', checked: false}
-    ],
-    helpImg: null
-  },
-  {
-    id: 3,
-    question: 'У яких одиницях вимірюється Коефіцієнт Пуассона?',
-    options: [
-      { id: 1, type: 'words', value: 'кН*м', checked: true},
-      { id: 2, type: 'words', value: 'м^2', checked: false},
-      { id: 3, type: 'words', value: '1/м', checked: false},
-      { id: 4, type: 'words', value: 'безрозмірна величина', checked: false}
-    ],
-    helpImg: null
-  },
-  {
-    id: 4,
-    question: 'Визначте до якого класу відноситься дана пластина:',
-    options: [
-      { id: 1, type: 'words', value: 'Товсті', checked: true},
-      { id: 2, type: 'words', value: 'Тонкі', checked: false},
-      { id: 3, type: 'words', value: 'Мембрани', checked: false}
-    ],
-    helpImg: 'img/class.png'
-  }
+const tests: ITestData[] = [
+  // {
+  //   id: 1,
+  //   question: 'Коефіцієнт Пуассона – це',
+  //   options: [
+  //     { id: 1, type: 'words', value: 'Міра зміни поперечних розмірів ізотропного тіла при деформації розтягу', checked: true},
+  //     { id: 2, type: 'words', value: 'Міра зміни відносної деформації по відношенню до нормального напруження', checked: false},
+  //     { id: 3, type: 'words', value: 'Міра зміни видовження ізотропного тіла при деформації розтягу', checked: false},
+  //     { id: 4, type: 'words', value: 'Відношення нормальних напружень при розтягу до поперечної деформації', checked: false}
+  //   ],
+  //   helpImg: null
+  // },
+  // {
+  //   id: 2,
+  //   question: 'Формула для визначення циліндричної жорсткості',
+  //   options: [
+  //     { id: 1, type: 'img', value: 'img/tasks/hardness/h1.png', checked: true},
+  //     { id: 2, type: 'img', value: 'img/tasks/hardness/h2.png', checked: false},
+  //     { id: 3, type: 'img', value: 'img/tasks/hardness/h3.png', checked: false},
+  //     { id: 4, type: 'img', value: 'img/tasks/hardness/h4.png', checked: false}
+  //   ],
+  //   helpImg: null
+  // },
+  // {
+  //   id: 3,
+  //   question: 'У яких одиницях вимірюється Коефіцієнт Пуассона?',
+  //   options: [
+  //     { id: 1, type: 'words', value: 'кН*м', checked: true},
+  //     { id: 2, type: 'words', value: 'м^2', checked: false},
+  //     { id: 3, type: 'words', value: '1/м', checked: false},
+  //     { id: 4, type: 'words', value: 'безрозмірна величина', checked: false}
+  //   ],
+  //   helpImg: null
+  // },
+  // {
+  //   id: 4,
+  //   question: 'Визначте до якого класу відноситься дана пластина:',
+  //   options: [
+  //     { id: 1, type: 'words', value: 'Товсті', checked: true},
+  //     { id: 2, type: 'words', value: 'Тонкі', checked: false},
+  //     { id: 3, type: 'words', value: 'Мембрани', checked: false}
+  //   ],
+  //   helpImg: 'img/class.png'
+  // }
 ];
 
 const resultVariables: ResultVariable[] = [
@@ -231,7 +231,7 @@ const chartYData = [
   [0.000, -0.750, -1.333, -1.875, -2.400, -2.917, -3.429, -3.938, -4.444, -4.950, -5.455]
 ];
 
-const strength: ITest = {
+const strength: ITestData = {
   id: 3,
   question: 'Чи забезпечується міцність перерізу?',
   options: [
