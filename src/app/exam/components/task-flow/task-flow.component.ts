@@ -3,6 +3,7 @@ import { ITestData } from "../../data/exam.api-protocol";
 import { ExamService } from "../../data/exam-service.service";
 import { IExamTaskFlowStepData, TaskFlowStepTypes } from "../../data/task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
+import { ResultVariable } from "../input-set/input-set.component";
 
 abstract class TaskFlowStep {
   type: string;
@@ -38,9 +39,16 @@ export class TaskFlowComponent implements OnInit {
   task: IExamTaskFlowTaskData;
   step: TaskFlowStep;
   isLoading = true;
+  isVars: ResultVariable[];
 
   constructor(private examService: ExamService) {
     this.step = new InitialTaskFlowStep();
+    this.isVars = [
+      new ResultVariable("{mu}", 5, "Lorem ipsum dolore lorem ipsum ipsum lorem", "var 1 units"),
+      new ResultVariable("{phi}", 6, "nice var 2", "var 2 units"),
+      new ResultVariable("var3", 7, "nice var 3", "var 3 units"),
+      new ResultVariable("var4", 8, "nice var 4", "var 4 units")
+    ]
   }
 
   ngOnInit() {
