@@ -11,18 +11,23 @@
   margin-top: 1em;
 }
 
-/*.data .mui-textfield {*/
-  /*padding: 0px;*/
-  /*margin: 0px;*/
-/*}*/
-
-.mui-textfield--float-label>label {
-  color: rgba(0,0,0,.5);
+.var-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+  flex-grow: 1;
+  margin-bottom: 20px;
 }
 
-.data input {
-  width: 80px;
-  text-align: center;
+.var-group-name {
+  width: 100%;
+}
+
+.variable-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .variable {
@@ -30,32 +35,40 @@
   flex-wrap: nowrap;
   align-items: center;
   margin: 0 0.5em;
+  text-align: left;
 }
 
 .description {
-  margin-right: 0.5em;
-  color: rgba(0,0,0,.5);
+  margin-top: -20px;
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 0.9em;
 }
 
 .units {
   color: rgba(0,0,0,.5);
 }
 
-.var-value {
-  width: 80px;
+.mui-textfield--float-label .input-label {
+  color: black;
+  font-size: 1.15em;
+  overflow: visible;
 }
 
-.var-name {
-  font-style: italic;
-  margin-top: 5px;
-}
-
-.submit {
-  margin-top: 1em;
+.variable input {
+  width: 100px;
+  text-align: center;
 }
 
 .mui-invalid {
   border-color: #F44336;
   border-width: 2px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
 }
 

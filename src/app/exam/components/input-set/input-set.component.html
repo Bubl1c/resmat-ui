@@ -4,15 +4,19 @@
     Введіть пораховані значення невідомих Х:
   </div>
   <div class="data">
-    <div class="variable" *ngFor="let variable of variables">
-      <span class="description">{{ variable.description }}</span>
-      <!--<span class="var-name" [innerHTML]="variable.name + ' = '"></span>-->
-      <div class="mui-textfield mui-textfield--float-label">
-        <input type="text" [(ngModel)]="variable.typedValue"
-               [ngClass]="{ 'mui-invalid': isSubmitted && !variable.valid }" required>
-        <label [innerHTML]="variable.name"></label>
+    <div class="var-group" *ngFor="let group of groups">
+      <span class="var-group-name" [innerHTML]="group.name"></span>
+      <div class="variable-container" *ngFor="let variable of group.variables">
+        <div class="variable">
+          <div class="mui-textfield mui-textfield--float-label">
+            <input type="number" step="any" [(ngModel)]="variable.typedValue"
+                   [ngClass]="{ 'mui-invalid': isSubmitted && !variable.valid }" required>
+            <label class="input-label" [innerHTML]="variable.name"></label>
+          </div>
+          <span class="units" [innerHTML]="variable.units"></span>
+        </div>
+        <span class="description" [innerHTML]="variable.description"></span>
       </div>
-      <span class="units" [innerHTML]="variable.units"></span>
     </div>
   </div>
   <!--<app-submit class="submit" [isSubmitted]="isSubmitted" [isCorrectAnswer]="isCorrectAnswer"-->

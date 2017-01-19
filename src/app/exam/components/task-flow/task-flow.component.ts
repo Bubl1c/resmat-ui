@@ -45,9 +45,9 @@ export class TaskFlowComponent implements OnInit {
     this.step = new InitialTaskFlowStep();
     this.isVars = [
       new ResultVariable("{mu}", 5, "Lorem ipsum dolore lorem ipsum ipsum lorem", "var 1 units"),
-      new ResultVariable("{phi}", 6, "nice var 2", "var 2 units"),
-      new ResultVariable("var3", 7, "nice var 3", "var 3 units"),
-      new ResultVariable("var4", 8, "nice var 4", "var 4 units")
+      new ResultVariable("{phi}", 6, "", "units"),
+      new ResultVariable("var3", 7, "nice var 3", "units"),
+      new ResultVariable("var4", 8, "nice var 4", "units")
     ]
   }
 

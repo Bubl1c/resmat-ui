@@ -22,6 +22,10 @@ export class ResultVariable {
   }
 }
 
+export class VariableGroup {
+  constructor(public name: string, public variables: ResultVariable[]) {}
+}
+
 @Component({
   selector: 'input-set',
   templateUrl: './input-set.component.html',
@@ -33,6 +37,7 @@ export class InputSetComponent implements OnInit {
   sequence: number;
   @Input()
   variables: ResultVariable[];
+  groups: VariableGroup[];
 
   isSubmitted: boolean;
   isCorrectAnswer: boolean;
@@ -44,6 +49,11 @@ export class InputSetComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.groups = [
+      new VariableGroup("Awesome group with awesome name", this.variables.slice(2)),
+      new VariableGroup("Much better group", this.variables.slice(2)),
+      new VariableGroup("Completely awfull group for shit makers", this.variables)
+    ];
   }
 
   submit() {
