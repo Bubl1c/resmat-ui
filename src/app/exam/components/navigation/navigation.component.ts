@@ -9,26 +9,22 @@ export type ContentAlignmentOptions = 'left' | 'center' | 'right';
 })
 export class NavigationComponent implements OnInit {
 
-  @Input()
-  showBack: boolean;
+  @Input() showBack: boolean;
 
-  @Input()
-  showSubmit: boolean;
+  @Input() showSubmit: boolean;
 
-  @Input()
-  showContinue: boolean;
+  @Input() showContinue: boolean;
 
-  @Input()
-  alignContent: ContentAlignmentOptions = 'left';
+  @Input() disableSubmit: boolean;
 
-  @Output()
-  onSubmit: EventEmitter<any>;
+  @Input() alignContent: ContentAlignmentOptions = 'left';
 
-  @Output()
-  onBack: EventEmitter<any>;
 
-  @Output()
-  onContinue: EventEmitter<any>;
+  @Output() onSubmit: EventEmitter<any>;
+
+  @Output() onBack: EventEmitter<any>;
+
+  @Output() onContinue: EventEmitter<any>;
 
   constructor() {
     this.onSubmit = new EventEmitter<any>();

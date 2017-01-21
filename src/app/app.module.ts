@@ -28,6 +28,7 @@ import { HelpMaterialsComponent } from './components/help-materials/help-materia
 import { TaskFlowComponent } from './exam/components/task-flow/task-flow.component';
 import { BorderStickyBtnComponent } from './components/border-sticky-btn/border-sticky-btn.component';
 import { InputSetComponent } from './exam/components/input-set/input-set.component';
+import { ExamResultsComponent } from './exam/components/exam-results/exam-results.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { InputSetComponent } from './exam/components/input-set/input-set.compone
     HelpMaterialsComponent,
     TaskFlowComponent,
     BorderStickyBtnComponent,
-    InputSetComponent
+    InputSetComponent,
+    ExamResultsComponent
   ],
   imports: [
     BrowserModule,

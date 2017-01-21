@@ -1,0 +1,12 @@
+.results-container table {
+  margin: auto;
+  border-collapse: collapse;
+}
+
+.results-container table td {
+  padding: 0.5em;
+}
+
+.score td {
+  border-top: 2px solid #2196F3;
+}

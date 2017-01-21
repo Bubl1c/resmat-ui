@@ -3,13 +3,13 @@ import { ITestOptionData, ITestData, TestTypes } from "../../data/exam.api-proto
 
 export class TestOption implements ITestOptionData {
   constructor(public id: number,
-              public value: string,
               public type: string,
-              public checked: boolean,
+              public value: string,
+              public checked: boolean = false,
               public correct: boolean = false) {}
 
   public static create(other: ITestOptionData) {
-    return new TestOption(other.id, other.value, other.type, other.checked)
+    return new TestOption(other.id, other.type, other.value, other.checked)
   }
 }
 
@@ -50,8 +50,9 @@ export class TestAnswer {
   styleUrls: ['./test.component.css']
 })
 export class TestComponent implements OnInit {
-  @Input()
-  test: Test;
+  @Input() test: Test;
+  @Input() showContinue: boolean;
+
 
   @Output() onSubmitted: EventEmitter<TestAnswer>;
   @Output() onContinue: EventEmitter<any>;
@@ -68,7 +69,7 @@ export class TestComponent implements OnInit {
   }
 
   isVerified(): boolean {
-    return this.test.status === -1 || this.test.status === 1
+    return this.test.status === TestStatus.Incorrect || this.test.status === TestStatus.Correct
   }
 
   onOptionChecked(option: TestOption) {
@@ -83,7 +84,7 @@ export class TestComponent implements OnInit {
     )
   }
 
-  nextAssignment() {
+  doContinue() {
     this.reset();
     this.onContinue.emit();
   }

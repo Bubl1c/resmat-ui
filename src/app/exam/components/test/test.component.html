@@ -28,6 +28,6 @@
                           [statusSuccess]="test.status == 1"
                           statusSuccessMessage="Відповідь правильна."
                           statusFailureMessage="Відповідь не вірна, оберіть інший варіант."
-                          [showSubmit]="test.status != 1"
-                          (onSubmit)="submit()" (onContinue)="nextAssignment()"></status-with-navigation>
+                          [showSubmit]="test.status != 1" [showContinue]="showContinue && test.status == 1"
+                          (onSubmit)="submit()" (onContinue)="doContinue()"></status-with-navigation>
 </form>

@@ -1,24 +1,36 @@
 <div class="container mui-container">
   <div class="mui--text-subhead">
-    <span class="test-number">{{ sequence }}.</span>
-    Введіть пораховані значення невідомих Х:
+    <span class="test-number">{{ data.sequence }}.</span>
+    {{ data.description }}
   </div>
-  <div class="data">
+  <form #inputSetForm="ngForm" class="data">
+
     <div class="var-group" *ngFor="let group of groups">
+
       <span class="var-group-name" [innerHTML]="group.name"></span>
-      <div class="variable-container" *ngFor="let variable of group.variables">
-        <div class="variable">
-          <div class="mui-textfield mui-textfield--float-label">
-            <input type="number" step="any" [(ngModel)]="variable.typedValue"
-                   [ngClass]="{ 'mui-invalid': isSubmitted && !variable.valid }" required>
-            <label class="input-label" [innerHTML]="variable.name"></label>
+      <div class="variables-container">
+        <div class="variable-container" *ngFor="let variable of group.variables">
+
+          <div class="variable">
+            <div class="mui-textfield mui-textfield--float-label">
+              <input type="number" step="any" [(ngModel)]="variable.value" [name]="variable.name"
+                     [ngClass]="{ 'mui-invalid': isVerified() && !variable.correct }" required>
+              <label class="input-label" [innerHTML]="variable.name"></label>
+            </div>
+            <span class="units" [innerHTML]="variable.units"></span>
           </div>
-          <span class="units" [innerHTML]="variable.units"></span>
+          <span class="description" [innerHTML]="variable.description"></span>
+
         </div>
-        <span class="description" [innerHTML]="variable.description"></span>
       </div>
+
     </div>
-  </div>
-  <!--<app-submit class="submit" [isSubmitted]="isSubmitted" [isCorrectAnswer]="isCorrectAnswer"-->
-  <!--(onSubmit)="submit()" (onNext)="nextAssignment()"></app-submit>-->
+  </form>
+  <status-with-navigation [showStatus]="isVerified()"
+                          [statusSuccess]="data.status == 1"
+                          statusSuccessMessage="Відповідь правильна."
+                          statusFailureMessage="Відповідь не вірна, введіть інше значення."
+                          [showSubmit]="data.status != 1" [showContinue]="data.status == 1"
+                          [disableSubmit]="!inputSetForm.form.valid"
+                          (onSubmit)="submit()" (onContinue)="nextAssignment()"></status-with-navigation>
 </div>

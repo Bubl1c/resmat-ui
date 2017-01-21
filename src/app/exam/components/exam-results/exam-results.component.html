@@ -1,0 +1,40 @@
+<div class="results-container">
+  <table>
+    <tr>
+      <td>Робота</td>
+      <td>{{ data.examName }}</td>
+    </tr>
+    <tr>
+      <td>Задача</td>
+      <td>{{ data.taskName }}</td>
+    </tr>
+    <tr>
+      <td>Група</td>
+      <td>{{ data.studentGroupName }}</td>
+    </tr>
+    <tr>
+      <td>Студент</td>
+      <td>{{ data.studentName }}</td>
+    </tr>
+    <tr>
+      <td>Кількість спроб</td>
+      <td>{{ data.attemptsAmount }}</td>
+    </tr>
+    <tr>
+      <td>Кількість помилок в тестах</td>
+      <td>{{ data.mistakesAmountInTests }}</td>
+    </tr>
+    <tr>
+      <td>Кількість помилок під час розв'язання задачі</td>
+      <td>{{ data.mistakesAmountInTask }}</td>
+    </tr>
+    <tr>
+      <td>Час роботи</td>
+      <td>{{ durationHrs }} год</td>
+    </tr>
+    <tr class="score">
+      <td>Оцінка</td>
+      <td>{{ data.score }}{{ data.maxScore > 0 ? '/' + data.maxScore : '' }}</td>
+    </tr>
+  </table>
+</div>

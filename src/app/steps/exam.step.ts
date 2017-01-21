@@ -1,11 +1,5 @@
 export abstract class ExamStep {
-  examId: number;
-  type: string;
-  description: string;
+  isLoading = true;
   abstract loadInitialData(): void;
-  constructor(examId: number, type: string, description: string) {
-    this.examId = examId;
-    this.type = type;
-    this.description = description;
-  }
+  constructor(public sequence: number, public examId: number, public type: string, public description: string) {}
 }

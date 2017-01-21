@@ -9,13 +9,14 @@ export class TestSetExamStep extends ExamStep {
   mistakesLimit: number = 5;
   maxAttempts: number = 3;
 
-  constructor(private examService: ExamService, examId: number, description: string) {
-    super(examId, ExamStepTypes.Test, description);
+  constructor(private examService: ExamService, examId: number, sequence: number, description: string) {
+    super(sequence, examId, ExamStepTypes.Test, description);
   }
 
   loadInitialData() {
     this.examService.getTests().subscribe(response => {
       this.data = this.mapITests(response);
+      this.isLoading = false;
     })
   }
 
@@ -25,11 +26,9 @@ export class TestSetExamStep extends ExamStep {
       console.error("Submitted test is not found: " + answer);
       return;
     }
-    this.examService.verifyTestAnswer({id: answer.testId, answer: answer.submittedOptions}).subscribe({
+    this.examService.verifyTestAnswer(answer).subscribe({
       next: (verifiedAnswer: VerifiedTestAnswer) => {
-        console.log("Verified answer: ", verifiedAnswer);
         test.status = verifiedAnswer.isAllCorrect ? TestStatus.Correct : TestStatus.Incorrect;
-        console.log("Test status: ", test.status);
         test.options.forEach(testOption => {
           //If an option was submitted and exists in the verified answer
           verifiedAnswer.callIfExists(testOption.id, isCorrect => {
@@ -41,7 +40,6 @@ export class TestSetExamStep extends ExamStep {
             }
           })
         });
-        console.log("Test options: ", test.options);
       },
       error: error => console.log(error)
     });

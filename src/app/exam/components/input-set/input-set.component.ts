@@ -1,29 +1,55 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 
-export class ResultVariable {
-  name: string;
-  description: string;
-  units: string;
-  typedValue: number;
-  expectedValue: string;
-  valid: boolean;
+export const enum InputSetStatus {
+  Initial = 0,  //Not submitted yet
+  Verifying = 2, //Submitted, waiting for result
+  Incorrect = -1,
+  Correct = 1
+}
 
-  constructor(name: string, expectedValue: number, description: string = '', units: string = '') {
-    this.name = MathSymbolConverter.convertString(name);
-    this.expectedValue = ResultVariable.roundToFixed(expectedValue);
-    // this.typedValue = parseFloat(this.expectedValue);
-    this.description = description;
-    this.units = units;
+export class InputSetData {
+  status: number = InputSetStatus.Initial;
+  constructor(public id: number,
+              public sequence: number,
+              public description: string,
+              public variables: InputVariable[]) {}
+}
+
+export class VarirableAnswer {
+  correct: boolean;
+  constructor(public variableId: number, public value: number) {}
+
+  static roundToFixed(value: number, accuracy: number): string {
+    return typeof value === 'undefined' ? '0' : value.toFixed(accuracy);
   }
+}
 
-  static roundToFixed(value: number): string {
-    return value.toFixed(5);
+export class InputSetAnswer {
+  allCorrect: boolean;
+  constructor(public inputSetId: number, public variableAnswers: VarirableAnswer[]) {}
+
+  find(variableId: number): VarirableAnswer | null {
+    let variable = this.variableAnswers.find(va => va.variableId === variableId);
+    return variable ? variable : null
+  }
+}
+
+export class InputVariable {
+  public value: number;
+  public correct: boolean;
+
+  constructor(public id: number,
+              public name: string,
+              public groupName: string,
+              public description: string = '',
+              public units: string = '') {
+    this.name = MathSymbolConverter.convertString(name);
   }
 }
 
 export class VariableGroup {
-  constructor(public name: string, public variables: ResultVariable[]) {}
+  constructor(public name: string, public variables: InputVariable[]) {}
 }
 
 @Component({
@@ -33,44 +59,60 @@ export class VariableGroup {
 })
 export class InputSetComponent implements OnInit {
 
-  @Input()
-  sequence: number;
-  @Input()
-  variables: ResultVariable[];
+  @Input() description: string;
+  @Input() data: InputSetData;
+
   groups: VariableGroup[];
 
-  isSubmitted: boolean;
-  isCorrectAnswer: boolean;
-
-  @Output() passed: EventEmitter<number>;
+  @Output() onSubmitted: EventEmitter<InputSetAnswer>;
+  @Output() onContinue: EventEmitter<any>;
 
   constructor() {
-    this.passed = new EventEmitter<number>();
+    this.groups = [];
+    this.onSubmitted = new EventEmitter<InputSetAnswer>();
+    this.onContinue = new EventEmitter<number>();
   }
 
   ngOnInit() {
-    this.groups = [
-      new VariableGroup("Awesome group with awesome name", this.variables.slice(2)),
-      new VariableGroup("Much better group", this.variables.slice(2)),
-      new VariableGroup("Completely awfull group for shit makers", this.variables)
-    ];
+    this.groupVariables()
+  }
+
+  isVerified(): boolean {
+    return this.data.status === InputSetStatus.Incorrect || this.data.status === InputSetStatus.Correct
   }
 
   submit() {
-    this.isSubmitted = true;
-    for(let v of this.variables) {
-      v.valid = this.isValid(v);
-    }
-    this.isCorrectAnswer = this.variables.filter(v => !v.valid).length === 0;
+    this.data.status = InputSetStatus.Verifying;
+
+    console.log("Submitting: ", this.groups, this.data.variables);
+
+    this.onSubmitted.emit(
+      new InputSetAnswer(
+        this.data.id,
+        this.data.variables.map(v => new VarirableAnswer(v.id, v.value))
+      )
+    )
   }
 
   nextAssignment() {
-    this.passed.emit(1); //TODO: think what to pass to parent
+    this.onContinue.emit();
   }
 
-  private isValid(v: ResultVariable): boolean {
-    let typedNumber = parseFloat(v.typedValue + '');
-    return !isNaN(typedNumber) && ResultVariable.roundToFixed(typedNumber) === v.expectedValue;
+  private groupVariables() {
+    let varGroups: { [key:string]:InputVariable[] } = {};
+
+    this.data.variables.forEach(variable => {
+      let groupVariables: InputVariable[] = varGroups[variable.groupName];
+      if(groupVariables) {
+        groupVariables.push(variable)
+      } else {
+        varGroups[variable.groupName] = [variable]
+      }
+    });
+
+    for(let groupName in varGroups) {
+      this.groups.push(new VariableGroup(groupName, varGroups[groupName]))
+    }
   }
 
 }

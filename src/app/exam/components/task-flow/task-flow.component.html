@@ -1,6 +1,10 @@
-<div class="mui-panel">
+<div class="mui-panel" *ngIf="step.type != 'summary'">
   <task [task]="task"></task>
 </div>
-<div class="mui-panel">
-  <input-set [sequence]="1" [variables]="isVars"></input-set>
+<div class="mui-panel" *ngIf="step.type === 'test'">
+  <app-test [test]="step.data" [showContinue]="true"
+            (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></app-test>
+</div>
+<div class="mui-panel" *ngIf="step.type === 'input-set'">
+  <input-set [data]="step.data" (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></input-set>
 </div>

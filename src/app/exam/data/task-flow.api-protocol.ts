@@ -6,12 +6,15 @@ export interface ISchemaVar {
 
 export class TaskFlowStepTypes {
   static Test = 'test';
-  static Variables = 'vars';
+  static InputSet = 'input-set';
   static Charts = 'charts';
+  static Finished = 'finished';
 }
 
 export interface IExamTaskFlowStepData {
-  id: number; //sequence number
+  id: number;
   type: string;
+  sequence: number;
+  name: string;
   data: any;
 }

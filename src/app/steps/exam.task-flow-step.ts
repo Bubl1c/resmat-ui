@@ -5,10 +5,9 @@ import { IExamTaskFlowTaskData } from "../exam/data/i-exam-task-flow-task-data";
 
 export class TaskFlowExamStep extends ExamStep {
   taskData: IExamTaskFlowTaskData;
-  isLoading = true;
 
-  constructor(private examService: ExamService, examId: number, description: string) {
-    super(examId, ExamStepTypes.TaskFlow, description);
+  constructor(private examService: ExamService, examId: number, sequence: number, description: string) {
+    super(sequence, examId, ExamStepTypes.TaskFlow, description);
   }
 
   loadInitialData() {

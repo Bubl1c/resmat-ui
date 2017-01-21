@@ -21,6 +21,8 @@ export class StatusWithNavigationComponent implements OnInit {
 
   @Input() showContinue: boolean;
 
+  @Input() disableSubmit: boolean;
+
   @Output() onSubmit: EventEmitter<any>;
 
   @Output() onBack: EventEmitter<any>;

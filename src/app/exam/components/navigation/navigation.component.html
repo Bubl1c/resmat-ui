@@ -5,7 +5,7 @@
     Назад
   </button>
   <button class="submit mui-btn mui-btn--raised"
-          (click)="submit()"
+          (click)="submit()" [disabled]="disableSubmit"
           *ngIf="showSubmit">
     Зберегти
   </button>

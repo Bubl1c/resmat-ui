@@ -24,7 +24,6 @@ export class TestSetComponent implements OnInit {
   }
 
   delegateTestSubmit(submitted: any) {
-    console.log("Delegate submitted test: ", submitted);
     this.isSubmitted = false;
     this.onTestSubmitted.emit(submitted)
   }

@@ -28,7 +28,8 @@ export interface ITestOptionData {
 export class ExamStepTypes {
   static Test = 'test';
   static TaskFlow = 'task-flow';
-  static sequence = [ExamStepTypes.Test, ExamStepTypes.TaskFlow];
+  static Results = 'results';
+  static sequence = [ExamStepTypes.Test, ExamStepTypes.TaskFlow, ExamStepTypes.Results];
   static getNext(examStepType: string): string {
     let index = this.sequence.indexOf(examStepType);
     let isLast = this.isLast(examStepType);

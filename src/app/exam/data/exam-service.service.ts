@@ -7,6 +7,9 @@ import {
 } from "./exam.api-protocol";
 import { IExamTaskFlowStepData } from "./task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "./i-exam-task-flow-task-data";
+import { InputSetAnswer, VarirableAnswer } from "../components/input-set/input-set.component";
+import { TestAnswer } from "../components/test/test.component";
+import { ExamResult } from "../components/exam-results/exam-results.component";
 
 export class VerifiedTestAnswer {
   constructor(public testId: number,
@@ -42,36 +45,24 @@ export class ExamService {
       .catch(this.handleError);
   }
 
-  verifyTestAnswer(testAnswer: ITestAnswerData): Observable<VerifiedTestAnswer> {
+  verifyTestAnswer(testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
     let resultSubject = new ReplaySubject<VerifiedTestAnswer>();
 
-    this.http.get(this.withBase('/test_answers/'+ testAnswer.id))
+    this.http.get(this.withBase('/test_answers/'+ testAnswer.testId))
       .map(this.extractData)
       .catch(this.handleError)
       .subscribe(
         {
-          next: (fetchedAnswers: ITestAnswerData[]) => {
-            if(fetchedAnswers.length === 0) {
-              resultSubject.error(`Test with id [${testAnswer.id}] was not found`)
-              return resultSubject;
-            }
-            let fetchedAnswer = fetchedAnswers[0];
-            let verifiedOptions = {};
-            //Make sure that amount of submitted answers equals to amount of correct ones
-            let isAllCorrect = fetchedAnswer.answer.length === testAnswer.answer.length;
-            if(isAllCorrect) {
-              //Verify that every submitted answer is correct
-              fetchedAnswer.answer.forEach(currentOption => {
-                if(testAnswer.answer.indexOf(currentOption) === -1) isAllCorrect = false;
-              });
-            }
-            //Mark submitted answers as correct or not
-            testAnswer.answer.forEach(currentOption => {
-              verifiedOptions[currentOption] = fetchedAnswer.answer.indexOf(currentOption) !== -1
-            });
-            resultSubject.next(new VerifiedTestAnswer(testAnswer.id, isAllCorrect, verifiedOptions))
+          next: (fetchedAnswer: ITestAnswerData) => {
+            // if(fetchedAnswers.length === 0) {
+            //   resultSubject.error(`Test with id [${testAnswer.id}] was not found`);
+            //   return resultSubject;
+            // }
+            // let fetchedAnswer = fetchedAnswers[0];
+            let verified = this.verifyTestAnswerImpl(testAnswer, fetchedAnswer);
+            resultSubject.next(verified)
           },
-          error: (error) => resultSubject.error(`Error while fetching test with id [${testAnswer.id}]. Cause: ${error}`)
+          error: (error) => resultSubject.error(`Error while fetching test answer with id [${testAnswer.testId}]. Cause: ${error}`)
         }
       );
 
@@ -84,10 +75,93 @@ export class ExamService {
       .catch(this.handleError)
   }
 
+  getResults(examId: number): Observable<ExamResult> {
+    return this.http.get(this.withBase('/exam_results/' + examId))
+      .map(this.extractData)
+      .catch(this.handleError)
+  }
+
   getExamTaskFlowStep(examId: number, taskId: number, stepSequence: number): Observable<IExamTaskFlowStepData> {
     return this.http.get(this.withBase('/task_steps/' + stepSequence))
       .map(this.extractData)
       .catch(this.handleError)
+  }
+
+  verifyExamTaskFlowTest(examId: number,
+                          taskId: number,
+                          stepSequence: number,
+                          testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
+    let resultSubject = new ReplaySubject<VerifiedTestAnswer>();
+
+    this.http.get(this.withBase('/flow_step_answers/' + stepSequence))
+      .map(this.extractData)
+      .catch(this.handleError)
+      .subscribe(
+        {
+          next: (fetchedAnswer: any) => {
+            let verified = this.verifyTestAnswerImpl(testAnswer, fetchedAnswer.answer);
+            resultSubject.next(verified)
+          },
+          error: (error) => resultSubject.error(`Error while fetching flow test answer with id [${testAnswer.testId}]. Cause: ${error}`)
+        }
+      );
+    return resultSubject
+  }
+
+  verifyExamTaskFlowInputSet(examId: number,
+                             taskId: number,
+                             stepSequence: number,
+                             answer: InputSetAnswer): Observable<InputSetAnswer> {
+    let resultSubject = new ReplaySubject<InputSetAnswer>();
+
+    this.http.get(this.withBase('/flow_step_answers/' + stepSequence))
+      .map(this.extractData)
+      .catch(this.handleError)
+      .subscribe(
+        {
+          next: (fetchedAnswer: InputSetAnswer) => {
+            let verified = this.verifyInputSetAnswer(answer, fetchedAnswer);
+            resultSubject.next(verified)
+          },
+          error: (error) => resultSubject.error(`Error while fetching flow test answer with id [${answer.inputSetId}]. Cause: ${error}`)
+        }
+      );
+
+    return resultSubject
+  }
+
+  private verifyInputSetAnswer(answer: InputSetAnswer, correctAnswer: any): InputSetAnswer {
+    console.log("Verifying is answer: ", correctAnswer);
+    let correctVariableAnswers: VarirableAnswer[] = correctAnswer.answer;
+    let isAllCorrect = true;
+    answer.variableAnswers.forEach(va => {
+      let correctValue = correctVariableAnswers.find(cva => cva.variableId == va.variableId);
+      va.correct =
+        typeof correctValue === 'undefined'
+          ? false
+          : VarirableAnswer.roundToFixed(correctValue.value, 5) === VarirableAnswer.roundToFixed(va.value, 5);
+      if(!va.correct) isAllCorrect = false
+    });
+    answer.allCorrect = isAllCorrect;
+    return answer;
+  }
+
+  private verifyTestAnswerImpl(testAnswer: TestAnswer, fetchedAnswer: ITestAnswerData): VerifiedTestAnswer {
+    let verifiedOptions = {};
+    //Make sure that amount of submitted answers equals to amount of correct ones
+    let isAllCorrect = fetchedAnswer.answer.length === testAnswer.submittedOptions.length;
+    if(isAllCorrect) {
+      //Verify that every submitted answer is correct
+      fetchedAnswer.answer.forEach(currentOption => {
+        if(testAnswer.submittedOptions.indexOf(currentOption) === -1) isAllCorrect = false;
+      });
+    }
+    //Mark submitted answers as correct or not
+    testAnswer.submittedOptions.forEach(currentOption => {
+      verifiedOptions[currentOption] = fetchedAnswer.answer.indexOf(currentOption) !== -1
+    });
+
+    return new VerifiedTestAnswer(testAnswer.testId, isAllCorrect, verifiedOptions);
   }
 
   private extractData(res: Response) {
