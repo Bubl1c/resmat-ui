@@ -5,7 +5,7 @@ import { Observable, ReplaySubject } from "rxjs/Rx";
 import {
   ITestData, IExamData, ITestAnswerData, IUserData
 } from "./exam.api-protocol";
-import { IExamTaskFlowStepData } from "./task-flow.api-protocol";
+import { IExamTaskFlowStepData, TaskFlowStepTypes } from "./task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "./i-exam-task-flow-task-data";
 import { InputSetAnswer, VarirableAnswer } from "../components/input-set/input-set.component";
 import { TestAnswer } from "../components/test/test.component";
@@ -87,10 +87,10 @@ export class ExamService {
       .catch(this.handleError)
   }
 
-  verifyExamTaskFlowTest(examId: number,
-                          taskId: number,
-                          stepSequence: number,
-                          testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
+  verifyTaskFlowStep(examId: number,
+                     taskId: number,
+                     stepSequence: number,
+                     stepAnswer: any): Observable<any> {
     let resultSubject = new ReplaySubject<VerifiedTestAnswer>();
 
     this.http.get(this.withBase('/flow_step_answers/' + stepSequence))
@@ -99,34 +99,23 @@ export class ExamService {
       .subscribe(
         {
           next: (fetchedAnswer: any) => {
-            let verified = this.verifyTestAnswerImpl(testAnswer, fetchedAnswer.answer);
+            let stepType = fetchedAnswer.stepType;
+            let verified = null;
+            switch(stepType) {
+              case TaskFlowStepTypes.Test:
+                verified = this.verifyTestAnswerImpl(stepAnswer, fetchedAnswer.answer);
+                break;
+              case TaskFlowStepTypes.InputSet:
+                verified = this.verifyInputSetAnswer(stepAnswer, fetchedAnswer);
+                break;
+              default: throw "Task flow step answer with invalid type received: '" + stepType + "'";
+            }
+
             resultSubject.next(verified)
           },
-          error: (error) => resultSubject.error(`Error while fetching flow test answer with id [${testAnswer.testId}]. Cause: ${error}`)
+          error: (error) => resultSubject.error(`Error while fetching flow test answer with id [${stepAnswer.testId}]. Cause: ${error}`)
         }
       );
-    return resultSubject
-  }
-
-  verifyExamTaskFlowInputSet(examId: number,
-                             taskId: number,
-                             stepSequence: number,
-                             answer: InputSetAnswer): Observable<InputSetAnswer> {
-    let resultSubject = new ReplaySubject<InputSetAnswer>();
-
-    this.http.get(this.withBase('/flow_step_answers/' + stepSequence))
-      .map(this.extractData)
-      .catch(this.handleError)
-      .subscribe(
-        {
-          next: (fetchedAnswer: InputSetAnswer) => {
-            let verified = this.verifyInputSetAnswer(answer, fetchedAnswer);
-            resultSubject.next(verified)
-          },
-          error: (error) => resultSubject.error(`Error while fetching flow test answer with id [${answer.inputSetId}]. Cause: ${error}`)
-        }
-      );
-
     return resultSubject
   }
 
@@ -139,11 +128,22 @@ export class ExamService {
       va.correct =
         typeof correctValue === 'undefined'
           ? false
-          : VarirableAnswer.roundToFixed(correctValue.value, 5) === VarirableAnswer.roundToFixed(va.value, 5);
+          : this.isEqual(correctValue.value, va.value, 5);
       if(!va.correct) isAllCorrect = false
     });
     answer.allCorrect = isAllCorrect;
     return answer;
+  }
+
+  private isEqual(v1: number | null, v2: number | null, acuracy: number): boolean {
+    if(v1 == null && v2 == null) return true;
+
+    let roundOrNull = (v: number | null): string | null => {
+      if(v == null) return null;
+      return VarirableAnswer.roundToFixed(v, acuracy)
+    };
+
+    return roundOrNull(v1) === roundOrNull(v2);
   }
 
   private verifyTestAnswerImpl(testAnswer: TestAnswer, fetchedAnswer: ITestAnswerData): VerifiedTestAnswer {

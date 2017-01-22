@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, Inject } from '@angular/core';
 import { ITestData } from "../../data/exam.api-protocol";
 import { ExamService, VerifiedTestAnswer } from "../../data/exam-service.service";
 import { IExamTaskFlowStepData, TaskFlowStepTypes } from "../../data/task-flow.api-protocol";
@@ -6,6 +6,9 @@ import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
 import { InputSetData, InputSetAnswer, InputSetStatus } from "../input-set/input-set.component";
 import { TestAnswer, Test, TestStatus } from "../test/test.component";
 import { ExamResult } from "../exam-results/exam-results.component";
+import { ChartSet } from "../chart-set/chart-set.component";
+import { PageScrollService, PageScrollInstance } from "ng2-page-scroll";
+import { DOCUMENT } from "@angular/platform-browser";
 
 abstract class TaskFlowStep {
   id: number;
@@ -24,6 +27,10 @@ abstract class TaskFlowStep {
   abstract fillData(data: any): void
 }
 
+class HelpDataItem {
+  constructor(public type: string, public data: any) {}
+}
+
 class InputSetTaskFlowStep extends TaskFlowStep {
   data: InputSetData;
   constructor(taskData: IExamTaskFlowTaskData, stepData: IExamTaskFlowStepData, public examService: ExamService) {
@@ -33,7 +40,7 @@ class InputSetTaskFlowStep extends TaskFlowStep {
   onSubmitted(submittedData: InputSetAnswer): void {
     console.log("Verify input set answer: ", submittedData);
     let that = this;
-    this.examService.verifyExamTaskFlowInputSet(this.taskData.examId, this.taskData.id, this.sequence, submittedData)
+    this.examService.verifyTaskFlowStep(this.taskData.examId, this.taskData.id, this.sequence, submittedData)
       .subscribe((verified: InputSetAnswer) => {
         that.data.variables.forEach(v => {
           let verifiedVar = verified.find(v.id);
@@ -45,8 +52,7 @@ class InputSetTaskFlowStep extends TaskFlowStep {
 
   fillData(data: any): void {
     let typedData = <InputSetData> data;
-    this.data = typedData;
-    this.data.sequence = this.sequence;
+    this.data = new InputSetData(typedData.id, this.sequence, this.name, typedData.variables);
   }
 }
 
@@ -59,7 +65,7 @@ class TestTaskFlowStep extends TaskFlowStep {
   onSubmitted(submittedData: TestAnswer): void {
     console.log("Verify test answer: ", submittedData);
     let that = this;
-    this.examService.verifyExamTaskFlowTest(this.taskData.examId, this.taskData.id, this.sequence, submittedData)
+    this.examService.verifyTaskFlowStep(this.taskData.examId, this.taskData.id, this.sequence, submittedData)
       .subscribe({
         next: (verifiedAnswer: VerifiedTestAnswer) => {
           console.log("Verified test answer: ", verifiedAnswer);
@@ -84,6 +90,19 @@ class TestTaskFlowStep extends TaskFlowStep {
   }
 }
 
+class ChartSetTaskFlowStep extends TaskFlowStep {
+  data: ChartSet;
+  constructor(taskData: IExamTaskFlowTaskData, stepData: IExamTaskFlowStepData, public examService: ExamService) {
+    super(taskData, stepData);
+  }
+
+  onSubmitted(submittedData: any): void {}
+
+  fillData(data: any): void {
+    this.data = new ChartSet("", data); //empty title, it is displayed separately
+  }
+}
+
 class SummaryTaskFlowStep extends TaskFlowStep {
   data: ExamResult;
   constructor(taskData: IExamTaskFlowTaskData, stepData: IExamTaskFlowStepData, public examService: ExamService) {
@@ -98,12 +117,10 @@ class SummaryTaskFlowStep extends TaskFlowStep {
   }
 }
 
-class InitialTaskFlowStep extends TaskFlowStep {
+class LoadingTaskFlowStep extends TaskFlowStep {
   fillData(data: any): void {}
   onSubmitted(submittedData: any): void {}
-  constructor() {
-    super(null, <IExamTaskFlowStepData> {})
-  }
+  constructor() { super(null, <IExamTaskFlowStepData> { type: TaskFlowStepTypes.Loading }); }
 }
 
 @Component({
@@ -113,16 +130,16 @@ class InitialTaskFlowStep extends TaskFlowStep {
   providers: [ExamService]
 })
 export class TaskFlowComponent implements OnInit {
-  @Input()
-  task: IExamTaskFlowTaskData;
-  step: TaskFlowStep;
-  isLoading = true;
+  @Input() task: IExamTaskFlowTaskData;
 
-  @Output() onFinished: EventEmitter<any>;
+  @ViewChild('taskFlowContainer') private taskFlowContainer: ElementRef;
 
-  constructor(private examService: ExamService) {
-    this.step = new InitialTaskFlowStep();
-    this.onFinished = new EventEmitter();
+  step: TaskFlowStep = new LoadingTaskFlowStep();
+  helpDataItems: HelpDataItem[] = [];
+
+  @Output() onFinished = new EventEmitter<any>();
+
+  constructor(private examService: ExamService, private pageScrollService: PageScrollService, @Inject(DOCUMENT) private document: Document) {
   }
 
   ngOnInit() {
@@ -130,7 +147,7 @@ export class TaskFlowComponent implements OnInit {
   }
 
   stepSubmitted(submittedData: any) {
-    this.step.onSubmitted(submittedData)
+    this.step.onSubmitted(submittedData);
   }
 
   stepContinue() {
@@ -145,11 +162,30 @@ export class TaskFlowComponent implements OnInit {
     this.onFinished.emit();
   }
 
+  private scrollToBottom(): void {
+    // try {
+    //   this.taskFlowContainer.nativeElement.scrollTop = this.taskFlowContainer.nativeElement.scrollHeight;
+    // } catch(err) { console.error("Failed to scroll task flow container to bottom", err); }
+    let pageScrollInstance: PageScrollInstance = PageScrollInstance.simpleInstance(this.document, '#scrollToBottomAnchor');
+    this.pageScrollService.start(pageScrollInstance);
+    // setTimeout(() => {
+    //   // console.log("scrolling to bottom");
+    //   // window.scrollTo(0,document.body.scrollHeight)
+    // }, 100)
+  }
+
   private loadStep(sequence: number) {
+    this.step = new LoadingTaskFlowStep();
     this.examService.getExamTaskFlowStep(this.task.examId, this.task.id, sequence).subscribe((step: IExamTaskFlowStepData) => {
       console.log("Task flow step " + sequence + " loaded: ", step);
-      this.step = this.createStep(step);
-      this.isLoading = false;
+      if(step.helpData) {
+        this.helpDataItems.push(new HelpDataItem(step.type, step.data));
+        this.loadStep(step.sequence + 1);
+        return;
+      } else {
+        this.step = this.createStep(step);
+      }
+      this.scrollToBottom()
     });
   }
 
@@ -160,7 +196,7 @@ export class TaskFlowComponent implements OnInit {
       case TaskFlowStepTypes.InputSet:
         return new InputSetTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.Charts:
-        break;
+        return new ChartSetTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.Finished:
         this.finish();
         break;

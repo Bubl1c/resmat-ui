@@ -18,6 +18,8 @@ export class ExamSeedData implements InMemoryDbService {
 
     let exam_results = ExamData.exam_results;
 
-    return { users, tests, test_answers, exams, task_steps, flow_step_answers, exam_results };
+    let task_flow_charts = ExamData.task_flow_charts;
+
+    return { users, tests, test_answers, exams, task_steps, flow_step_answers, exam_results, task_flow_charts };
   }
 }

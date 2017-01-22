@@ -12,10 +12,10 @@ import { LoginComponent } from './login/login.component';
 import { ExamComponent } from './exam/exam.component';
 import { ExamSeedData } from "./exam/data/mock/exam.data-service";
 // import { FlowComponent } from './flow/flow.component';
-import { BcComponent } from './flow/bc/bc.component';
-import { XResultsComponent } from './flow/x-results/x-results.component';
-import { CutComponent } from './flow/cut/cut.component';
-import { StrengthComponent } from './flow/strength/strength.component';
+// import { BcComponent } from './flow/bc/bc.component';
+// import { XResultsComponent } from './flow/x-results/x-results.component';
+// import { CutComponent } from './flow/cut/cut.component';
+// import { StrengthComponent } from './flow/strength/strength.component';
 import { TaskComponent } from './exam/components/task/task.component';
 import { TestComponent } from "./exam/components/test/test.component";
 import { EChartComponent } from "./exam/components/e-chart/e-chart.component";
@@ -29,6 +29,7 @@ import { TaskFlowComponent } from './exam/components/task-flow/task-flow.compone
 import { BorderStickyBtnComponent } from './components/border-sticky-btn/border-sticky-btn.component';
 import { InputSetComponent } from './exam/components/input-set/input-set.component';
 import { ExamResultsComponent } from './exam/components/exam-results/exam-results.component';
+import { Ng2PageScrollModule } from "ng2-page-scroll";
 
 @NgModule({
   declarations: [
@@ -37,12 +38,12 @@ import { ExamResultsComponent } from './exam/components/exam-results/exam-result
     ExamComponent,
     TestComponent,
     // FlowComponent,
-    BcComponent,
+    // BcComponent,
     EChartComponent,
     ChartSetComponent,
-    XResultsComponent,
-    CutComponent,
-    StrengthComponent,
+    // XResultsComponent,
+    // CutComponent,
+    // StrengthComponent,
     TaskComponent,
     StatusComponent,
     StatusWithNavigationComponent,
@@ -60,7 +61,8 @@ import { ExamResultsComponent } from './exam/components/exam-results/exam-result
     HttpModule,
     AppRoutingModule,
     InMemoryWebApiModule.forRoot(ExamSeedData, { delay: 500 }),
-    ChartsModule
+    ChartsModule,
+    Ng2PageScrollModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

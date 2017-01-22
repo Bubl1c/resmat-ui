@@ -48,6 +48,11 @@
   color: rgba(0,0,0,.5);
 }
 
+.correct {
+  border-color: rgba(0, 238, 0, 0.5);
+  border-width: 2px;
+}
+
 .mui-textfield--float-label .input-label {
   color: black;
   font-size: 1.15em;
@@ -55,7 +60,6 @@
 }
 
 .variable input {
-  width: 100px;
   text-align: center;
 }
 

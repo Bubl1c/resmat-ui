@@ -1,10 +1,30 @@
-<div class="mui-panel" *ngIf="step.type != 'summary'">
-  <task [task]="task"></task>
-</div>
-<div class="mui-panel" *ngIf="step.type === 'test'">
-  <app-test [test]="step.data" [showContinue]="true"
-            (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></app-test>
-</div>
-<div class="mui-panel" *ngIf="step.type === 'input-set'">
-  <input-set [data]="step.data" (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></input-set>
+<div #taskFlowContainer>
+  <div class="mui-panel">
+    <task [task]="task"></task>
+  </div>
+  <div class="help-data" *ngIf="helpDataItems.length > 0">
+    <div class="help-data-item mui-panel" *ngFor="let helpDataItem of helpDataItems">
+      <chart-set [data]="helpDataItem.data" *ngIf="helpDataItem.type === 'charts'"></chart-set>
+    </div>
+  </div>
+  <div class="loading" [hidden]="step.type !== 'loading'">
+    Завантаження...
+  </div>
+  <div class="mui-panel" *ngIf="step.type === 'test'">
+    <app-test [test]="step.data" [showContinue]="true"
+              (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></app-test>
+  </div>
+  <div class="mui-panel" *ngIf="step.type === 'input-set'">
+    <input-set [data]="step.data" (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></input-set>
+  </div>
+  <div class="mui-panel" *ngIf="step.type === 'charts'">
+    <div class="mui--text-subhead">
+      <span>{{ step.sequence }}.</span>
+      {{ step.name }}
+    </div>
+    <chart-set [data]="step.data"></chart-set>
+    <navigation showContinue="true" alignContent="right"
+                (onBack)="stepBack($event)" (onContinue)="stepContinue($event)"></navigation>
+  </div>
+  <div id="scrollToBottomAnchor"></div>
 </div>

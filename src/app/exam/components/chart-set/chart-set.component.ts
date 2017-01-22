@@ -2,16 +2,17 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { IChart } from "../e-chart/e-chart.component";
 import { MathSymbolConverter } from "app/utils/MathSymbolConverter";
 
+export class ChartSet {
+  constructor(public title: string, public charts: IChart[]) {}
+}
+
 @Component({
   selector: 'chart-set',
   templateUrl: './chart-set.component.html',
   styleUrls: ['./chart-set.component.css']
 })
 export class ChartSetComponent implements OnInit {
-  @Input()
-  title: string;
-  @Input()
-  data: IChart[];
+  @Input() data: ChartSet;
 
   @Output() passed: EventEmitter<number>;
 
@@ -20,16 +21,7 @@ export class ChartSetComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.title = MathSymbolConverter.convertString(this.title);
-    // for(let chart of this.data) {
-    //   if(true/*chart.bottom*/) {
-    //     chart.y = chart.y.map(n => -n);
-    //   }
-    // }
-  }
-
-  next() {
-    this.passed.emit(1); //TODO: think what to pass to parent
+    this.data.title = MathSymbolConverter.convertString(this.data.title);
   }
 
 }

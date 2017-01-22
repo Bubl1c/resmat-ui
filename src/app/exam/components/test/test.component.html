@@ -1,4 +1,4 @@
-<form class="test-content relative">
+<form class="test-content relative" onSubmit="return false;">
   <help-materials [imgUrl]="test.helpImg"></help-materials>
   <div class="test-question mui--text-subhead">
     <span class="test-number">{{ test.sequence }}.</span>
@@ -25,9 +25,10 @@
     </tr>
   </table>
   <status-with-navigation [showStatus]="isVerified()"
-                          [statusSuccess]="test.status == 1"
+                          [statusSuccess]="test.status === 1"
                           statusSuccessMessage="Відповідь правильна."
                           statusFailureMessage="Відповідь не вірна, оберіть інший варіант."
-                          [showSubmit]="test.status != 1" [showContinue]="showContinue && test.status == 1"
+                          [showSubmit]="test.status !== 1" [showContinue]="showContinue && test.status === 1"
+                          [disableSubmit]="test.status === 2"
                           (onSubmit)="submit()" (onContinue)="doContinue()"></status-with-navigation>
 </form>

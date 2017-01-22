@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { ITestOptionData, ITestData, TestTypes } from "../../data/exam.api-protocol";
+import { ArrayUtils } from "../../../utils/ArrayUtils";
 
 export class TestOption implements ITestOptionData {
   constructor(public id: number,
@@ -65,7 +66,8 @@ export class TestComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.checkDefaultOptionIfNotDefined()
+    ArrayUtils.shuffle(this.test.options);
+    this.checkDefaultOption();
   }
 
   isVerified(): boolean {
@@ -89,9 +91,13 @@ export class TestComponent implements OnInit {
     this.onContinue.emit();
   }
 
-  private checkDefaultOptionIfNotDefined() {
-    let anyChecked = this.test.options.find(opt => opt.checked)
-    if(!anyChecked && this.test.type == TestTypes.Radio) {
+  private checkDefaultOption() {
+    // let anyChecked = this.test.options.find(opt => opt.checked);
+    // if(!anyChecked && this.test.type == TestTypes.Radio) {
+    //   this.test.options[0].checked = true;
+    // }
+    this.test.options.forEach(o => o.checked = false);
+    if(this.test.type == TestTypes.Radio) {
       this.test.options[0].checked = true;
     }
   }

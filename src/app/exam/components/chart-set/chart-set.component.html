@@ -1,9 +1,6 @@
 <div class="chart-set-container">
-  <div class="chart-set-title mui--text-subhead" [innerHTML]="title"></div>
-  <div class="chart-container" *ngFor="let c of data">
-    <e-chart [chart]="c"></e-chart>
-  </div>
-  <div class="submit-block">
-    <button class="next mui-btn mui-btn--primary" (click)="next()">Продовжити</button>
+  <div class="chart-set-title mui--text-subhead" [innerHTML]="data.title"></div>
+  <div class="chart-container" *ngFor="let chart of data.charts">
+    <e-chart [chart]="chart"></e-chart>
   </div>
 </div>

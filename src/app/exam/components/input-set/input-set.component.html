@@ -14,7 +14,9 @@
           <div class="variable">
             <div class="mui-textfield mui-textfield--float-label">
               <input type="number" step="any" [(ngModel)]="variable.value" [name]="variable.name"
-                     [ngClass]="{ 'mui-invalid': isVerified() && !variable.correct }" required>
+                     [style.width]="(100 * variable.inputWidthRate) + 'px'"
+                     [ngClass]="{ 'mui-invalid': isVerified() && !variable.correct, 'correct': isVerified() && variable.correct }"
+                     [required]="variable.required">
               <label class="input-label" [innerHTML]="variable.name"></label>
             </div>
             <span class="units" [innerHTML]="variable.units"></span>
@@ -27,10 +29,10 @@
     </div>
   </form>
   <status-with-navigation [showStatus]="isVerified()"
-                          [statusSuccess]="data.status == 1"
+                          [statusSuccess]="data.status === 1"
                           statusSuccessMessage="Відповідь правильна."
                           statusFailureMessage="Відповідь не вірна, введіть інше значення."
-                          [showSubmit]="data.status != 1" [showContinue]="data.status == 1"
-                          [disableSubmit]="!inputSetForm.form.valid"
+                          [showSubmit]="data.status !== 1" [showContinue]="data.status === 1"
+                          [disableSubmit]="!inputSetForm.form.valid || data.status === 2"
                           (onSubmit)="submit()" (onContinue)="nextAssignment()"></status-with-navigation>
 </div>

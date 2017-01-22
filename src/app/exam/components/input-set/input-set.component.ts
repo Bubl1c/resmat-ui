@@ -18,7 +18,7 @@ export class InputSetData {
 
 export class VarirableAnswer {
   correct: boolean;
-  constructor(public variableId: number, public value: number) {}
+  constructor(public variableId: number, public value: number | null) {}
 
   static roundToFixed(value: number, accuracy: number): string {
     return typeof value === 'undefined' ? '0' : value.toFixed(accuracy);
@@ -41,9 +41,12 @@ export class InputVariable {
 
   constructor(public id: number,
               public name: string,
-              public groupName: string,
+              public groupName: string = '',
+              public units: string = '',
               public description: string = '',
-              public units: string = '') {
+              public required: boolean = false,
+              //Result input width = 100 * inputWidthRate px. See the template
+              public inputWidthRate: number = 1) {
     this.name = MathSymbolConverter.convertString(name);
   }
 }
@@ -89,13 +92,17 @@ export class InputSetComponent implements OnInit {
     this.onSubmitted.emit(
       new InputSetAnswer(
         this.data.id,
-        this.data.variables.map(v => new VarirableAnswer(v.id, v.value))
+        this.data.variables.map(v => new VarirableAnswer(v.id, this.numberOrNull(v.value)))
       )
     )
   }
 
   nextAssignment() {
     this.onContinue.emit();
+  }
+
+  private numberOrNull(num: number): number | null {
+    return typeof num === 'number' ? num : null;
   }
 
   private groupVariables() {

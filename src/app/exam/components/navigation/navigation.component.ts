@@ -20,22 +20,20 @@ export class NavigationComponent implements OnInit {
   @Input() alignContent: ContentAlignmentOptions = 'left';
 
 
-  @Output() onSubmit: EventEmitter<any>;
+  @Output() onSubmit = new EventEmitter<any>();
 
-  @Output() onBack: EventEmitter<any>;
+  @Output() onBack = new EventEmitter<any>();
 
-  @Output() onContinue: EventEmitter<any>;
+  @Output() onContinue = new EventEmitter<any>();
 
   constructor() {
-    this.onSubmit = new EventEmitter<any>();
-    this.onBack = new EventEmitter<any>();
-    this.onContinue = new EventEmitter<any>();
   }
 
   ngOnInit() {
   }
 
   submit() {
+    this.disableSubmit = true;
     this.onSubmit.emit();
   }
 
