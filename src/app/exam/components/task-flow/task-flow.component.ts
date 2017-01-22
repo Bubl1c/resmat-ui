@@ -163,15 +163,8 @@ export class TaskFlowComponent implements OnInit {
   }
 
   private scrollToBottom(): void {
-    // try {
-    //   this.taskFlowContainer.nativeElement.scrollTop = this.taskFlowContainer.nativeElement.scrollHeight;
-    // } catch(err) { console.error("Failed to scroll task flow container to bottom", err); }
     let pageScrollInstance: PageScrollInstance = PageScrollInstance.simpleInstance(this.document, '#scrollToBottomAnchor');
     this.pageScrollService.start(pageScrollInstance);
-    // setTimeout(() => {
-    //   // console.log("scrolling to bottom");
-    //   // window.scrollTo(0,document.body.scrollHeight)
-    // }, 100)
   }
 
   private loadStep(sequence: number) {

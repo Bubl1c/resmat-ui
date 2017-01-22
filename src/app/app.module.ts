@@ -11,11 +11,6 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { ExamComponent } from './exam/exam.component';
 import { ExamSeedData } from "./exam/data/mock/exam.data-service";
-// import { FlowComponent } from './flow/flow.component';
-// import { BcComponent } from './flow/bc/bc.component';
-// import { XResultsComponent } from './flow/x-results/x-results.component';
-// import { CutComponent } from './flow/cut/cut.component';
-// import { StrengthComponent } from './flow/strength/strength.component';
 import { TaskComponent } from './exam/components/task/task.component';
 import { TestComponent } from "./exam/components/test/test.component";
 import { EChartComponent } from "./exam/components/e-chart/e-chart.component";
@@ -37,13 +32,8 @@ import { Ng2PageScrollModule } from "ng2-page-scroll";
     LoginComponent,
     ExamComponent,
     TestComponent,
-    // FlowComponent,
-    // BcComponent,
     EChartComponent,
     ChartSetComponent,
-    // XResultsComponent,
-    // CutComponent,
-    // StrengthComponent,
     TaskComponent,
     StatusComponent,
     StatusWithNavigationComponent,
