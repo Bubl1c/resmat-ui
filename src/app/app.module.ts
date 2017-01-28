@@ -25,6 +25,8 @@ import { BorderStickyBtnComponent } from './components/border-sticky-btn/border-
 import { InputSetComponent } from './exam/components/input-set/input-set.component';
 import { ExamResultsComponent } from './exam/components/exam-results/exam-results.component';
 import { Ng2PageScrollModule } from "ng2-page-scroll";
+import { ApiService } from "./api.service";
+import { AdminComponent } from './admin/admin.component';
 
 @NgModule({
   declarations: [
@@ -43,18 +45,19 @@ import { Ng2PageScrollModule } from "ng2-page-scroll";
     TaskFlowComponent,
     BorderStickyBtnComponent,
     InputSetComponent,
-    ExamResultsComponent
+    ExamResultsComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
     AppRoutingModule,
-    InMemoryWebApiModule.forRoot(ExamSeedData, { delay: 500 }),
+    InMemoryWebApiModule.forRoot(ExamSeedData, { passThruUnknownUrl: true, apiBase: "api/", delay: 500 }),
     ChartsModule,
     Ng2PageScrollModule.forRoot()
   ],
-  providers: [],
+  providers: [ApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

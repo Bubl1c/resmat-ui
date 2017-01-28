@@ -1,9 +1,28 @@
 <div class="login-container">
-  <form class="login-form mui-panel" (submit)="login(loginInput.value)">
-    <legend>Вхід до системи</legend>
-    <div class="mui-textfield">
-      <input type="text" name="login" placeholder="Введіть Ваш шифр..." required #loginInput>
+  <div class="mui-panel">
+    <div class="relative">
+      <border-sticky-btn (onClick)="isStudent = !isStudent" positionH="right" positionV="top">
+        <i class="material-icons" [hidden]="!isStudent">vpn_key</i>
+        <i class="material-icons" [hidden]="isStudent">group</i>
+      </border-sticky-btn>
+      <form class="login-form" (submit)="login(loginInput.value)" *ngIf="isStudent">
+        <legend>Вхід до системи</legend>
+        <div class="mui-textfield">
+          <input type="text" name="login" placeholder="Введіть Ваш ключ доступу" required #loginInput>
+        </div>
+        <button type="submit" class="mui-btn mui-btn-primary">Увійти</button>
+      </form>
+      <form class="login-form" (submit)="login(loginInput.value, passwordInput.value)" *ngIf="!isStudent">
+        <legend>Вхід для викладачів</legend>
+        <div class="mui-textfield">
+          <input type="text" name="login" placeholder="Логін" required #loginInput>
+        </div>
+        <div class="mui-textfield" [hidden]="isStudent">
+          <input type="password" name="password" placeholder="Пароль" required #passwordInput>
+        </div>
+        <button type="submit" class="mui-btn mui-btn-primary">Увійти</button>
+      </form>
+      <div class="error-message">{{ errorMessage }}</div>
     </div>
-    <button type="submit" class="mui-btn mui-btn-primary">Увійти</button>
-  </form>
+  </div>
 </div>

@@ -14,3 +14,8 @@
   flex-direction: column;
   justify-content: space-around;
 }
+
+.error-message {
+  color: red;
+  text-align: center;
+}

@@ -6,6 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TaskFlowExamStep } from "../steps/exam.task-flow-step";
 import { ExamStep } from "../steps/exam.step";
 import { ResultsExamStep } from "../steps/exam.results-step";
+import { CurrentSession } from "../current-session";
 
 class InitialExamStep extends ExamStep {
   loadInitialData(): void {}

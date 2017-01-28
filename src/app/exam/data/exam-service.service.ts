@@ -10,6 +10,7 @@ import { IExamTaskFlowTaskData } from "./i-exam-task-flow-task-data";
 import { InputSetAnswer, VarirableAnswer } from "../components/input-set/input-set.component";
 import { TestAnswer } from "../components/test/test.component";
 import { ExamResult } from "../components/exam-results/exam-results.component";
+import { HttpUtils } from "../../utils/HttpUtils";
 
 export class VerifiedTestAnswer {
   constructor(public testId: number,
@@ -34,23 +35,23 @@ export class ExamService {
 
   getExamForUser(userId: string): Observable<IExamData> {
     return this.http.get(this.withBase('/users/' + userId + '/exam'))
-      .map(this.extractData)
+      .map(HttpUtils.extractData)
       .map((userData: IUserData) => userData.exam)
-      .catch(this.handleError);
+      .catch(HttpUtils.handleError);
   }
 
   getTests(): Observable<ITestData[]> {
     return this.http.get(this.withBase('/tests'))
-      .map(this.extractData)
-      .catch(this.handleError);
+      .map(HttpUtils.extractData)
+      .catch(HttpUtils.handleError);
   }
 
   verifyTestAnswer(testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
     let resultSubject = new ReplaySubject<VerifiedTestAnswer>();
 
     this.http.get(this.withBase('/test_answers/'+ testAnswer.testId))
-      .map(this.extractData)
-      .catch(this.handleError)
+      .map(HttpUtils.extractData)
+      .catch(HttpUtils.handleError)
       .subscribe(
         {
           next: (fetchedAnswer: ITestAnswerData) => {
@@ -71,20 +72,20 @@ export class ExamService {
 
   getExamTask(examId: number): Observable<IExamTaskFlowTaskData> {
     return this.http.get(this.withBase('/exams/' + examId + '/task'))
-      .map(this.extractData)
-      .catch(this.handleError)
+      .map(HttpUtils.extractData)
+      .catch(HttpUtils.handleError)
   }
 
   getResults(examId: number): Observable<ExamResult> {
     return this.http.get(this.withBase('/exam_results/' + examId))
-      .map(this.extractData)
-      .catch(this.handleError)
+      .map(HttpUtils.extractData)
+      .catch(HttpUtils.handleError)
   }
 
   getExamTaskFlowStep(examId: number, taskId: number, stepSequence: number): Observable<IExamTaskFlowStepData> {
     return this.http.get(this.withBase('/task_steps/' + stepSequence))
-      .map(this.extractData)
-      .catch(this.handleError)
+      .map(HttpUtils.extractData)
+      .catch(HttpUtils.handleError)
   }
 
   verifyTaskFlowStep(examId: number,
@@ -94,8 +95,8 @@ export class ExamService {
     let resultSubject = new ReplaySubject<VerifiedTestAnswer>();
 
     this.http.get(this.withBase('/flow_step_answers/' + stepSequence))
-      .map(this.extractData)
-      .catch(this.handleError)
+      .map(HttpUtils.extractData)
+      .catch(HttpUtils.handleError)
       .subscribe(
         {
           next: (fetchedAnswer: any) => {
@@ -162,23 +163,5 @@ export class ExamService {
     });
 
     return new VerifiedTestAnswer(testAnswer.testId, isAllCorrect, verifiedOptions);
-  }
-
-  private extractData(res: Response) {
-    let body = res.json();
-    return body.data || { };
-  }
-  private handleError (error: Response | any) {
-    // In a real world app, we might use a remote logging infrastructure
-    let errMsg: string;
-    if (error instanceof Response) {
-      const body = error.json() || '';
-      const err = body.error || JSON.stringify(body);
-      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-    } else {
-      errMsg = error.message ? error.message : error.toString();
-    }
-    console.error(errMsg);
-    return Observable.throw(errMsg);
   }
 }

@@ -1,22 +1,39 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from "@angular/router";
+import { CurrentSession } from "../current-session";
+import { LoginService } from "./login.service";
+import { UserData, UserType } from "../user/user.models";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  providers: [LoginService]
 })
 export class LoginComponent implements OnInit {
+  errorMessage: string;
+  isStudent: boolean = true;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private loginService: LoginService) { }
 
   ngOnInit() {
   }
 
-  login(login: string) {
-    console.log("Login successful: ", login);
-    this.router.navigate(['users/' + login + '/exam']);
-    // this.router.navigate(['/exam']);
+  login(login: string, password?: string) {
+    this.loginService.login(login, password).subscribe((loggedUser: UserData) => {
+      console.log('Logged user: ', loggedUser);
+      switch(loggedUser.userType) {
+        case UserType.student:
+          this.router.navigate(['users/' + login + '/exam']);
+          break;
+        case UserType.instructor:
+        case UserType.admin:
+          this.router.navigate(['/admin']);
+          break;
+        default:
+          throw "Invalid user type: " + loggedUser.userType
+      }
+    }, error => this.errorMessage = error);
   }
 
 }
