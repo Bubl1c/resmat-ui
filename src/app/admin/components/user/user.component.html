@@ -1,0 +1,37 @@
+<form (submit)="save()">
+  <div class="mui-textfield">
+    <input class="disabled" type="text" [value]="user.id" disabled>
+    <label>ID</label>
+  </div>
+  <div class="mui-textfield">
+    <input class="disabled" type="text" [value]="user.username" disabled>
+    <label>Логін</label>
+  </div>
+  <div class="mui-textfield">
+    <input class="disabled" type="text" [value]="user.userType.name" disabled>
+    <label>Тип</label>
+  </div>
+  <fieldset [disabled]="config.disabled">
+    <div class="mui-textfield">
+      <input type="text" name="firstName" [(ngModel)]="user.firstName" required>
+      <label>Ім'я</label>
+    </div>
+    <div class="mui-textfield">
+      <input type="text" name="lastName" [(ngModel)]="user.lastName" required>
+      <label>Прізвище</label>
+    </div>
+    <div class="mui-textfield">
+      <input type="text" name="email" [(ngModel)]="user.email">
+      <label>Імейл</label>
+    </div>
+    <div class="mui-textfield">
+      <input type="text" name="accessKey" [(ngModel)]="user.accessKey" required>
+      <label>Ключ доступу</label>
+    </div>
+
+    <button class="mui-btn mui-btn--primary"
+            type="submit">
+      {{ isSaving ? 'Збереження' : 'Зберегти' }}
+    </button>
+  </fieldset>
+</form>

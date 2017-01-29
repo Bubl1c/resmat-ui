@@ -27,6 +27,8 @@ import { ExamResultsComponent } from './exam/components/exam-results/exam-result
 import { Ng2PageScrollModule } from "ng2-page-scroll";
 import { ApiService } from "./api.service";
 import { AdminComponent } from './admin/admin.component';
+import { UserComponent } from './admin/components/user/user.component';
+import { GroupStudentsComponent } from './admin/components/group-students/group-students.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +48,9 @@ import { AdminComponent } from './admin/admin.component';
     BorderStickyBtnComponent,
     InputSetComponent,
     ExamResultsComponent,
-    AdminComponent
+    AdminComponent,
+    UserComponent,
+    GroupStudentsComponent
   ],
   imports: [
     BrowserModule,

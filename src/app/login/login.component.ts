@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit {
   constructor(private router: Router, private loginService: LoginService) { }
 
   ngOnInit() {
+    // this.login("admin", "root");
   }
 
   login(login: string, password?: string) {
@@ -33,7 +34,7 @@ export class LoginComponent implements OnInit {
         default:
           throw "Invalid user type: " + loggedUser.userType
       }
-    }, error => this.errorMessage = error);
+    }, error => this.errorMessage = "Логін або пароль не вірні");
   }
 
 }

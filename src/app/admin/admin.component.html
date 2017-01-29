@@ -1,3 +1,47 @@
-<p>
-  admin works!
-</p>
+<div class="container">
+  <div class="side-menu mui--no-user-select mui-panel">
+    <ul>
+      <li *ngIf="isAdmin">
+        <strong>Користувачі</strong>
+        <ul>
+          <li *ngFor="let user of users"><a (click)="loadEditUser(user)">{{ user.firstName + ' ' + user.lastName }}</a></li>
+        </ul>
+      </li>
+      <li>
+        <strong>Групи</strong>
+        <ul>
+          <li *ngFor="let group of studentGroups"><a (click)="loadStudentsByGroup(group)">{{ group.name }}</a></li>
+        </ul>
+      </li>
+      <li>
+        <strong>Іспити</strong>
+        <ul>
+          <li><a>Семестрова контрольна робота</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div class="workspace mui-container-fluid mui-panel">
+    <!--<div class="error-message" *ngIf="workspaceData && workspaceData.errorMessage">{{ workspaceData.errorMessage }}</div>-->
+    <div *ngIf="workspaceData">
+      <user *ngIf="workspaceData.type === 'user'"
+            [user]="workspaceData.data"
+            [config]="workspaceData.config"
+            (onSaved)="workspaceData.save($event)"></user>
+
+      <group-students
+        *ngIf="workspaceData.type === 'group-students'"
+        [students]="workspaceData.data"
+        (onResultsRequested)="loadStudentResults($event)"
+        (onEditRequested)="loadEditUser($event)"></group-students>
+
+      <div *ngIf="workspaceData.type === 'exam-results'">
+        <div *ngFor="let result of workspaceData.data" class="exam-result">
+          <exam-results [data]="result"></exam-results>
+          <div class="mui-divider"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

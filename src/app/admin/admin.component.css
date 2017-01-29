@@ -1,0 +1,65 @@
+/**
+ * Layout CSS
+ */
+
+.container {
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  display: flex;
+  flex-wrap: nowrap;
+  margin-top: 10px;
+}
+
+.side-menu {
+  min-width: 200px;
+  flex-grow: 1;
+  margin: 1em;
+  padding: 0px;
+  overflow: scroll;
+  max-width: 20%;
+}
+
+.workspace {
+  margin: 1em;
+  flex-grow: 1;
+  overflow: scroll;
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+}
+
+/**
+ * Side menu CSS
+ */
+.side-menu ul {
+  list-style: none;
+}
+
+.side-menu > ul {
+  padding-left: 0px;
+}
+
+.side-menu > ul > li:first-child {
+  padding-top: 15px;
+}
+
+.side-menu strong {
+  display: block;
+  padding: 15px 22px;
+  cursor: pointer;
+}
+
+/*.side-menu strong:hover {*/
+  /*background-color: #E0E0E0;*/
+/*}*/
+
+.side-menu strong + ul > li {
+  padding: 6px 0px;
+}
+
+.exam-result .mui-divider {
+  margin: 2em;
+}
