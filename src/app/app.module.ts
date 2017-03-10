@@ -57,7 +57,7 @@ import { GroupStudentsComponent } from './admin/components/group-students/group-
     FormsModule,
     HttpModule,
     AppRoutingModule,
-    InMemoryWebApiModule.forRoot(ExamSeedData, { passThruUnknownUrl: true, apiBase: "api/", delay: 500 }),
+    InMemoryWebApiModule.forRoot(ExamSeedData, { passThruUnknownUrl: true, apiBase: "v1/", delay: 500 }),
     ChartsModule,
     Ng2PageScrollModule.forRoot()
   ],

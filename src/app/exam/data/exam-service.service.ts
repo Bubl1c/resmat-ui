@@ -3,7 +3,7 @@ import { Http, Response } from "@angular/http";
 
 import { Observable, ReplaySubject } from "rxjs/Rx";
 import {
-  ITestData, IExamData, ITestAnswerData, IUserData
+  ITestData, IExamData, ITestAnswerData, IUserData, IExamStepWithData
 } from "./exam.api-protocol";
 import { IExamTaskFlowStepData, TaskFlowStepTypes } from "./task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "./i-exam-task-flow-task-data";
@@ -11,10 +11,12 @@ import { InputSetAnswer, VarirableAnswer } from "../components/input-set/input-s
 import { TestAnswer } from "../components/test/test.component";
 import { ExamResult } from "../components/exam-results/exam-results.component";
 import { HttpUtils } from "../../utils/HttpUtils";
+import { ApiService } from "../../api.service";
 
 export class VerifiedTestAnswer {
   constructor(public testId: number,
-              public isAllCorrect: boolean,
+              public isCorrectAnswer: boolean,
+              public mistakesAmount: number,
               public answer: { [key:number]:boolean }) {}
   callIfExists(id: number, func: (isCorrect: boolean) => void) {
     let result = this.answer[id];
@@ -27,17 +29,38 @@ export class VerifiedTestAnswer {
 @Injectable()
 export class ExamService {
 
-  private apiBaseUrl: string = 'api';
+  private apiBaseUrl: string = 'v1';
 
   private withBase(path: string): string { return this.apiBaseUrl + path }
 
-  constructor(private http: Http) { }
+  constructor(private http: Http, private api: ApiService) { }
 
-  getExamForUser(userId: string): Observable<IExamData> {
-    return this.http.get(this.withBase('/users/' + userId + '/exam'))
-      .map(HttpUtils.extractData)
-      .map((userData: IUserData) => userData.exam)
-      .catch(HttpUtils.handleError);
+  getExamForUser(): Observable<IExamData> {
+    return this.api.get("/user-exams/current")
+      .map((responseData: any) => {
+        if(responseData) {
+          let userExam = responseData.userExam;
+          let currentStepPreview = responseData.currentStepPreview;
+          let examConf = responseData.examConf;
+          return {
+            id: userExam.id,
+            name: examConf.name,
+            description: examConf.description,
+            currentStep: {
+              sequence: currentStepPreview.sequence,
+              type: currentStepPreview.stepType,
+              description: currentStepPreview.description
+            }
+          }
+        } else {
+          return null;
+        }
+      });
+  }
+
+  getCurrentExamStep(userExamId: number): Observable<IExamStepWithData> {
+    return this.api.get("/user-exams/" + userExamId + "/steps/current")
+      // .map(responseData => responseData as IExamStepWithData)
   }
 
   getTests(): Observable<ITestData[]> {
@@ -46,28 +69,13 @@ export class ExamService {
       .catch(HttpUtils.handleError);
   }
 
-  verifyTestAnswer(testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
-    let resultSubject = new ReplaySubject<VerifiedTestAnswer>();
-
-    this.http.get(this.withBase('/test_answers/'+ testAnswer.testId))
-      .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError)
-      .subscribe(
-        {
-          next: (fetchedAnswer: ITestAnswerData) => {
-            // if(fetchedAnswers.length === 0) {
-            //   resultSubject.error(`Test with id [${testAnswer.id}] was not found`);
-            //   return resultSubject;
-            // }
-            // let fetchedAnswer = fetchedAnswers[0];
-            let verified = this.verifyTestAnswerImpl(testAnswer, fetchedAnswer);
-            resultSubject.next(verified)
-          },
-          error: (error) => resultSubject.error(`Error while fetching test answer with id [${testAnswer.testId}]. Cause: ${error}`)
-        }
-      );
-
-    return resultSubject
+  verifyTestAnswer(examId: number, stepSequence: number, attemptId: number, testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
+    return this.api.post(
+      '/user-exams/' + examId +
+      '/steps/' + stepSequence +
+      '/attempts/' + attemptId +
+      '/tests/'+ testAnswer.testId + '/verify', testAnswer.submittedOptions)
+        .map(r => new VerifiedTestAnswer(r.testId, r.isCorrectAnswer, r.mistakesAmount, r.answer))
   }
 
   getExamTask(examId: number): Observable<IExamTaskFlowTaskData> {
@@ -162,6 +170,6 @@ export class ExamService {
       verifiedOptions[currentOption] = fetchedAnswer.answer.indexOf(currentOption) !== -1
     });
 
-    return new VerifiedTestAnswer(testAnswer.testId, isAllCorrect, verifiedOptions);
+    return new VerifiedTestAnswer(testAnswer.testId, isAllCorrect, -1/*Stub*/, verifiedOptions);
   }
 }

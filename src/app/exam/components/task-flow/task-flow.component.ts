@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, Inject } from '@angular/core';
-import { ITestData } from "../../data/exam.api-protocol";
+import { ITestDto } from "../../data/exam.api-protocol";
 import { ExamService, VerifiedTestAnswer } from "../../data/exam-service.service";
 import { IExamTaskFlowStepData, TaskFlowStepTypes } from "../../data/task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
@@ -69,7 +69,7 @@ class TestTaskFlowStep extends TaskFlowStep {
       .subscribe({
         next: (verifiedAnswer: VerifiedTestAnswer) => {
           console.log("Verified test answer: ", verifiedAnswer);
-          that.data.status = verifiedAnswer.isAllCorrect ? TestStatus.Correct : TestStatus.Incorrect;
+          that.data.status = verifiedAnswer.isCorrectAnswer ? TestStatus.Correct : TestStatus.Incorrect;
           console.log("Test status: ", that.data.status);
           that.data.options.forEach(testOption => {
             //If an option was submitted and exists in the verified answer
@@ -84,7 +84,7 @@ class TestTaskFlowStep extends TaskFlowStep {
   }
 
   fillData(data: any): void {
-    let typedData = <ITestData> data;
+    let typedData = <ITestDto> data;
     this.data = new Test(typedData, this.sequence);
     this.data.sequence = this.sequence;
   }

@@ -4,7 +4,7 @@
     <div>{{exam.name}}</div>
     <div><span [hidden]="step.type === 'results'">Етап {{exam.currentStep.sequence}}.</span> {{exam.currentStep.description}}</div>
   </div>
-  <div class="test-set-container" *ngIf="step.type === 'test' && !step.isLoading">
+  <div class="test-set-container" *ngIf="step.type === 'test-set' && !step.isLoading">
     <div class="conditions" *ngIf="step.mistakes <= step.mistakesLimit">
       Кожна невірна відповідь буде зарахована як помилка.
       <br/>

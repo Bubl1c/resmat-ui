@@ -1,20 +1,20 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { ITestOptionData, ITestData, TestTypes } from "../../data/exam.api-protocol";
+import { TestTypes, ITestDto, ITestOptionDto } from "../../data/exam.api-protocol";
 import { ArrayUtils } from "../../../utils/ArrayUtils";
 
-export class TestOption implements ITestOptionData {
+export class TestOption {
   constructor(public id: number,
               public type: string,
               public value: string,
               public checked: boolean = false,
               public correct: boolean = false) {}
 
-  public static create(other: ITestOptionData) {
-    return new TestOption(other.id, other.type, other.value, other.checked)
+  public static create(other: ITestOptionDto) {
+    return new TestOption(other.id, other.valueType, other.value, false)
   }
 }
 
-export class Test implements ITestData {
+export class Test {
   id: number;
   question: string;
   options: TestOption[];
@@ -24,12 +24,12 @@ export class Test implements ITestData {
   sequence: number;
   status: number = TestStatus.Initial;
 
-  constructor(iTest: ITestData, sequence: number) {
+  constructor(iTest: ITestDto, sequence: number) {
     this.id = iTest.id;
     this.question = iTest.question;
     this.options = iTest.options.map(io => TestOption.create(io));
-    this.helpImg = iTest.helpImg;
-    this.type = iTest.type;
+    this.helpImg = iTest.help;
+    this.type = iTest.testType;
     this.sequence = sequence
   }
 }

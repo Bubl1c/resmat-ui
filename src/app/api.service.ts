@@ -3,28 +3,31 @@ import { Http, Headers, RequestOptionsArgs, Response, RequestOptions } from '@an
 import { HttpUtils } from "./utils/HttpUtils";
 import { Observable } from "rxjs";
 import { CurrentSession } from "./current-session";
+import { Router } from "@angular/router";
 
 @Injectable()
 export class ApiService {
 
-  constructor(private http: Http) {}
+  constructor(private http: Http, private router: Router) {}
+
+  that = this;
 
   get(path: string, options?: RequestOptionsArgs): Observable<any> {
     return this.http.get(HttpUtils.withBase(path), this.withDefaultHeaders(options))
       .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError)
+      .catch(e => this.handleErrorWithUnauthorized(e, this.router))
   }
 
   post(path: string, body: any, options?: RequestOptionsArgs): Observable<any> {
     return this.http.post(HttpUtils.withBase(path), body, this.withDefaultHeaders(options))
       .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError)
+      .catch(e => this.handleErrorWithUnauthorized(e, this.router))
   }
 
   put(path: string, body: any, options?: RequestOptionsArgs): Observable<any> {
     return this.http.put(HttpUtils.withBase(path), body, this.withDefaultHeaders(options))
       .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError)
+      .catch(e => this.handleErrorWithUnauthorized(e, this.router))
   }
 
   private withDefaultHeaders(options?: RequestOptionsArgs): RequestOptionsArgs {
@@ -35,5 +38,14 @@ export class ApiService {
     }
     options.headers.append('Content-Type', 'application/json');
     return options;
+  }
+
+  private handleErrorWithUnauthorized(error: Response | any, router: Router) {
+    console.log("Handling error: ", error);
+    if(error.status === 401) {
+      console.log("Access forbidden. Redirecting to login!");
+      router.navigate(['/login'])
+    }
+    return HttpUtils.handleError(error)
   }
 }

@@ -1,4 +1,6 @@
 import { sequence } from "@angular/core";
+
+//Remove
 export interface ITestAnswerData {
   id: number;
   answer: number[];
@@ -10,6 +12,7 @@ export class TestTypes {
   static all = [TestTypes.Checkbox, TestTypes.Radio]
 }
 
+//Remove
 export interface ITestData {
   id: number;
   question: string;
@@ -18,6 +21,7 @@ export interface ITestData {
   type: string;
 }
 
+//Remove
 export interface ITestOptionData {
   id: number;
   value: string;
@@ -25,11 +29,28 @@ export interface ITestOptionData {
   checked: boolean;
 }
 
+export interface ITestOptionDto {
+  id: number;
+  testId: number;
+  sequence: number;
+  value: string;
+  valueType: string;
+}
+
+export interface ITestDto {
+  id: number;
+  groupId: number;
+  question: string;
+  options: ITestOptionDto[];
+  help: string;
+  testType: string;
+}
+
 export class ExamStepTypes {
-  static Test = 'test';
+  static TestSet = 'test-set';
   static TaskFlow = 'task-flow';
   static Results = 'results';
-  static sequence = [ExamStepTypes.Test, ExamStepTypes.TaskFlow, ExamStepTypes.Results];
+  static sequence = [ExamStepTypes.TestSet, ExamStepTypes.TaskFlow, ExamStepTypes.Results];
   static getNext(examStepType: string): string {
     let index = this.sequence.indexOf(examStepType);
     let isLast = this.isLast(examStepType);
@@ -57,11 +78,39 @@ export interface IExamData {
   id: number;
   name: string;
   description: string;
-  currentStep: IExamStepData;
+  currentStep: IExamStepPreview;
 }
 
-export interface IExamStepData {
+export interface IExamStepPreview {
   sequence: number;
   type: string;
   description: string
+}
+
+export interface IExamStepConf {
+  id: number;
+  examConfId: number;
+  sequence: number;
+  name: string;
+  stepType: string;
+  mistakesPerAttemptLimit: number;
+  attemptsLimit: number
+}
+
+export interface IExamStepAttempt {
+  id: number;
+  userId: number;
+  userExamId: number;
+  examStepConfId: number;
+  mistakesAmount: number;
+  attemptNumber: number/*Starts with 1*/;
+  status: string;
+  stepVariantConfId: number;
+  dataSetId: number
+}
+
+export interface IExamStepWithData {
+  stepConf: IExamStepConf;
+  attempt: IExamStepAttempt;
+  stepData: any
 }

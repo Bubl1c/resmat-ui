@@ -1,5 +1,5 @@
 import {
-  ITestData, ITestAnswerData, TestTypes, IExamData, IExamStepData, ExamStepTypes
+  ITestData, ITestAnswerData, TestTypes, IExamData, IExamStepPreview, ExamStepTypes
 } from "../exam.api-protocol";
 import { IExamTaskFlowStepData, TaskFlowStepTypes, ISchemaVar } from "../task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../i-exam-task-flow-task-data";
@@ -9,7 +9,7 @@ import { ExamResult } from "../../components/exam-results/exam-results.component
 import { ChartSet } from "../../components/chart-set/chart-set.component";
 export class ExamData {
 
-  private static exam1 = ExamData.ed(1, 'Семестрова самостійна робота', 'Опис', ExamData.es(1, ExamStepTypes.Test, "Тестування"));
+  private static exam1 = ExamData.ed(1, 'Семестрова самостійна робота', 'Опис', ExamData.es(1, ExamStepTypes.TestSet, "Тестування"));
   private static task1 = ExamData.et(1, 1, 1, 1, 'Розрахунок кільцевої пластини', 'img/tasks/9.png',
     "Дуже цікавий опис поточного тестового завдання. Як його розв'язувати, на що звернути увагу щоб не помилитись!",
     [
@@ -265,11 +265,11 @@ export class ExamData {
     return { id: id, name: name, exam: exam };
   }
 
-  private static ed(id: number, name: string, description: string, currentStep: IExamStepData): IExamData {
+  private static ed(id: number, name: string, description: string, currentStep: IExamStepPreview): IExamData {
     return { id: id, name: name, description: description, currentStep: currentStep };
   }
 
-  private static es(sequence: number, type: string, description: string): IExamStepData {
+  private static es(sequence: number, type: string, description: string): IExamStepPreview {
     return { sequence: sequence, type: type, description: description }
   }
 

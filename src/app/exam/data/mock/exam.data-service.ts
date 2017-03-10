@@ -6,7 +6,7 @@ export class ExamSeedData implements InMemoryDbService {
 
     let users = ExamData.users;
 
-    let tests = ExamData.tests;
+    // let tests = ExamData.tests;
 
     let test_answers = ExamData.test_answers;
 
@@ -20,6 +20,6 @@ export class ExamSeedData implements InMemoryDbService {
 
     let task_flow_charts = ExamData.task_flow_charts;
 
-    return { users, tests, test_answers, exams, task_steps, flow_step_answers, exam_results, task_flow_charts };
+    return { users, /*tests,*/ test_answers, exams, task_steps, flow_step_answers, exam_results, task_flow_charts };
   }
 }
