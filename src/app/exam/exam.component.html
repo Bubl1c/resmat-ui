@@ -15,6 +15,8 @@
       Наступна спроба буде доступна за 24 години. Кількість доступних спроб - {{ step.maxAttempts }}.
     </div>
     <div class="mistakes" title="Кількість допущених помилок" >
+      Поточна спроба: <b>{{ step.attempt }}</b>
+      <br/>
       Кількість допущених помилок: <b>{{ step.mistakes }}</b>
     </div>
     <div class="mistakes-limit-exceeded" *ngIf="step.mistakes > step.mistakesLimit">

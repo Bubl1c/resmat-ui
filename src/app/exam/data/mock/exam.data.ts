@@ -1,5 +1,5 @@
 import {
-  ITestData, ITestAnswerData, TestTypes, IExamData, IExamStepPreview, ExamStepTypes
+  ITestAnswerData, TestTypes, IExamData, IExamStepPreview, ExamStepTypes, ITestDto
 } from "../exam.api-protocol";
 import { IExamTaskFlowStepData, TaskFlowStepTypes, ISchemaVar } from "../task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../i-exam-task-flow-task-data";
@@ -71,12 +71,13 @@ export class ExamData {
     )
   ];
 
-  public static tests: ITestData[] = [
+  public static tests: ITestDto[] = [
     {
       id: 1,
+      groupId: 1,
       question: 'Коефіцієнт Пуассона – це',
-      type: TestTypes.Checkbox,
-      helpImg: null,
+      testType: TestTypes.Checkbox,
+      help: null,
       options: [
         new TestOption(1, 'words', 'Міра зміни поперечних розмірів ізотропного тіла при деформації розтягу'),
         new TestOption(2, 'words', 'Міра зміни відносної деформації по відношенню до нормального напруження'),
@@ -86,9 +87,10 @@ export class ExamData {
     },
     {
       id: 2,
+      groupId: 1,
       question: 'Формула для визначення циліндричної жорсткості',
-      type: TestTypes.Radio,
-      helpImg: null,
+      testType: TestTypes.Radio,
+      help: null,
       options: [
         new TestOption(1, 'img', 'img/tasks/hardness/h1.png'),
         new TestOption(2, 'img', 'img/tasks/hardness/h2.png'),
@@ -98,9 +100,10 @@ export class ExamData {
     },
     {
       id: 3,
+      groupId: 1,
       question: 'У яких одиницях вимірюється Коефіцієнт Пуассона?',
-      type: TestTypes.Radio,
-      helpImg: null,
+      testType: TestTypes.Radio,
+      help: null,
       options: [
         new TestOption(1, 'words', 'кН*м'),
         new TestOption(2, 'words', 'м^2'),
@@ -133,12 +136,12 @@ export class ExamData {
       id: 1,
       question: 'Визначте до якого класу відноситься дана пластина:',
       options: [
-        { id: 1, type: 'words', value: 'Товсті', checked: true },
-        { id: 2, type: 'words', value: 'Тонкі', checked: false },
-        { id: 3, type: 'words', value: 'Мембрани', checked: false }
+        new TestOption(1, 'words', 'Товсті'),
+        new TestOption(2, 'words', 'Тонкі'),
+        new TestOption(3, 'words', 'Мембрани')
       ],
-      helpImg: 'img/class.png',
-      type: TestTypes.Radio
+      help: 'img/class.png',
+      testType: TestTypes.Radio
     }),
     ExamData.tfs(2, TaskFlowStepTypes.InputSet, 2,
       "Введіть значення граничних умов, якщо умова невідома - залиште поле пустим",
@@ -176,12 +179,13 @@ export class ExamData {
     ),
     ExamData.tfs(6, TaskFlowStepTypes.Test, 6, "", {
       id: 1,
+      groupId: 1,
       question: 'Чи забезпечуться міцність перерізу?',
       options: [
         new TestOption(1, 'words', 'Забезпечується'),
         new TestOption(2, 'words', 'Не забезпечується')
       ],
-      type: TestTypes.Radio
+      testType: TestTypes.Radio
     }),
     ExamData.tfs(7, TaskFlowStepTypes.Finished, 7, "", {})
   ];

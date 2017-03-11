@@ -19,8 +19,8 @@
                (change)="onOptionChecked(option)">
       </td>
       <td>
-        <span *ngIf="option.type === 'words'">{{ option.value }}</span>
-        <img class="option-img" *ngIf="option.type === 'img'" src="{{ option.value }}">
+        <span *ngIf="option.valueType === 'words'">{{ option.value }}</span>
+        <img *ngIf="option.valueType === 'img'" class="option-img" src="{{ option.value }}">
       </td>
     </tr>
   </table>

@@ -7,6 +7,7 @@ import { TaskFlowExamStep } from "../steps/exam.task-flow-step";
 import { ExamStep } from "../steps/exam.step";
 import { ResultsExamStep } from "../steps/exam.results-step";
 import { CurrentSession } from "../current-session";
+import { ErrorResponse } from "../utils/HttpUtils";
 
 class InitialExamStep extends ExamStep {
   loadInitialData(): void {}
@@ -49,11 +50,11 @@ export class ExamComponent implements OnInit {
   }
 
   onTestSetStepFinished() {
-    this.loadNextStep(ExamStepTypes.TaskFlow, "Розв'язання задачі");
+    this.submitCurrentStep(ExamStepTypes.TaskFlow, "Розв'язання задачі");
   }
 
   onTaskFlowStepFinished() {
-    this.loadNextStep(ExamStepTypes.Results, "Результати");
+    this.submitCurrentStep(ExamStepTypes.Results, "Результати");
   }
 
   private loadNextStep(type: string, description: string) {
@@ -61,6 +62,14 @@ export class ExamComponent implements OnInit {
     this.exam.currentStep.type = type;
     this.exam.currentStep.description = description;
     this.loadStep(this.exam.id, this.exam.currentStep.type, this.exam.currentStep.sequence, this.exam.currentStep.description)
+  }
+
+  private submitCurrentStep(nextStepType: string, nextStepDescription: string) {
+    this.examService.submitExamStep(this.exam.id, this.exam.currentStep.sequence).subscribe(response => {
+      this.loadNextStep(nextStepType, nextStepDescription)
+    }, (error: ErrorResponse) => {
+      alert("Не вдалося продовжити! " + error)
+    })
   }
 
   private loadStep(examId: number, type: string,  sequence: number, description: string) {
@@ -79,6 +88,8 @@ export class ExamComponent implements OnInit {
         default: throw "Invalid exam step: " + type;
       }
       this.step.loadInitialData();
+    }, (error: ErrorResponse) => {
+      alert("Failed to load current step: " + error);
     });
   }
 

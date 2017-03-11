@@ -3,7 +3,7 @@ import { Http, Response } from "@angular/http";
 
 import { Observable, ReplaySubject } from "rxjs/Rx";
 import {
-  ITestData, IExamData, ITestAnswerData, IUserData, IExamStepWithData
+  IExamData, ITestAnswerData, IUserData, IExamStepWithData
 } from "./exam.api-protocol";
 import { IExamTaskFlowStepData, TaskFlowStepTypes } from "./task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "./i-exam-task-flow-task-data";
@@ -58,15 +58,13 @@ export class ExamService {
       });
   }
 
-  getCurrentExamStep(userExamId: number): Observable<IExamStepWithData> {
-    return this.api.get("/user-exams/" + userExamId + "/steps/current")
+  getCurrentExamStep(examId: number): Observable<IExamStepWithData> {
+    return this.api.get("/user-exams/" + examId + "/steps/current")
       // .map(responseData => responseData as IExamStepWithData)
   }
 
-  getTests(): Observable<ITestData[]> {
-    return this.http.get(this.withBase('/tests'))
-      .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError);
+  submitExamStep(examId: number, stepSequence: number): Observable<any> {
+    return this.api.get("/user-exams/" + examId + "/steps/" + stepSequence + "/submit")
   }
 
   verifyTestAnswer(examId: number, stepSequence: number, attemptId: number, testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {

@@ -4,7 +4,7 @@ import { ArrayUtils } from "../../../utils/ArrayUtils";
 
 export class TestOption {
   constructor(public id: number,
-              public type: string,
+              public valueType: string,
               public value: string,
               public checked: boolean = false,
               public correct: boolean = false) {}

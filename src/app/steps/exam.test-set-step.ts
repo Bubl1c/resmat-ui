@@ -1,6 +1,6 @@
 import { Test, TestAnswer, TestStatus } from "../exam/components/test/test.component";
 import { ExamService, VerifiedTestAnswer } from "../exam/data/exam-service.service";
-import { ITestData, ExamStepTypes, IExamStepWithData, ITestDto } from "../exam/data/exam.api-protocol";
+import { ExamStepTypes, IExamStepWithData, ITestDto } from "../exam/data/exam.api-protocol";
 import { ExamStep } from "./exam.step";
 
 interface ITestSetConf {
@@ -53,13 +53,13 @@ export class TestSetExamStep extends ExamStep {
     this.examService.verifyTestAnswer(this.examId, this.stepWithData.stepConf.sequence, this.stepWithData.attempt.id, answer).subscribe({
       next: (verifiedAnswer: VerifiedTestAnswer) => {
         test.status = verifiedAnswer.isCorrectAnswer ? TestStatus.Correct : TestStatus.Incorrect;
+        this.mistakes = this.mistakes + verifiedAnswer.mistakesAmount;
         test.options.forEach(testOption => {
           //If an option was submitted and exists in the verified answer
           verifiedAnswer.callIfExists(testOption.id, isCorrect => {
             //Set the correctness of the option
             testOption.correct = isCorrect;
           });
-          this.mistakes = this.mistakes + verifiedAnswer.mistakesAmount;
         });
       },
       error: error => console.error(error) //todo handle error

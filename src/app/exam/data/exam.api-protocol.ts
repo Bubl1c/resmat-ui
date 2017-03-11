@@ -12,27 +12,8 @@ export class TestTypes {
   static all = [TestTypes.Checkbox, TestTypes.Radio]
 }
 
-//Remove
-export interface ITestData {
-  id: number;
-  question: string;
-  options: ITestOptionData[];
-  helpImg: string;
-  type: string;
-}
-
-//Remove
-export interface ITestOptionData {
-  id: number;
-  value: string;
-  type: string;
-  checked: boolean;
-}
-
 export interface ITestOptionDto {
   id: number;
-  testId: number;
-  sequence: number;
   value: string;
   valueType: string;
 }
