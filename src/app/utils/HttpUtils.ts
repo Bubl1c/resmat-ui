@@ -23,7 +23,6 @@ export class HttpUtils {
     return body ? body.data || body : {};
   }
   static handleError (error: Response | any) {
-    console.log("Handling error: ", error);
     let errorResponse: ErrorResponse;
     if (error instanceof Response) {
       const body = error.json() || '';

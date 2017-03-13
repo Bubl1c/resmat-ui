@@ -8,6 +8,8 @@
 /node_modules
 /bower_components
 
+/src/**/*.js
+
 # IDEs and editors
 /.idea
 /.vscode

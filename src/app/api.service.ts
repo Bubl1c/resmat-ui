@@ -41,7 +41,6 @@ export class ApiService {
   }
 
   private handleErrorWithUnauthorized(error: Response | any, router: Router) {
-    console.log("Handling error: ", error);
     if(error.status === 401) {
       console.log("Access forbidden. Redirecting to login!");
       router.navigate(['/login'])
