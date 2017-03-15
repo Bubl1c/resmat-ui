@@ -296,6 +296,8 @@ private static et(id: number,
   return {
     id: id,
     examId: examId,
+    examStepSequence: -1,
+    examStepAttemptId: -1,
     version: version,
     currentStep: currentStep,
     name: name,

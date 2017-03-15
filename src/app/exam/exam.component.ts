@@ -3,7 +3,7 @@ import { ExamService } from "./data/exam-service.service";
 import { IExamData, ExamStepTypes, IExamStepWithData } from "./data/exam.api-protocol";
 import { TestSetExamStep } from "../steps/exam.test-set-step";
 import { ActivatedRoute } from "@angular/router";
-import { TaskFlowExamStep } from "../steps/exam.task-flow-step";
+import { TaskFlowExamStep, TaskFlowDto } from "../steps/exam.task-flow-step";
 import { ExamStep } from "../steps/exam.step";
 import { ResultsExamStep } from "../steps/exam.results-step";
 import { CurrentSession } from "../current-session";
@@ -80,7 +80,7 @@ export class ExamComponent implements OnInit {
           this.step = new TestSetExamStep(this.examService, examId, stepWithData);
           break;
         case ExamStepTypes.TaskFlow:
-          this.step = new TaskFlowExamStep(this.examService, examId, sequence, description);
+          this.step = new TaskFlowExamStep(this.examService, examId, stepWithData);
           break;
         case ExamStepTypes.Results:
           this.step = new ResultsExamStep(this.examService, examId, sequence, description);

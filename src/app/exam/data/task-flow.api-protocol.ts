@@ -20,3 +20,33 @@ export interface IExamTaskFlowStepData {
   helpData: boolean;
   data: any;
 }
+
+export interface IUserExamStepAttemptTaskFlowStep {
+  id: number;
+  stepAttemptTaskFlowId: number;
+  taskFlowStepConfId: number;
+  done: boolean;
+  mistakes: number;
+}
+
+export interface ITaskFlowStepConf {
+  id: number;
+  taskFlowConfId: number;
+  name: string;
+  sequence: number;
+  help: boolean;
+  stepType: string;
+  stepData: string
+}
+
+export interface ItaskFlowStepDto {
+  taskFlowStepConf: ITaskFlowStepConf;
+  stepAttemptTaskFlowStep: IUserExamStepAttemptTaskFlowStep;
+  taskFlowStepData: any
+}
+
+export interface IVerifiedTaskFlowStepAnswer {
+  isCorrectAnswer: boolean;
+  mistakesAmount: number;
+  answer: string
+}

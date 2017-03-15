@@ -1,14 +1,18 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, Inject } from '@angular/core';
 import { ITestDto } from "../../data/exam.api-protocol";
 import { ExamService, VerifiedTestAnswer } from "../../data/exam-service.service";
-import { IExamTaskFlowStepData, TaskFlowStepTypes } from "../../data/task-flow.api-protocol";
+import {
+  IExamTaskFlowStepData, TaskFlowStepTypes,
+  IVerifiedTaskFlowStepAnswer
+} from "../../data/task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
-import { InputSetData, InputSetAnswer, InputSetStatus } from "../input-set/input-set.component";
+import { InputSetData, InputSetAnswer, InputSetStatus, InputVariable } from "../input-set/input-set.component";
 import { TestAnswer, Test, TestStatus } from "../test/test.component";
 import { ExamResult } from "../exam-results/exam-results.component";
 import { ChartSet } from "../chart-set/chart-set.component";
 import { PageScrollService, PageScrollInstance } from "ng2-page-scroll";
 import { DOCUMENT } from "@angular/platform-browser";
+import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 
 abstract class TaskFlowStep {
   id: number;
@@ -40,19 +44,36 @@ class InputSetTaskFlowStep extends TaskFlowStep {
   onSubmitted(submittedData: InputSetAnswer): void {
     console.log("Verify input set answer: ", submittedData);
     let that = this;
-    this.examService.verifyTaskFlowStep(this.taskData.examId, this.taskData.id, this.sequence, submittedData)
-      .subscribe((verified: InputSetAnswer) => {
+    this.examService.verifyTaskFlowStepAnswer(
+      this.taskData.examId,
+      this.taskData.examStepSequence,
+      this.taskData.examStepAttemptId,
+      this.taskData.id,
+      this.sequence,
+      JSON.stringify(submittedData)
+    ).subscribe((verified: IVerifiedTaskFlowStepAnswer) => {
+        let verifiedIputSet: {[key: number]:boolean} = JSON.parse(verified.answer);
         that.data.variables.forEach(v => {
-          let verifiedVar = verified.find(v.id);
-          v.correct = verifiedVar == null ? false : verifiedVar.correct
+          v.correct = verifiedIputSet[v.id] || false;
         });
-        that.data.status = verified.allCorrect ? InputSetStatus.Correct : InputSetStatus.Incorrect
-      })
+        that.data.status = verified.isCorrectAnswer ? InputSetStatus.Correct : InputSetStatus.Incorrect
+      });
+    // this.examService.verifyTaskFlowStep(this.taskData.examId, this.taskData.id, this.sequence, submittedData)
+    //   .subscribe((verified: InputSetAnswer) => {
+    //     that.data.variables.forEach(v => {
+    //       let verifiedVar = verified.find(v.id);
+    //       v.correct = verifiedVar == null ? false : verifiedVar.correct
+    //     });
+    //     that.data.status = verified.allCorrect ? InputSetStatus.Correct : InputSetStatus.Incorrect
+    //   })
   }
 
   fillData(data: any): void {
-    let typedData = <InputSetData> data;
-    this.data = new InputSetData(typedData.id, this.sequence, this.name, typedData.variables);
+    let preparedInputs = data.inputs.map((i: InputVariable) => {
+      i.name = MathSymbolConverter.convertString(i.name);
+      return i;
+    });
+    this.data = new InputSetData(data.id, this.sequence, this.name, preparedInputs);
   }
 }
 
@@ -65,22 +86,43 @@ class TestTaskFlowStep extends TaskFlowStep {
   onSubmitted(submittedData: TestAnswer): void {
     console.log("Verify test answer: ", submittedData);
     let that = this;
-    this.examService.verifyTaskFlowStep(this.taskData.examId, this.taskData.id, this.sequence, submittedData)
-      .subscribe({
-        next: (verifiedAnswer: VerifiedTestAnswer) => {
-          console.log("Verified test answer: ", verifiedAnswer);
-          that.data.status = verifiedAnswer.isCorrectAnswer ? TestStatus.Correct : TestStatus.Incorrect;
-          console.log("Test status: ", that.data.status);
-          that.data.options.forEach(testOption => {
-            //If an option was submitted and exists in the verified answer
-            verifiedAnswer.callIfExists(testOption.id, isCorrect => {
-              //Set the correctness of the option
-              testOption.correct = isCorrect;
-            })
-          });
-        },
-        error: error => console.log(error)
-      })
+    this.examService.verifyTaskFlowStepAnswer(
+      this.taskData.examId,
+      this.taskData.examStepSequence,
+      this.taskData.examStepAttemptId,
+      this.taskData.id,
+      this.sequence,
+      JSON.stringify(submittedData)
+    ).subscribe((verified: IVerifiedTaskFlowStepAnswer) => {
+        let verifiedAnswer: {[key: number]:boolean} = JSON.parse(verified.answer);
+        console.log("Verified test answer: ", verified);
+        that.data.status = verified.isCorrectAnswer ? TestStatus.Correct : TestStatus.Incorrect;
+        console.log("Test status: ", that.data.status);
+
+        that.data.options.forEach(testOption => {
+          //If an option was submitted and exists in the verified answer
+          let result = verifiedAnswer[testOption.id];
+          if(typeof result === 'boolean') {
+            testOption.correct = result;
+          }
+        });
+    });
+    // this.examService.verifyTaskFlowStep(this.taskData.examId, this.taskData.id, this.sequence, submittedData)
+    //   .subscribe({
+    //     next: (verifiedAnswer: VerifiedTestAnswer) => {
+    //       console.log("Verified test answer: ", verifiedAnswer);
+    //       that.data.status = verifiedAnswer.isCorrectAnswer ? TestStatus.Correct : TestStatus.Incorrect;
+    //       console.log("Test status: ", that.data.status);
+    //       that.data.options.forEach(testOption => {
+    //         //If an option was submitted and exists in the verified answer
+    //         verifiedAnswer.callIfExists(testOption.id, isCorrect => {
+    //           //Set the correctness of the option
+    //           testOption.correct = isCorrect;
+    //         })
+    //       });
+    //     },
+    //     error: error => console.log(error)
+    //   })
   }
 
   fillData(data: any): void {
@@ -169,17 +211,30 @@ export class TaskFlowComponent implements OnInit {
 
   private loadStep(sequence: number) {
     this.step = new LoadingTaskFlowStep();
-    this.examService.getExamTaskFlowStep(this.task.examId, this.task.id, sequence).subscribe((step: IExamTaskFlowStepData) => {
-      console.log("Task flow step " + sequence + " loaded: ", step);
-      if(step.helpData) {
-        this.helpDataItems.push(new HelpDataItem(step.type, step.data));
-        this.loadStep(step.sequence + 1);
-        return;
-      } else {
-        this.step = this.createStep(step);
+    this.examService.getCurrentTaskFlowStep(this.task.examId, this.task.examStepSequence, this.task.examStepAttemptId, this.task.id)
+      .subscribe((step: IExamTaskFlowStepData) => {
+        console.log("Task flow step " + sequence + " loaded: ", step);
+        if(step.helpData) {
+          this.helpDataItems.push(new HelpDataItem(step.type, step.data));
+          this.loadStep(step.sequence + 1);
+          return;
+        } else {
+          this.step = this.createStep(step);
+        }
+        this.scrollToBottom()
       }
-      this.scrollToBottom()
-    });
+    );
+    // this.examService.getExamTaskFlowStep(this.task.examId, this.task.id, sequence).subscribe((step: IExamTaskFlowStepData) => {
+    //   console.log("Task flow step " + sequence + " loaded: ", step);
+    //   if(step.helpData) {
+    //     this.helpDataItems.push(new HelpDataItem(step.type, step.data));
+    //     this.loadStep(step.sequence + 1);
+    //     return;
+    //   } else {
+    //     this.step = this.createStep(step);
+    //   }
+    //   this.scrollToBottom()
+    // });
   }
 
   private createStep(stepData: IExamTaskFlowStepData): TaskFlowStep {

@@ -5,7 +5,10 @@ import { Observable, ReplaySubject } from "rxjs/Rx";
 import {
   IExamData, ITestAnswerData, IUserData, IExamStepWithData
 } from "./exam.api-protocol";
-import { IExamTaskFlowStepData, TaskFlowStepTypes } from "./task-flow.api-protocol";
+import {
+  IExamTaskFlowStepData, TaskFlowStepTypes, ItaskFlowStepDto,
+  IVerifiedTaskFlowStepAnswer
+} from "./task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "./i-exam-task-flow-task-data";
 import { InputSetAnswer, VarirableAnswer } from "../components/input-set/input-set.component";
 import { TestAnswer } from "../components/test/test.component";
@@ -67,13 +70,54 @@ export class ExamService {
     return this.api.get("/user-exams/" + examId + "/steps/" + stepSequence + "/submit")
   }
 
-  verifyTestAnswer(examId: number, stepSequence: number, attemptId: number, testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
+  verifyTestAnswer(examId: number,
+                   stepSequence: number,
+                   attemptId: number,
+                   testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
     return this.api.post(
       '/user-exams/' + examId +
       '/steps/' + stepSequence +
       '/attempts/' + attemptId +
       '/tests/'+ testAnswer.testId + '/verify', testAnswer.submittedOptions)
         .map(r => new VerifiedTestAnswer(r.testId, r.isCorrectAnswer, r.mistakesAmount, r.answer))
+  }
+
+  getCurrentTaskFlowStep(examId: number,
+                         examStepSequence: number,
+                         attemptId: number,
+                         taskFlowId: number): Observable<IExamTaskFlowStepData> {
+    return this.api.get(
+      '/user-exams/' + examId +
+      '/steps/' + examStepSequence +
+      '/attempts/' + attemptId +
+      '/task-flows/'+ taskFlowId + '/steps/current')
+      .map((r: ItaskFlowStepDto) => {
+        let stepConf = r.taskFlowStepConf;
+        let step = r.stepAttemptTaskFlowStep;
+        return {
+          id: step.id,
+          type: stepConf.stepType,
+          sequence: stepConf.sequence,
+          name: stepConf.name,
+          helpData: stepConf.help,
+          data: JSON.parse(r.taskFlowStepData),
+        }
+      }
+    )
+  }
+
+  verifyTaskFlowStepAnswer(examId: number,
+                           examStepSequence: number,
+                           examStepAttemptId: number,
+                           taskFlowId: number,
+                           taskFlowStepId: number,
+                           answer: any): Observable<IVerifiedTaskFlowStepAnswer> {
+    return this.api.post(
+      '/user-exams/' + examId +
+      '/steps/' + examStepSequence +
+      '/attempts/' + examStepAttemptId +
+      '/task-flows/'+ taskFlowId +
+      '/steps/' + taskFlowStepId + '/verify', JSON.stringify(answer))
   }
 
   getExamTask(examId: number): Observable<IExamTaskFlowTaskData> {
@@ -130,8 +174,8 @@ export class ExamService {
     console.log("Verifying is answer: ", correctAnswer);
     let correctVariableAnswers: VarirableAnswer[] = correctAnswer.answer;
     let isAllCorrect = true;
-    answer.variableAnswers.forEach(va => {
-      let correctValue = correctVariableAnswers.find(cva => cva.variableId == va.variableId);
+    answer.inputAnswers.forEach(va => {
+      let correctValue = correctVariableAnswers.find(cva => cva.id == va.id);
       va.correct =
         typeof correctValue === 'undefined'
           ? false

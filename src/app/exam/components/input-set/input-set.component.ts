@@ -18,7 +18,7 @@ export class InputSetData {
 
 export class VarirableAnswer {
   correct: boolean;
-  constructor(public variableId: number, public value: number | null) {}
+  constructor(public id: number, public value: number | null) {}
 
   static roundToFixed(value: number, accuracy: number): string {
     return typeof value === 'undefined' ? '0' : value.toFixed(accuracy);
@@ -27,10 +27,10 @@ export class VarirableAnswer {
 
 export class InputSetAnswer {
   allCorrect: boolean;
-  constructor(public inputSetId: number, public variableAnswers: VarirableAnswer[]) {}
+  constructor(public inputSetId: number, public inputAnswers: VarirableAnswer[]) {}
 
   find(variableId: number): VarirableAnswer | null {
-    let variable = this.variableAnswers.find(va => va.variableId === variableId);
+    let variable = this.inputAnswers.find(va => va.id === variableId);
     return variable ? variable : null
   }
 }
