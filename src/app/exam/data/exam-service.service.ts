@@ -99,7 +99,7 @@ export class ExamService {
           type: stepConf.stepType,
           sequence: stepConf.sequence,
           name: stepConf.name,
-          helpData: stepConf.help,
+          helpData: stepConf.helpData,
           data: JSON.parse(r.taskFlowStepData),
         }
       }
@@ -120,98 +120,9 @@ export class ExamService {
       '/steps/' + taskFlowStepId + '/verify', JSON.stringify(answer))
   }
 
-  getExamTask(examId: number): Observable<IExamTaskFlowTaskData> {
-    return this.http.get(this.withBase('/exams/' + examId + '/task'))
-      .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError)
-  }
-
   getResults(examId: number): Observable<ExamResult> {
     return this.http.get(this.withBase('/exam_results/' + examId))
       .map(HttpUtils.extractData)
       .catch(HttpUtils.handleError)
-  }
-
-  getExamTaskFlowStep(examId: number, taskId: number, stepSequence: number): Observable<IExamTaskFlowStepData> {
-    return this.http.get(this.withBase('/task_steps/' + stepSequence))
-      .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError)
-  }
-
-  verifyTaskFlowStep(examId: number,
-                     taskId: number,
-                     stepSequence: number,
-                     stepAnswer: any): Observable<any> {
-    let resultSubject = new ReplaySubject<VerifiedTestAnswer>();
-
-    this.http.get(this.withBase('/flow_step_answers/' + stepSequence))
-      .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError)
-      .subscribe(
-        {
-          next: (fetchedAnswer: any) => {
-            let stepType = fetchedAnswer.stepType;
-            let verified = null;
-            switch(stepType) {
-              case TaskFlowStepTypes.Test:
-                verified = this.verifyTestAnswerImpl(stepAnswer, fetchedAnswer.answer);
-                break;
-              case TaskFlowStepTypes.InputSet:
-                verified = this.verifyInputSetAnswer(stepAnswer, fetchedAnswer);
-                break;
-              default: throw "Task flow step answer with invalid type received: '" + stepType + "'";
-            }
-
-            resultSubject.next(verified)
-          },
-          error: (error) => resultSubject.error(`Error while fetching flow test answer with id [${stepAnswer.testId}]. Cause: ${error}`)
-        }
-      );
-    return resultSubject
-  }
-
-  private verifyInputSetAnswer(answer: InputSetAnswer, correctAnswer: any): InputSetAnswer {
-    console.log("Verifying is answer: ", correctAnswer);
-    let correctVariableAnswers: VarirableAnswer[] = correctAnswer.answer;
-    let isAllCorrect = true;
-    answer.inputAnswers.forEach(va => {
-      let correctValue = correctVariableAnswers.find(cva => cva.id == va.id);
-      va.correct =
-        typeof correctValue === 'undefined'
-          ? false
-          : this.isEqual(correctValue.value, va.value, 5);
-      if(!va.correct) isAllCorrect = false
-    });
-    answer.allCorrect = isAllCorrect;
-    return answer;
-  }
-
-  private isEqual(v1: number | null, v2: number | null, acuracy: number): boolean {
-    if(v1 == null && v2 == null) return true;
-
-    let roundOrNull = (v: number | null): string | null => {
-      if(v == null) return null;
-      return VarirableAnswer.roundToFixed(v, acuracy)
-    };
-
-    return roundOrNull(v1) === roundOrNull(v2);
-  }
-
-  private verifyTestAnswerImpl(testAnswer: TestAnswer, fetchedAnswer: ITestAnswerData): VerifiedTestAnswer {
-    let verifiedOptions = {};
-    //Make sure that amount of submitted answers equals to amount of correct ones
-    let isAllCorrect = fetchedAnswer.answer.length === testAnswer.submittedOptions.length;
-    if(isAllCorrect) {
-      //Verify that every submitted answer is correct
-      fetchedAnswer.answer.forEach(currentOption => {
-        if(testAnswer.submittedOptions.indexOf(currentOption) === -1) isAllCorrect = false;
-      });
-    }
-    //Mark submitted answers as correct or not
-    testAnswer.submittedOptions.forEach(currentOption => {
-      verifiedOptions[currentOption] = fetchedAnswer.answer.indexOf(currentOption) !== -1
-    });
-
-    return new VerifiedTestAnswer(testAnswer.testId, isAllCorrect, -1/*Stub*/, verifiedOptions);
   }
 }

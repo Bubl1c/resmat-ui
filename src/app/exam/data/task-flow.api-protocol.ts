@@ -34,7 +34,7 @@ export interface ITaskFlowStepConf {
   taskFlowConfId: number;
   name: string;
   sequence: number;
-  help: boolean;
+  helpData: boolean;
   stepType: string;
   stepData: string
 }

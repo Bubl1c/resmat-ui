@@ -83,7 +83,7 @@ export class ExamComponent implements OnInit {
           this.step = new TaskFlowExamStep(this.examService, examId, stepWithData);
           break;
         case ExamStepTypes.Results:
-          this.step = new ResultsExamStep(this.examService, examId, sequence, description);
+          this.step = new ResultsExamStep(this.examService, examId, sequence, description, stepWithData);
           break;
         default: throw "Invalid exam step: " + type;
       }

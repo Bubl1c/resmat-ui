@@ -185,7 +185,7 @@ export class TaskFlowComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadStep(this.task.currentStep);
+    this.loadCurrentStep();
   }
 
   stepSubmitted(submittedData: any) {
@@ -193,11 +193,11 @@ export class TaskFlowComponent implements OnInit {
   }
 
   stepContinue() {
-    this.loadStep(this.step.sequence + 1);
+    this.loadCurrentStep();
   }
 
   stepBack() {
-    this.loadStep(this.step.sequence - 1);
+    this.loadCurrentStep();
   }
 
   finish() {
@@ -209,19 +209,20 @@ export class TaskFlowComponent implements OnInit {
     this.pageScrollService.start(pageScrollInstance);
   }
 
-  private loadStep(sequence: number) {
+  private loadCurrentStep() {
     this.step = new LoadingTaskFlowStep();
+    let that = this;
     this.examService.getCurrentTaskFlowStep(this.task.examId, this.task.examStepSequence, this.task.examStepAttemptId, this.task.id)
       .subscribe((step: IExamTaskFlowStepData) => {
-        console.log("Task flow step " + sequence + " loaded: ", step);
+        console.log("Task flow step " + step.sequence + " loaded: ", step);
         if(step.helpData) {
-          this.helpDataItems.push(new HelpDataItem(step.type, step.data));
-          this.loadStep(step.sequence + 1);
+          that.helpDataItems.push(new HelpDataItem(step.type, step.data));
+          that.loadCurrentStep();
           return;
         } else {
-          this.step = this.createStep(step);
+          that.step = that.createStep(step);
         }
-        this.scrollToBottom()
+        that.scrollToBottom()
       }
     );
     // this.examService.getExamTaskFlowStep(this.task.examId, this.task.id, sequence).subscribe((step: IExamTaskFlowStepData) => {

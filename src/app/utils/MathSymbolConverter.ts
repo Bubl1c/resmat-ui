@@ -11,6 +11,9 @@ export class MathSymbolConverter {
   private static matchingRegex = /[^{}]+(?=\})/g;
 
   static convertString(str: string): string {
+    if(!str) {
+      return "";
+    }
     if(str.indexOf(this.specialSymbolMark) === -1) {
       return str;
     }
