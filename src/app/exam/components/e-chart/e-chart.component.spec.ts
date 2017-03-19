@@ -1,9 +1,6 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
-
-import { EChartComponent } from './e-chart.component';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
+import { EChartComponent } from "./e-chart.component";
 
 describe('EChartComponent', () => {
   let component: EChartComponent;

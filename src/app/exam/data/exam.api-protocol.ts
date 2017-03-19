@@ -1,32 +1,3 @@
-import { sequence } from "@angular/core";
-
-//Remove
-export interface ITestAnswerData {
-  id: number;
-  answer: number[];
-}
-
-export class TestTypes {
-  static Checkbox = 'checkbox';
-  static Radio = 'radio';
-  static all = [TestTypes.Checkbox, TestTypes.Radio]
-}
-
-export interface ITestOptionDto {
-  id: number;
-  value: string;
-  valueType: string;
-}
-
-export interface ITestDto {
-  id: number;
-  groupId: number;
-  question: string;
-  options: ITestOptionDto[];
-  help: string;
-  testType: string;
-}
-
 export class ExamStepTypes {
   static TestSet = 'test-set';
   static TaskFlow = 'task-flow';
@@ -49,13 +20,13 @@ export class ExamStepTypes {
   }
 }
 
-export interface IUserData {
+export interface IUserDto {
   id: number;
   name: string;
-  exam: IExamData;
+  exam: IExamDto;
 }
 
-export interface IExamData {
+export interface IExamDto {
   id: number;
   name: string;
   description: string;

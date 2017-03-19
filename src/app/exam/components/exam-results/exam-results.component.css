@@ -1,12 +1,27 @@
-.results-container table {
+.results-table {
   margin: auto;
   border-collapse: collapse;
+  width: 50%;
 }
 
-.results-container table td {
-  padding: 0.5em;
+.results-table td {
+  padding: 5px;
+  width: 50%;
 }
 
 .score td {
   border-top: 2px solid #2196F3;
+}
+
+.steps .steps-cell {
+  padding: 0px;
+}
+
+.steps table {
+  margin: 1em 0em;
+  width: 100%;
+}
+
+.steps table td {
+  padding: 2px 3px;
 }

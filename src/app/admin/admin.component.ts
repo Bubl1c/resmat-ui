@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
 import { ApiService } from "../api.service";
 import { Router } from "@angular/router";
 import { UserData, UserType, StudentGroup } from "../user/user.models";
 import { CurrentSession } from "../current-session";
 import { UserComponentConfig } from "./components/user/user.component";
 import { ExamResult } from "../exam/components/exam-results/exam-results.component";
+import { IUserExamResult } from "../steps/exam.results-step";
 
 class WorkspaceDataTypes {
   static user = "user";
@@ -112,11 +113,9 @@ export class AdminComponent implements OnInit {
 
   loadStudentResults(student: UserData) {
     let studentGroup = this.studentGroups.find(group => group.id === student.studentGroupId);
-    let results = [
-      new ExamResult(1, "Семестрова контрольна робота", "Кільцева пластина", student.firstName + " " + student.lastName, studentGroup.name, 3, 5, 1, 3435634, 88, 100),
-      new ExamResult(2, "Атестаційна контрольна робота", "Кільцева пластина", student.firstName + " " + student.lastName, studentGroup.name, 2, 3, 1, 3435634, 95, 100)
-    ];
-    this.workspaceData = new ExamResultWorkspaceData(results);
+    this.api.get("/user-exams/results?userId=" + student.id).subscribe((results: IUserExamResult[]) => {
+      this.workspaceData = new ExamResultWorkspaceData(results.map(r => ExamResult.create(r)));
+    }, err => alert(err));
   }
 
   loadGroups() {

@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptionsArgs, Response, RequestOptions } from '@angular/http';
+import { Injectable } from "@angular/core";
+import { Http, Headers, RequestOptionsArgs, Response, RequestOptions } from "@angular/http";
 import { HttpUtils } from "./utils/HttpUtils";
 import { Observable } from "rxjs";
 import { CurrentSession } from "./current-session";

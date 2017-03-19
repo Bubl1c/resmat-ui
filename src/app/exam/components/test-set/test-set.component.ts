@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { TestAnswer, Test, TestStatus } from "../test/test.component";
+import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
+import { Test, TestStatus } from "../test/test.component";
 
 @Component({
   selector: 'test-set',

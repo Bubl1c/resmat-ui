@@ -1,18 +1,8 @@
 import { Test, TestAnswer, TestStatus } from "../exam/components/test/test.component";
 import { ExamService, VerifiedTestAnswer } from "../exam/data/exam-service.service";
-import { ExamStepTypes, IExamStepWithData, ITestDto } from "../exam/data/exam.api-protocol";
+import { ExamStepTypes, IExamStepWithData } from "../exam/data/exam.api-protocol";
 import { ExamStep } from "./exam.step";
-
-interface ITestSetConf {
-  id: number;
-  examConfId: number;
-  examStepConfId: number;
-}
-
-interface ITestSetDto {
-  conf: ITestSetConf;
-  tests: ITestDto[];
-}
+import { ITestDto, ITestSetDto } from "../exam/data/test-set.api-protocol";
 
 export class TestSetExamStep extends ExamStep {
   data: Test[] = [];
@@ -21,8 +11,8 @@ export class TestSetExamStep extends ExamStep {
   attempt: number = 0;
   maxAttempts: number = 3;
 
-  constructor(private examService: ExamService, examId: number, private stepWithData: IExamStepWithData) {
-    super(stepWithData.stepConf.sequence, examId, ExamStepTypes.TestSet, stepWithData.stepConf.name);
+  constructor(private examService: ExamService, private stepWithData: IExamStepWithData) {
+    super(stepWithData.stepConf.sequence, stepWithData.attempt.userExamId, ExamStepTypes.TestSet, stepWithData.stepConf.name);
     let stepConf = stepWithData.stepConf;
     let attempt = stepWithData.attempt;
     let stepData = stepWithData.stepData as ITestSetDto;
@@ -33,15 +23,6 @@ export class TestSetExamStep extends ExamStep {
     this.maxAttempts = stepConf.attemptsLimit;
 
     this.data = this.mapITestsDto(stepData.tests);
-
-    this.isLoading = false;
-  }
-
-  loadInitialData() {
-    // this.examService.getTests().subscribe(response => {
-    //   this.data = this.mapITests(response);
-    //   this.isLoading = false;
-    // })
   }
 
   verify(answer: TestAnswer) {
@@ -65,10 +46,6 @@ export class TestSetExamStep extends ExamStep {
       error: error => console.error(error) //todo handle error
     });
   }
-
-  // private mapITests(iTests: ITestData[]): Test[] {
-  //   return iTests.map((t, i) => new Test(t, i + 1))
-  // }
 
   private mapITestsDto(iTests: ITestDto[]): Test[] {
     return iTests.map((t, i) => new Test(t, i + 1))

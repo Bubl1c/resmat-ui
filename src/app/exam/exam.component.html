@@ -4,7 +4,7 @@
     <div>{{exam.name}}</div>
     <div><span [hidden]="step.type === 'results'">Етап {{exam.currentStep.sequence}}.</span> {{exam.currentStep.description}}</div>
   </div>
-  <div class="test-set-container" *ngIf="step.type === 'test-set' && !step.isLoading">
+  <div class="test-set-container" *ngIf="step.type === 'test-set'">
     <div class="conditions" *ngIf="step.mistakes <= step.mistakesLimit">
       Кожна невірна відповідь буде зарахована як помилка.
       <br/>
@@ -24,12 +24,12 @@
     </div>
     <test-set [tests]="step.data" *ngIf="step.mistakes <= step.mistakesLimit"
               (onTestSubmitted)="step.verify($event)"
-              (onSubmitted)="onTestSetStepFinished($event)"></test-set>
+              (onSubmitted)="submitCurrentStep($event)"></test-set>
   </div>
-  <div class="task-container" *ngIf="step.type === 'task-flow' && !step.isLoading">
-    <task-flow [task]="step.taskData" (onFinished)="onTaskFlowStepFinished($event)"></task-flow>
+  <div class="task-container" *ngIf="step.type === 'task-flow'">
+    <task-flow [task]="step.taskData" (onFinished)="submitCurrentStep($event)"></task-flow>
   </div>
-  <div class="mui-panel" *ngIf="step.type === 'results' && !step.isLoading">
-    <exam-results *ngIf="!step.isLoading" [data]="step.data"></exam-results>
+  <div class="mui-panel" *ngIf="step.type === 'results'">
+    <exam-results [data]="step.data" [showName]="false"></exam-results>
   </div>
 </div>

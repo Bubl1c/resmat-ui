@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input } from "@angular/core";
 import { MathSymbolConverter } from "app/utils/MathSymbolConverter";
 
 export interface IChart {

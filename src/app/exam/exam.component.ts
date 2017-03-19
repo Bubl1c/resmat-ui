@@ -1,12 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
 import { ExamService } from "./data/exam-service.service";
-import { IExamData, ExamStepTypes, IExamStepWithData } from "./data/exam.api-protocol";
+import { IExamDto, ExamStepTypes, IExamStepWithData } from "./data/exam.api-protocol";
 import { TestSetExamStep } from "../steps/exam.test-set-step";
-import { ActivatedRoute } from "@angular/router";
-import { TaskFlowExamStep, TaskFlowDto } from "../steps/exam.task-flow-step";
+import { TaskFlowExamStep } from "../steps/exam.task-flow-step";
 import { ExamStep } from "../steps/exam.step";
 import { ResultsExamStep } from "../steps/exam.results-step";
-import { CurrentSession } from "../current-session";
 import { ErrorResponse } from "../utils/HttpUtils";
 
 class InitialExamStep extends ExamStep {
@@ -24,23 +22,22 @@ class InitialExamStep extends ExamStep {
   providers: [ExamService]
 })
 export class ExamComponent implements OnInit {
-  exam: IExamData;
+  exam: IExamDto;
   step: ExamStep;
 
   isLoading: boolean = true;
 
-  constructor(private examService: ExamService, private route: ActivatedRoute) {
+  constructor(private examService: ExamService) {
     this.step = new InitialExamStep();
   }
 
   ngOnInit() {
-    let userIdParam = this.route.snapshot.params["id"];
-    this.examService.getExamForUser().subscribe((exam: IExamData) => {
+    this.examService.getExamForUser().subscribe((exam: IExamDto) => {
       if(exam) {
         console.log("Exam loaded: ", exam);
         this.exam = exam;
         this.isLoading = false;
-        this.loadStep(exam.id, exam.currentStep.type, exam.currentStep.sequence, exam.currentStep.description);
+        this.loadNextStep();
       } else {
         console.log("NO Exam loaded: ", exam);
         this.isLoading = false;
@@ -49,45 +46,34 @@ export class ExamComponent implements OnInit {
     });
   }
 
-  onTestSetStepFinished() {
-    this.submitCurrentStep(ExamStepTypes.TaskFlow, "Розв'язання задачі");
-  }
-
-  onTaskFlowStepFinished() {
-    this.submitCurrentStep(ExamStepTypes.Results, "Результати");
-  }
-
-  private loadNextStep(type: string, description: string) {
-    this.exam.currentStep.sequence = this.step.sequence + 1;
-    this.exam.currentStep.type = type;
-    this.exam.currentStep.description = description;
-    this.loadStep(this.exam.id, this.exam.currentStep.type, this.exam.currentStep.sequence, this.exam.currentStep.description)
-  }
-
-  private submitCurrentStep(nextStepType: string, nextStepDescription: string) {
+  submitCurrentStep() {
     this.examService.submitExamStep(this.exam.id, this.exam.currentStep.sequence).subscribe(response => {
-      this.loadNextStep(nextStepType, nextStepDescription)
+      this.loadNextStep()
     }, (error: ErrorResponse) => {
       alert("Не вдалося продовжити! " + error)
     })
   }
 
-  private loadStep(examId: number, type: string,  sequence: number, description: string) {
-    this.examService.getCurrentExamStep(examId).subscribe((stepWithData: IExamStepWithData) => {
+  private loadNextStep() {
+    this.examService.getCurrentExamStep(this.exam.id).subscribe((stepWithData: IExamStepWithData) => {
       console.log("Current step loaded: ", stepWithData);
+
+      this.exam.currentStep.sequence = stepWithData.stepConf.sequence;
+      this.exam.currentStep.type = stepWithData.stepConf.stepType;
+      this.exam.currentStep.description = stepWithData.stepConf.name;
+
       switch(stepWithData.stepConf.stepType) {
         case ExamStepTypes.TestSet:
-          this.step = new TestSetExamStep(this.examService, examId, stepWithData);
+          this.step = new TestSetExamStep(this.examService, stepWithData);
           break;
         case ExamStepTypes.TaskFlow:
-          this.step = new TaskFlowExamStep(this.examService, examId, stepWithData);
+          this.step = new TaskFlowExamStep(this.examService, stepWithData);
           break;
         case ExamStepTypes.Results:
-          this.step = new ResultsExamStep(this.examService, examId, sequence, description, stepWithData);
+          this.step = new ResultsExamStep(this.examService, stepWithData);
           break;
-        default: throw "Invalid exam step: " + type;
+        default: throw "Invalid exam step: " + stepWithData.stepConf.stepType;
       }
-      this.step.loadInitialData();
     }, (error: ErrorResponse) => {
       alert("Failed to load current step: " + error);
     });

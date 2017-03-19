@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 
 export const enum InputSetStatus {

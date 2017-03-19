@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import { IChart } from "../e-chart/e-chart.component";
 import { MathSymbolConverter } from "app/utils/MathSymbolConverter";
 

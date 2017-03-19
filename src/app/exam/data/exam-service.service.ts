@@ -1,16 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Http, Response } from "@angular/http";
-
-import { Observable, ReplaySubject } from "rxjs/Rx";
-import {
-  IExamData, ITestAnswerData, IUserData, IExamStepWithData
-} from "./exam.api-protocol";
-import {
-  IExamTaskFlowStepData, TaskFlowStepTypes, ItaskFlowStepDto,
-  IVerifiedTaskFlowStepAnswer
-} from "./task-flow.api-protocol";
-import { IExamTaskFlowTaskData } from "./i-exam-task-flow-task-data";
-import { InputSetAnswer, VarirableAnswer } from "../components/input-set/input-set.component";
+import { Injectable } from "@angular/core";
+import { Http } from "@angular/http";
+import { Observable } from "rxjs/Rx";
+import { IExamDto, IExamStepWithData } from "./exam.api-protocol";
+import { IExamTaskFlowStepData, ItaskFlowStepDto, IVerifiedTaskFlowStepAnswer } from "./task-flow.api-protocol";
 import { TestAnswer } from "../components/test/test.component";
 import { ExamResult } from "../components/exam-results/exam-results.component";
 import { HttpUtils } from "../../utils/HttpUtils";
@@ -38,7 +30,7 @@ export class ExamService {
 
   constructor(private http: Http, private api: ApiService) { }
 
-  getExamForUser(): Observable<IExamData> {
+  getExamForUser(): Observable<IExamDto> {
     return this.api.get("/user-exams/current")
       .map((responseData: any) => {
         if(responseData) {

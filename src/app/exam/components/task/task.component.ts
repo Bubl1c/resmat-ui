@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input } from "@angular/core";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 import { ISchemaVar } from "../../data/task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";

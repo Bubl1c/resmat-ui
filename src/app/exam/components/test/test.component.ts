@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { TestTypes, ITestDto, ITestOptionDto } from "../../data/exam.api-protocol";
+import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import { ArrayUtils } from "../../../utils/ArrayUtils";
+import { ITestOptionDto, ITestDto, TestTypes } from "../../data/test-set.api-protocol";
 
 export class TestOption {
   constructor(public id: number,

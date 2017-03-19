@@ -1,12 +1,41 @@
 <div class="results-container">
-  <table>
-    <tr>
-      <td>Робота</td>
-      <td>{{ data.examName }}</td>
+  <table class="results-table">
+    <tr [hidden]="!showName">
+      <th colspan="2" style="text-align: center">{{ data.examName }}</th>
+      <!--<td><b>Робота</b></td>-->
+      <!--<td><b>{{ data.examName }}</b></td>-->
     </tr>
-    <tr>
+    <tr *ngIf="isOneStep">
       <td>Задача</td>
-      <td>{{ data.taskName }}</td>
+      <td>{{ data.stepResults[0].name }}</td>
+    </tr>
+    <tr *ngIf="isOneStep">
+      <td>Кількість спроб</td>
+      <td>{{ data.stepResults[0].attemptsAmount }}</td>
+    </tr>
+    <tr *ngIf="isOneStep">
+      <td>Кількість помилок</td>
+      <td>{{ data.stepResults[0].mistakesAmount }}</td>
+    </tr>
+    <tr *ngIf="!isOneStep && !noSteps" class="steps">
+      <td colspan="2" class="steps-cell">
+        <!--<div>-->
+          <table *ngFor="let step of data.stepResults">
+            <tr>
+              <td>Крок {{ step.sequence }}</td>
+              <td>{{ step.name }}</td>
+            </tr>
+            <tr>
+              <td>Кількість спроб</td>
+              <td>{{ step.attemptsAmount }}</td>
+            </tr>
+            <tr>
+              <td>Кількість помилок</td>
+              <td>{{ step.mistakesAmount }}</td>
+            </tr>
+          </table>
+        <!--</div>-->
+      </td>
     </tr>
     <tr>
       <td>Група</td>
@@ -16,21 +45,17 @@
       <td>Студент</td>
       <td>{{ data.studentName }}</td>
     </tr>
-    <tr>
-      <td>Кількість спроб</td>
-      <td>{{ data.attemptsAmount }}</td>
-    </tr>
-    <tr>
-      <td>Кількість помилок в тестах</td>
-      <td>{{ data.mistakesAmountInTests }}</td>
-    </tr>
-    <tr>
-      <td>Кількість помилок під час розв'язання задачі</td>
-      <td>{{ data.mistakesAmountInTask }}</td>
-    </tr>
+    <!--<tr>-->
+      <!--<td>Кількість помилок в тестах</td>-->
+      <!--<td>{{ data.mistakesAmountInTests }}</td>-->
+    <!--</tr>-->
+    <!--<tr>-->
+      <!--<td>Кількість помилок під час розв'язання задачі</td>-->
+      <!--<td>{{ data.mistakesAmountInTask }}</td>-->
+    <!--</tr>-->
     <tr>
       <td>Час роботи</td>
-      <td>{{ durationHrs }} год</td>
+      <td>{{ duration }}</td>
     </tr>
     <tr class="score">
       <td>Оцінка</td>
