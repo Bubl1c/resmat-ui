@@ -14,7 +14,9 @@ export class TaskFlowExamStep extends ExamStep {
 
     let data = stepWithData.stepData as TaskFlowDto;
     let problemConf = data.problemConf;
+    problemConf.inputVariableConfs = JSON.parse(problemConf.inputVariableConfs.toString()); //parse JSON array
     let problemVariantConf = data.problemVariantConf;
+    problemVariantConf.inputVariableValues = JSON.parse(problemVariantConf.inputVariableValues.toString()); //parse JSON array
     let taskFlow = data.taskFlow;
     this.taskData = {
       id: problemConf.id,
@@ -31,11 +33,13 @@ export class TaskFlowExamStep extends ExamStep {
   }
 
   mapVariable(inputVariableConf: ProblemInputVariableConf, inputVariableValues: ProblemInputVariableValue[]): ISchemaVar {
-    let valueObj = inputVariableValues.find(v => v.id === inputVariableConf.id);
+    let valueObj = inputVariableValues.find(v => v.variableConfId === inputVariableConf.id);
     return {
       name: inputVariableConf.name,
       value: valueObj && (valueObj.value + "") || "",
-      units: inputVariableConf.units
+      units: inputVariableConf.units,
+      alias: inputVariableConf.alias,
+      showInExam: inputVariableConf.showInExam
     }
   }
 }
@@ -44,6 +48,8 @@ export interface ProblemInputVariableConf {
   id: number;
   name: string;
   units: string;
+  alias: string;
+  showInExam: boolean;
 }
 
 export interface ProblemConf {
@@ -53,7 +59,7 @@ export interface ProblemConf {
 }
 
 export interface ProblemInputVariableValue {
-  id: number;
+  variableConfId: number;
   value: number;
 }
 

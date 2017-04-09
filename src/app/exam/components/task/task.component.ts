@@ -21,6 +21,7 @@ export class TaskComponent implements OnInit {
 
   ngOnInit() {
     this.task.schemaVars.map(this.convertSymbols)
+    this.task.schemaVars = this.task.schemaVars.filter(sv => sv.showInExam)
   }
 
   private convertSymbols(schemaVar: ISchemaVar): ISchemaVar {

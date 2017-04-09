@@ -50,16 +50,11 @@ export class ExamResultsComponent implements OnInit {
 
   ngOnInit() {
     this.duration = this.durationToString(this.data.durationMillis);
-    console.log(this.data.durationMillis + " = " + this.durationToString(this.data.durationMillis));
     this.data.durationMillis = this.data.durationMillis * 5;
-    console.log(this.data.durationMillis + " = " + this.durationToString(this.data.durationMillis));
     this.data.durationMillis = this.data.durationMillis * 5;
-    console.log(this.data.durationMillis + " = " + this.durationToString(this.data.durationMillis));
     this.data.durationMillis = this.data.durationMillis * 5;
-    console.log(this.data.durationMillis + " = " + this.durationToString(this.data.durationMillis));
     this.isOneStep = this.data.stepResults.length === 1;
     this.noSteps = this.data.stepResults.length === 0;
-    console.log("exam results component loaded", this);
   }
 
   durationToString(millis: number): string {
