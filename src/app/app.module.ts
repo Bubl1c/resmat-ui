@@ -25,6 +25,8 @@ import { ApiService } from "./api.service";
 import { AdminComponent } from "./admin/admin.component";
 import { UserComponent } from "./admin/components/user/user.component";
 import { GroupStudentsComponent } from "./admin/components/group-students/group-students.component";
+import { MyExamsComponent } from './exam/components/my-exams/my-exams.component';
+import { MathJaxComponent } from './components/math-jax/math-jax.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +48,9 @@ import { GroupStudentsComponent } from "./admin/components/group-students/group-
     ExamResultsComponent,
     AdminComponent,
     UserComponent,
-    GroupStudentsComponent
+    GroupStudentsComponent,
+    MyExamsComponent,
+    MathJaxComponent
   ],
   imports: [
     BrowserModule,

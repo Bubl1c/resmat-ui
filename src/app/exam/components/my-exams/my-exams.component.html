@@ -1,0 +1,29 @@
+<div class="mui-container">
+  <div *ngFor="let exam of exams" class="mui-panel relative">
+    <div class="relative">
+      <border-sticky-btn (onClick)="loadExam(exam)" positionH="right" positionV="top"
+                         *ngIf="!exam.lockedUntil && exam.status !== 'failed'">
+        <!--<i class="material-icons" [hidden]="exam.status === 'initial'">arrow_forward</i>-->
+        <span [hidden]="exam.status !== 'initial'">Розпочати</span>
+        <span [hidden]="exam.status === 'initial'">Перейти</span>
+        <!--<i class="material-icons" [hidden]="exam.status !== 'initial'">play_circle_outline</i>-->
+      </border-sticky-btn>
+      <div class="exam-name">{{ exam.name }}</div>
+      <span class="mui--text-dark-secondary">{{ exam.description }}</span>
+      <div *ngIf="exam.status === 'in-progress'">
+        <span class="mui--text-dark-secondary">Прогрес:</span>
+        Крок № {{ exam.currentStep.sequence }} - {{ exam.currentStep.description }}
+      </div>
+      <div class="success" *ngIf="exam.status === 'success'">
+        Завершено успішно
+      </div>
+      <div class="fail" *ngIf="exam.status === 'failed'">
+        Провалено на кроці № {{ exam.currentStep.sequence }} - {{ exam.currentStep.description }}
+      </div>
+      <div class="locked" *ngIf="exam.lockedUntil">
+        Заблоковано до {{ exam.lockedUntil.toLocaleString() }}
+      </div>
+    </div>
+  </div>
+
+</div>

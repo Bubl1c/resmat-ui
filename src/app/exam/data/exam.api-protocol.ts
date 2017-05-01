@@ -30,6 +30,8 @@ export interface IExamDto {
   id: number;
   name: string;
   description: string;
+  status: string;
+  lockedUntil: Date;
   currentStep: IExamStepPreview;
 }
 

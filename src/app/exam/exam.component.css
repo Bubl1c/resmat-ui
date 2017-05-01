@@ -1,7 +1,3 @@
-.exam-container {
-  margin-top: 1em;
-}
-
 .exam-assignment {
   height: 350px;
   display: flex;
@@ -18,6 +14,11 @@
 
 .loading {
   text-align: center;
+}
+
+.error-message {
+  text-align: center;
+  color: red;
 }
 
 .conditions {

@@ -14,6 +14,7 @@ export interface ITestDto {
   id: number;
   groupId: number;
   question: string;
+  imageUrl: string;
   options: ITestOptionDto[];
   help: string;
   testType: string;
@@ -21,8 +22,8 @@ export interface ITestDto {
 
 export interface ITestSetConf {
   id: number;
-  examConfId: number;
-  examStepConfId: number;
+  name: string;
+  maxTestsAmount: number;
 }
 
 export interface ITestSetDto {

@@ -6,6 +6,7 @@ import { TaskFlowExamStep } from "../steps/exam.task-flow-step";
 import { ExamStep } from "../steps/exam.step";
 import { ResultsExamStep } from "../steps/exam.results-step";
 import { ErrorResponse } from "../utils/HttpUtils";
+import { ActivatedRoute } from "@angular/router";
 
 class InitialExamStep extends ExamStep {
   loadInitialData(): void {}
@@ -25,14 +26,17 @@ export class ExamComponent implements OnInit {
   exam: IExamDto;
   step: ExamStep;
 
+  errorMessage: string;
+
   isLoading: boolean = true;
 
-  constructor(private examService: ExamService) {
+  constructor(private examService: ExamService, private route: ActivatedRoute) {
     this.step = new InitialExamStep();
   }
 
   ngOnInit() {
-    this.examService.getExamForUser().subscribe((exam: IExamDto) => {
+    let examId: number = this.route.snapshot.params['examId'];
+    this.examService.startAndGetExam(examId).subscribe((exam: IExamDto) => {
       if(exam) {
         console.log("Exam loaded: ", exam);
         this.exam = exam;
@@ -40,9 +44,19 @@ export class ExamComponent implements OnInit {
         this.loadNextStep();
       } else {
         console.log("NO Exam loaded: ", exam);
+        this.errorMessage = "Не вдалося завантажити";
         this.isLoading = false;
         //todo show error that no exam available
       }
+    }, (error: ErrorResponse) => {
+      if(error.status === 423) {
+        let lockedUntil = JSON.parse(error.body);
+        this.errorMessage = "Заблоковано до " + new Date(lockedUntil).toLocaleString();
+      }
+      if(error.status === 409) {
+        this.errorMessage = "Не вдалося завантажити";
+      }
+      this.isLoading = false;
     });
   }
 

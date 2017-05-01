@@ -281,8 +281,8 @@
 //     return { name: name, value: value, units: units };
 //   };
 //
-//   private static tfs(id: number, type: string, seq: number, name: string, data: any, helpData: boolean = false): IExamTaskFlowStepData {
-//     return { id: id, type: type, sequence: seq, name: name, helpData: helpData, data: data };
+//   private static tfs(id: number, type: string, seq: number, name: string, data: any, isHelpStep: boolean = false): IExamTaskFlowStepData {
+//     return { id: id, type: type, sequence: seq, name: name, isHelpStep: isHelpStep, data: data };
 //   }
 //
 // private static et(id: number,

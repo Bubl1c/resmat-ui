@@ -65,7 +65,7 @@ export class TaskFlowComponent implements OnInit {
     this.examService.getCurrentTaskFlowStep(this.task.examId, this.task.examStepSequence, this.task.examStepAttemptId, this.task.id)
       .subscribe((step: IExamTaskFlowStepData) => {
           console.log("Task flow step " + step.sequence + " loaded: ", step);
-          if(step.helpData) {
+          if(step.isHelpStep) {
             that.helpDataItems.push(new HelpDataItem(step.type, step.data));
             that.loadCurrentStep();
             return;

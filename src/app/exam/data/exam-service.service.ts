@@ -30,27 +30,26 @@ export class ExamService {
 
   constructor(private http: Http, private api: ApiService) { }
 
+  getAvailableExamsForUser(): Observable<IExamDto[]> {
+    return this.api.get("/user-exams")
+      .map((responseData: any[]) => {
+        return responseData.map(this.mapUserExamDto)
+    });
+  }
+
+  startAndGetExam(examId: number): Observable<IExamDto> {
+    return this.api.get("/user-exams/" + examId + "/start")
+      .map(this.mapUserExamDto);
+  }
+
+  getExam(examId: number): Observable<IExamDto> {
+    return this.api.get("/user-exams/" + examId)
+      .map(this.mapUserExamDto);
+  }
+
   getExamForUser(): Observable<IExamDto> {
     return this.api.get("/user-exams/current")
-      .map((responseData: any) => {
-        if(responseData) {
-          let userExam = responseData.userExam;
-          let currentStepPreview = responseData.currentStepPreview;
-          let examConf = responseData.examConf;
-          return {
-            id: userExam.id,
-            name: examConf.name,
-            description: examConf.description,
-            currentStep: {
-              sequence: currentStepPreview.sequence,
-              type: currentStepPreview.stepType,
-              description: currentStepPreview.description
-            }
-          }
-        } else {
-          return null;
-        }
-      });
+      .map(this.mapUserExamDto);
   }
 
   getCurrentExamStep(examId: number): Observable<IExamStepWithData> {
@@ -91,7 +90,7 @@ export class ExamService {
           type: stepConf.stepType,
           sequence: stepConf.sequence,
           name: stepConf.name,
-          helpData: stepConf.helpData,
+          isHelpStep: stepConf.isHelpStep,
           data: JSON.parse(r.taskFlowStepData),
         }
       }
@@ -116,5 +115,23 @@ export class ExamService {
     return this.http.get(this.withBase('/exam_results/' + examId))
       .map(HttpUtils.extractData)
       .catch(HttpUtils.handleError)
+  }
+
+  private mapUserExamDto(responseData: any): IExamDto {
+    let userExam = responseData.userExam;
+    let currentStepPreview = responseData.currentStepPreview;
+    let examConf = responseData.examConf;
+    return {
+      id: userExam.id,
+      name: examConf.name,
+      description: examConf.description,
+      status: userExam.status,
+      lockedUntil: userExam.lockedUntil ? new Date(userExam.lockedUntil) : null,
+      currentStep: {
+        sequence: currentStepPreview.sequence,
+        type: currentStepPreview.stepType,
+        description: currentStepPreview.description
+      }
+    }
   }
 }

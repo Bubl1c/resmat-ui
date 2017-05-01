@@ -1,8 +1,11 @@
 <form class="test-content relative" onSubmit="return false;">
   <help-materials [imgUrl]="test.helpImg"></help-materials>
-  <div class="test-question mui--text-subhead">
+  <div class="test-question">
     <span class="test-number">{{ test.sequence }}.</span>
-    {{ test.question }}
+    <mathjax [data]="test.question"></mathjax>
+    <div *ngIf="test.imageUrl">
+      <img class="test-img" src="{{ test.imageUrl }}">
+    </div>
   </div>
   <table class="test-questions">
     <tr class="option" *ngFor="let option of test.options">
@@ -19,7 +22,7 @@
                (change)="onOptionChecked(option)">
       </td>
       <td>
-        <span *ngIf="option.valueType === 'words'">{{ option.value }}</span>
+        <mathjax class="option-value" *ngIf="option.valueType === 'words'" [data]="option.value"></mathjax>
         <img *ngIf="option.valueType === 'img'" class="option-img" src="{{ option.value }}">
       </td>
     </tr>

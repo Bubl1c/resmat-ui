@@ -19,7 +19,7 @@ export interface IExamTaskFlowStepData {
   type: string;
   sequence: number;
   name: string;
-  helpData: boolean;
+  isHelpStep: boolean;
   data: any;
 }
 
@@ -36,7 +36,7 @@ export interface ITaskFlowStepConf {
   taskFlowConfId: number;
   name: string;
   sequence: number;
-  helpData: boolean;
+  isHelpStep: boolean;
   stepType: string;
   stepData: string
 }

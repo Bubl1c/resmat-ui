@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import { ArrayUtils } from "../../../utils/ArrayUtils";
 import { ITestOptionDto, ITestDto, TestTypes } from "../../data/test-set.api-protocol";
+import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 
 export class TestOption {
   constructor(public id: number,
@@ -17,6 +18,7 @@ export class TestOption {
 export class Test {
   id: number;
   question: string;
+  imageUrl: string;
   options: TestOption[];
   helpImg: string;
   type: string;
@@ -27,6 +29,7 @@ export class Test {
   constructor(iTest: ITestDto, sequence: number) {
     this.id = iTest.id;
     this.question = iTest.question;
+    this.imageUrl = iTest.imageUrl;
     this.options = iTest.options.map(io => TestOption.create(io));
     this.helpImg = iTest.help;
     this.type = iTest.testType;
@@ -66,6 +69,7 @@ export class TestComponent implements OnInit {
   }
 
   ngOnInit() {
+    // this.replaceMathSymbolPlaceholders();
     ArrayUtils.shuffle(this.test.options);
     this.checkDefaultOption();
   }
@@ -100,6 +104,13 @@ export class TestComponent implements OnInit {
     if(this.test.type == TestTypes.Radio) {
       this.test.options[0].checked = true;
     }
+  }
+
+  private replaceMathSymbolPlaceholders() {
+    this.test.question = MathSymbolConverter.convertString(this.test.question)
+    this.test.options.forEach(opt => {
+      opt.value = MathSymbolConverter.convertString(opt.value);
+    })
   }
 
   private refillOptions(checkedOption: TestOption) {

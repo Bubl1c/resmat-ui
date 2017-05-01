@@ -14,9 +14,7 @@ export class TaskFlowExamStep extends ExamStep {
 
     let data = stepWithData.stepData as TaskFlowDto;
     let problemConf = data.problemConf;
-    problemConf.inputVariableConfs = JSON.parse(problemConf.inputVariableConfs.toString()); //parse JSON array
     let problemVariantConf = data.problemVariantConf;
-    problemVariantConf.inputVariableValues = JSON.parse(problemVariantConf.inputVariableValues.toString()); //parse JSON array
     let taskFlow = data.taskFlow;
     this.taskData = {
       id: problemConf.id,
@@ -24,7 +22,7 @@ export class TaskFlowExamStep extends ExamStep {
       examStepSequence: stepWithData.stepConf.sequence,
       examStepAttemptId: stepWithData.attempt.id,
       version: problemVariantConf.id,
-      currentStep: taskFlow.currentStepId,
+      currentStep: taskFlow.currentStepSequence,
       name: problemConf.name,
       schemaUrl: problemVariantConf.schemaUrl,
       schemaVars: problemConf.inputVariableConfs.map(ivc => this.mapVariable(ivc, problemVariantConf.inputVariableValues)),
@@ -77,7 +75,7 @@ export interface UserExamStepAttemptTaskFlow {
   examStepConfId: number;
   taskFlowConfId: number;
   problemVariantConfId: number;
-  currentStepId: number
+  currentStepSequence: number
 }
 
 export interface TaskFlowDto {

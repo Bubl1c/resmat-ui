@@ -14,8 +14,23 @@
   <script src="//cdn.muicss.com/mui-0.9.7/js/mui.min.js"></script>
   <!--Load Charts library-->
   <script src="../lib/Chart.js"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+    showMathMenu: false,
+    showMathMenuMSIE: false,
+    menuSettings: {
+      zoom: "Double-Click"
+    }
+  });
+</script>
+  <script type="text/javascript" src="../lib/mathjax/MathJax.js"></script>
 </head>
 <body>
+  <span>$\sigma_\theta = \frac{6M_\theta}{12 \cdot (1 - \mu^2)}$</span>
   <app-root>Loading...</app-root>
 </body>
 </html>

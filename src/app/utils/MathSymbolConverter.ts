@@ -7,28 +7,23 @@ export class MathSymbolConverter {
     tau: '&Tau;'
   };
 
-  private static specialSymbolMark = "{";
-  private static matchingRegex = /[^{}]+(?=\})/g;
+  private static tokenStart = "{";
+  private static tokenEnd = "}";
+  private static matchingRegex = new RegExp(
+    MathSymbolConverter.tokenStart + "\\w+" + MathSymbolConverter.tokenEnd,
+    "g"
+  );
 
   static convertString(str: string): string {
     if(!str) {
       return "";
     }
-    if(str.indexOf(this.specialSymbolMark) === -1) {
-      return str;
-    }
-    let letters: string[] = str.match(this.matchingRegex);
-    let mappedLetters = letters.map(ltr => this.mapLetter(ltr));
-    str = mappedLetters.join('');
-    return str;
+    return str.replace(this.matchingRegex, function(match) {
+      return MathSymbolConverter.mappings[MathSymbolConverter.dropTokenIdentities(match)] || match;
+    });
   }
 
-  private static mapLetter(letter: string): string {
-    let mapped = this.mappings[letter];
-    if(mapped) {
-      return mapped;
-    } else {
-      return letter;
-    }
+  private static dropTokenIdentities(str: string): string {
+    return str.substring(this.tokenStart.length, str.length - this.tokenEnd.length)
   }
 }
