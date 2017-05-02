@@ -5,6 +5,7 @@ import { ApiService } from "../../../api.service";
 import { Modal, BSModalContext } from 'angular2-modal/plugins/bootstrap';
 import { CustomModal } from "../custom-modal/custom-modal.component";
 import { overlayConfigFactory } from "angular2-modal";
+import { ErrorResponse } from "../../../utils/HttpUtils";
 
 export interface IProblemConf {
   id: number;
@@ -114,6 +115,34 @@ export class ProblemConfComponent implements OnInit {
 
   loadCalculatedData(v: IProblemVariantConf) {
     this.modal.open(CustomModal,  overlayConfigFactory({ custom_json: v.calculatedData }, BSModalContext));
+  }
+
+  deleteVariant(v: IProblemVariantConf) {
+    let that = this;
+    function onDeleted() {
+      var index = that.variants.findIndex(vinarr => vinarr.id === v.id);
+      if (index > -1) {
+        that.variants.splice(index, 1);
+      }
+    }
+
+    if(window.confirm("Ви дійсно хочете видалити варіант " + v.id + "?")) {
+      this.api.delete("/problem-confs/" + this.problemConf.id + "/variants/" + v.id).subscribe(() => {
+        onDeleted();
+        alert("Успішно видалено")
+      }, (error: ErrorResponse) => {
+        if(error.status === 424) {
+          if(window.confirm("Цей варіант вже використовується, видалити разом з усіма сутностями які його використовують?")) {
+            this.api.delete("/problem-confs/" + this.problemConf.id + "/variants/" + v.id + "?force=true").subscribe(() => {
+              onDeleted();
+              alert("Успішно видалено")
+            }, (error: ErrorResponse) => alert("Не вдалося видалити: " + JSON.stringify(error)))
+          }
+        } else {
+          alert("Не вдалося видалити: " + JSON.stringify(error))
+        }
+      })
+    }
   }
 
   reset() {

@@ -24,7 +24,8 @@
       <td style="text-align: center">
         <img src="{{v.schemaUrl}}" alt="Схема завдання" class="variant-schema"/> <br>
         <span>{{v.schemaUrl}}</span><br><br>
-        <a (click)="loadCalculatedData(v)">Переглянути пораховані дані</a>
+        <a (click)="loadCalculatedData(v)">Переглянути пораховані дані</a><br>
+        <a (click)="deleteVariant(v)" style="color: red">Видалити</a>
       </td>
       <td>
         <table class="mui-table mui-table--bordered">

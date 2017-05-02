@@ -105,4 +105,6 @@ if [ ${RELOAD_CONFIGS} = true ]; then
   scpToRemote "config" ${REMOTE_FOLDER} "-r"
 fi
 
+rm -rf tmp
+
 exit

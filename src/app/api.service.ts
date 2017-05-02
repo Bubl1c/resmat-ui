@@ -30,6 +30,12 @@ export class ApiService {
       .catch(e => this.handleErrorWithUnauthorized(e, this.router))
   }
 
+  delete(path: string, options?: RequestOptionsArgs): Observable<any> {
+    return this.http.delete(HttpUtils.withBase(path), this.withDefaultHeaders(options))
+      .map(HttpUtils.extractData)
+      .catch(e => this.handleErrorWithUnauthorized(e, this.router))
+  }
+
   private withDefaultHeaders(options?: RequestOptionsArgs): RequestOptionsArgs {
     options = options || new RequestOptions();
     options.headers = options.headers || new Headers();
