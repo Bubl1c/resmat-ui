@@ -65,6 +65,8 @@ export class InputSetComponent implements OnInit {
   @Input() description: string;
   @Input() data: InputSetData;
 
+  @Input() hideHeader: boolean;
+
   groups: VariableGroup[];
 
   @Output() onSubmitted: EventEmitter<InputSetAnswer>;

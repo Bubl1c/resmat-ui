@@ -1,0 +1,42 @@
+<div class="mui-panel">
+  <button class="mui-btn mui-btn-primary" (click)="isProblemConfHidden = !isProblemConfHidden">
+    {{ isProblemConfHidden ? "Показати дані задачі" : "Сховати" }}
+  </button>
+  <pre [hidden]="isProblemConfHidden">
+    {{ problemConfInfo | json }}
+  </pre>
+</div>
+
+<div class="mui-panel">
+  <h3>Додати варіант</h3>
+  <div class="mui-textfield">
+    <input type="text" name="schemaUrl" placeholder="Посилання на схему" [(ngModel)]="newVariant.schemaUrl">
+  </div>
+  <input-set *ngIf="showInputSet" [data]="newVariantVariables" [hideHeader]="true" (onSubmitted)="variablesSubmitted($event)"></input-set>
+</div>
+
+<div class="mui-panel">
+  <h3>Варіанти</h3>
+  <table class="mui-table mui-table--bordered">
+  <tbody>
+    <tr *ngFor="let v of variants">
+      <td><h2>{{ v.id }}</h2></td>
+      <td style="text-align: center">
+        <img src="{{v.schemaUrl}}" alt="Схема завдання" class="variant-schema"/> <br>
+        <span>{{v.schemaUrl}}</span><br><br>
+        <a (click)="loadCalculatedData(v)">Переглянути пораховані дані</a>
+      </td>
+      <td>
+        <table class="mui-table mui-table--bordered">
+          <tr *ngFor="let iv of v.inputVariableValues" class="variant-variable">
+            <td><span [innerHtml]="variableConfs[iv.variableConfId].name"></span>:</td>
+            <td>{{ iv.value }}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+

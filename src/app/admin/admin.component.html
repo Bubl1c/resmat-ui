@@ -16,7 +16,13 @@
       <li>
         <strong>Іспити</strong>
         <ul>
-          <li><a>Семестрова контрольна робота</a></li>
+          <li *ngFor="let ec of examConfs"><a (click)="loadExamConf(ec.id)">{{ ec.name }}</a></li>
+        </ul>
+      </li>
+      <li>
+        <strong>Задачі</strong>
+        <ul>
+          <li *ngFor="let p of problemConfs"><a (click)="loadProblemConf(p.id)">{{ p.name }}</a></li>
         </ul>
       </li>
     </ul>
@@ -40,6 +46,14 @@
           <exam-results [data]="result"></exam-results>
           <div class="mui-divider"></div>
         </div>
+      </div>
+
+      <div *ngIf="workspaceData.type === 'exam'">
+        <exam-conf [data]="workspaceData.data"></exam-conf>
+      </div>
+
+      <div *ngIf="workspaceData.type === 'problem'">
+        <problem-conf [problemConf]="workspaceData.data" [variants]="workspaceData.data.variants"></problem-conf>
       </div>
     </div>
 

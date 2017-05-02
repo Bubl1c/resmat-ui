@@ -6,11 +6,19 @@ import { CurrentSession } from "../current-session";
 import { UserComponentConfig } from "./components/user/user.component";
 import { ExamResult } from "../exam/components/exam-results/exam-results.component";
 import { IUserExamResult } from "../steps/exam.results-step";
+import { IExamDto } from "../exam/data/exam.api-protocol";
+import { IExamConfWithSteps, IExamConf, IExamStepConf } from "./components/exam-conf/exam-conf.component";
+import {
+  IProblemConf, IProblemVariantConf,
+  IProblemConfWithVariants
+} from "./components/problem-conf/problem-conf.component";
 
 class WorkspaceDataTypes {
   static user = "user";
   static groupStudents = "group-students";
-  static examResults = "exam-results"
+  static examResults = "exam-results";
+  static exam = "exam"
+  static problem = "problem";
 }
 
 abstract class WorkspaceData {
@@ -52,6 +60,20 @@ class ExamResultWorkspaceData extends WorkspaceData {
   }
 }
 
+class ExamWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.exam;
+  constructor(public data: IExamConfWithSteps) {
+    super();
+  }
+}
+
+class ProblemWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.problem;
+  constructor(public data: IProblemConfWithVariants) {
+    super();
+  }
+}
+
 @Component({
   selector: 'admin',
   templateUrl: './admin.component.html',
@@ -65,6 +87,9 @@ export class AdminComponent implements OnInit {
   studentGroups: StudentGroup[];
   users: UserData[];
   students: UserData[];
+
+  examConfs: IExamConf[];
+  problemConfs: IProblemConf[];
 
   workspaceData: WorkspaceData;
 
@@ -81,7 +106,9 @@ export class AdminComponent implements OnInit {
     if(this.isAdmin) {
       this.loadUsers()
     }
-    this.loadGroups()
+    this.loadGroups();
+    this.loadExamConfs();
+    this.loadProblemConfs();
   }
 
   loadUsers() {
@@ -129,5 +156,69 @@ export class AdminComponent implements OnInit {
     })
   }
 
+  loadExamConfs() {
+    this.api.get("/exam-confs").subscribe({
+      next: (examConfs: IExamConf[]) => {
+        this.examConfs = examConfs
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
+  }
 
+  loadExamConf(examConfId: number) {
+    this.api.get("/exam-confs/" + examConfId + "/dto").subscribe({
+      next: (examConfDto: any) => {
+        let ec: IExamConf = examConfDto.examConf;
+        let stepConfs: IExamStepConf[] = examConfDto.stepConfs;
+        let ecWithSteps: IExamConfWithSteps = {
+          id: ec.id,
+          name: ec.name,
+          description: ec.description,
+          maxScore: ec.maxScore,
+          steps: stepConfs
+        };
+        this.workspaceData = new ExamWorkspaceData(ecWithSteps)
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
+  }
+
+  loadProblemConfs() {
+    this.api.get("/problem-confs").subscribe({
+      next: (problemConfs: IProblemConf[]) => {
+        this.problemConfs = problemConfs
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
+  }
+
+  loadProblemConf(problemConfId: number) {
+    this.api.get("/problem-confs/" + problemConfId + "/with-variants").subscribe({
+      next: (problemConfWithVariants: any) => {
+        let pc: IProblemConf = problemConfWithVariants.problemConf;
+        let variants: IProblemVariantConf[] = problemConfWithVariants.variants;
+        let pcwv: IProblemConfWithVariants = {
+          id: pc.id,
+          name: pc.name,
+          problemType: pc.problemType,
+          inputVariableConfs: pc.inputVariableConfs,
+          variants: variants
+        };
+        this.workspaceData = new ProblemWorkspaceData(pcwv)
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
+  }
 }

@@ -48,3 +48,14 @@ body {
 a {
   cursor: pointer;
 }
+
+.modal {
+  padding: 1em;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.16), 0 0 2px 0 rgba(0,0,0,.12);
+  background: white;
+  top: 30%;
+  left: 30%;
+  width: 60%;
+  max-height: 60%;
+  min-height: 450px;
+}

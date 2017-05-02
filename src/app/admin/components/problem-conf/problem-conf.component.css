@@ -1,0 +1,13 @@
+.variant-schema {
+  max-height: 300px;
+}
+
+.variant-variable td {
+  padding: 0px;
+  width: 50%;
+}
+
+.variant-variable td:first-child {
+  padding-right: 1em;
+  text-align: right;
+}

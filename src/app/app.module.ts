@@ -3,6 +3,10 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { HttpModule } from "@angular/http";
 import { ChartsModule } from "ng2-charts/ng2-charts";
+import {PrettyJsonModule} from 'angular2-prettyjson';
+import { ModalModule } from 'angular2-modal';
+import { BootstrapModalModule } from 'angular2-modal/plugins/bootstrap';
+
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { LoginComponent } from "./login/login.component";
@@ -27,6 +31,9 @@ import { UserComponent } from "./admin/components/user/user.component";
 import { GroupStudentsComponent } from "./admin/components/group-students/group-students.component";
 import { MyExamsComponent } from './exam/components/my-exams/my-exams.component';
 import { MathJaxComponent } from './components/math-jax/math-jax.component';
+import { ExamConfComponent } from './admin/components/exam-conf/exam-conf.component';
+import { ProblemConfComponent } from './admin/components/problem-conf/problem-conf.component';
+import { CustomModal } from './admin/components/custom-modal/custom-modal.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +57,10 @@ import { MathJaxComponent } from './components/math-jax/math-jax.component';
     UserComponent,
     GroupStudentsComponent,
     MyExamsComponent,
-    MathJaxComponent
+    MathJaxComponent,
+    ExamConfComponent,
+    ProblemConfComponent,
+    CustomModal
   ],
   imports: [
     BrowserModule,
@@ -58,10 +68,14 @@ import { MathJaxComponent } from './components/math-jax/math-jax.component';
     HttpModule,
     AppRoutingModule,
     ChartsModule,
-    Ng2PageScrollModule.forRoot()
+    Ng2PageScrollModule.forRoot(),
+    PrettyJsonModule,
+    ModalModule.forRoot(),
+    BootstrapModalModule
   ],
   providers: [ApiService],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ CustomModal ]
 })
 export class AppModule {
 }
