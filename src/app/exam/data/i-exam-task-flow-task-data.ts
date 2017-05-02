@@ -1,12 +1,13 @@
 import { ISchemaVar } from "./task-flow.api-protocol";
 export interface IExamTaskFlowTaskData {
-  id: number;
+  problemConfId: number;
   examId: number;
   examStepSequence: number;
   examStepAttemptId: number;
-  version: number;
-  currentStep: number;
-  name: string;
+  problemVariantConfId: number;
+  taskFlowId: number;
+  currentTaskFlowStepSequence: number;
+  problemName: string;
   schemaUrl: string;
   schemaVars: ISchemaVar[];
   description: string;

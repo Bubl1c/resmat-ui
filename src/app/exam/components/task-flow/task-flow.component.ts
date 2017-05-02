@@ -62,7 +62,7 @@ export class TaskFlowComponent implements OnInit {
   private loadCurrentStep() {
     this.step = new LoadingTaskFlowStep();
     let that = this;
-    this.examService.getCurrentTaskFlowStep(this.task.examId, this.task.examStepSequence, this.task.examStepAttemptId, this.task.id)
+    this.examService.getCurrentTaskFlowStep(this.task.examId, this.task.examStepSequence, this.task.examStepAttemptId, this.task.taskFlowId)
       .subscribe((step: IExamTaskFlowStepData) => {
           console.log("Task flow step " + step.sequence + " loaded: ", step);
           if(step.isHelpStep) {
@@ -127,8 +127,8 @@ class InputSetTaskFlowStep extends TaskFlowStep {
       this.taskData.examId,
       this.taskData.examStepSequence,
       this.taskData.examStepAttemptId,
-      this.taskData.id,
-      this.sequence,
+      this.taskData.taskFlowId,
+      this.id,
       JSON.stringify(submittedData)
     ).subscribe((verified: IVerifiedTaskFlowStepAnswer) => {
       let verifiedIputSet: {[key: number]:boolean} = JSON.parse(verified.answer);
@@ -161,8 +161,8 @@ class TestTaskFlowStep extends TaskFlowStep {
       this.taskData.examId,
       this.taskData.examStepSequence,
       this.taskData.examStepAttemptId,
-      this.taskData.id,
-      this.sequence,
+      this.taskData.taskFlowId,
+      this.id,
       JSON.stringify(submittedData)
     ).subscribe((verified: IVerifiedTaskFlowStepAnswer) => {
         let verifiedAnswer: {[key: number]:boolean} = JSON.parse(verified.answer);

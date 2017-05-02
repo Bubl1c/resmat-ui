@@ -54,11 +54,6 @@ function scpToRemote {
 }
 
 function prepare {
-  if [ ${RELOAD_LIBS} = true ]; then
-    echo "Cleaning LIBS in ${REMOTE_FOLDER}"
-    runSSH "rm -rf lib"
-  fi
-
   if [ ${RELOAD_CONFIGS} = true ]; then
     echo "Cleaning CONFIGS in ${REMOTE_FOLDER}"
     runSSH "rm -rf config"
@@ -76,11 +71,12 @@ function prepare {
 }
 
 function zipAndSendLibs {
+  echo Reloading LIBS
   mkdir -p "tmp"
   zip -r "tmp/lib" lib
   scpToRemote "tmp/lib.zip" ${REMOTE_FOLDER}
-  runSSH "unzip ~/hosted/lib.zip"
-  runSSH "rm -f ~/hosted/lib.zip"
+  runSSH "cd ${REMOTE_FOLDER}; rm -rf lib; unzip lib.zip; rm -f lib.zip"
+  rm -rf "tmp"
 }
 
 #Prerequicities
@@ -104,7 +100,5 @@ fi
 if [ ${RELOAD_CONFIGS} = true ]; then
   scpToRemote "config" ${REMOTE_FOLDER} "-r"
 fi
-
-rm -rf tmp
 
 exit

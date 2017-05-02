@@ -17,13 +17,14 @@ export class TaskFlowExamStep extends ExamStep {
     let problemVariantConf = data.problemVariantConf;
     let taskFlow = data.taskFlow;
     this.taskData = {
-      id: problemConf.id,
+      problemConfId: problemConf.id,
       examId: stepWithData.attempt.userExamId,
       examStepSequence: stepWithData.stepConf.sequence,
       examStepAttemptId: stepWithData.attempt.id,
-      version: problemVariantConf.id,
-      currentStep: taskFlow.currentStepSequence,
-      name: problemConf.name,
+      problemVariantConfId: problemVariantConf.id,
+      taskFlowId: taskFlow.id,
+      currentTaskFlowStepSequence: taskFlow.currentStepSequence,
+      problemName: problemConf.name,
       schemaUrl: problemVariantConf.schemaUrl,
       schemaVars: problemConf.inputVariableConfs.map(ivc => this.mapVariable(ivc, problemVariantConf.inputVariableValues)),
       description: "description"
