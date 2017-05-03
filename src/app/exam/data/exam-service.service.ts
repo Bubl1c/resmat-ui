@@ -30,8 +30,9 @@ export class ExamService {
 
   constructor(private http: Http, private api: ApiService) { }
 
-  getAvailableExamsForUser(): Observable<IExamDto[]> {
-    return this.api.get("/user-exams")
+  getAvailableExamsForUser(userId: number = null): Observable<IExamDto[]> {
+    let userIdParam = userId !== null ? "?userId="+userId : "";
+    return this.api.get("/user-exams" + userIdParam)
       .map((responseData: any[]) => {
         return responseData.map(this.mapUserExamDto)
     });
@@ -45,6 +46,23 @@ export class ExamService {
   getExam(examId: number): Observable<IExamDto> {
     return this.api.get("/user-exams/" + examId)
       .map(this.mapUserExamDto);
+  }
+
+  createExamForStudent(examConfId: number, userId: number): Observable<IExamDto> {
+    return this.api.post("/user-exams/?examConfId=" + examConfId + "&userId=" + userId, {})
+      .map(this.mapUserExamDto);
+  }
+
+  deleteExam(examId: number): Observable<IExamDto> {
+    return this.api.delete("/user-exams/" + examId);
+  }
+
+  lockExam(examId: number, hoursAmount: number): Observable<IExamDto> {
+    return this.api.put("/user-exams/" + examId + "/lock?hoursAmount=" + hoursAmount, {}).map(this.mapUserExamDto);
+  }
+
+  unlockExam(examId: number): Observable<IExamDto> {
+    return this.api.put("/user-exams/" + examId + "/unlock", {}).map(this.mapUserExamDto);
   }
 
   getExamForUser(): Observable<IExamDto> {

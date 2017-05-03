@@ -15,10 +15,12 @@ import {
 
 class WorkspaceDataTypes {
   static user = "user";
+  static addStudent = "add-student";
   static groupStudents = "group-students";
   static examResults = "exam-results";
-  static exam = "exam"
+  static exam = "exam";
   static problem = "problem";
+  static studentExams = "student_exams";
 }
 
 abstract class WorkspaceData {
@@ -46,9 +48,16 @@ class UserWorkspaceData extends WorkspaceData {
   }
 }
 
+class AddStudentWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.addStudent;
+  constructor(public data: StudentGroup) {
+    super();
+  }
+}
+
 class GroupStudentsWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.groupStudents;
-  constructor(public data: UserData[]) {
+  constructor(public data: UserData[], public group: StudentGroup) {
     super();
   }
 }
@@ -70,6 +79,13 @@ class ExamWorkspaceData extends WorkspaceData {
 class ProblemWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.problem;
   constructor(public data: IProblemConfWithVariants) {
+    super();
+  }
+}
+
+class StudentExamsWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.studentExams;
+  constructor(public data: UserData) {
     super();
   }
 }
@@ -130,7 +146,7 @@ export class AdminComponent implements OnInit {
     this.api.get("/student-groups/" + group.id + "/students").subscribe({
       next: (students: any[]) => {
         let mappedStudents = students.map(UserData.fromApi);
-        this.workspaceData = new GroupStudentsWorkspaceData(mappedStudents);
+        this.workspaceData = new GroupStudentsWorkspaceData(mappedStudents, group);
       },
       error: err => {
         this.errorMessage = err.toString()
@@ -139,10 +155,11 @@ export class AdminComponent implements OnInit {
   }
 
   loadStudentResults(student: UserData) {
-    let studentGroup = this.studentGroups.find(group => group.id === student.studentGroupId);
-    this.api.get("/user-exams/results?userId=" + student.id).subscribe((results: IUserExamResult[]) => {
-      this.workspaceData = new ExamResultWorkspaceData(results.map(r => ExamResult.create(r)));
-    }, err => alert(err));
+    // let studentGroup = this.studentGroups.find(group => group.id === student.studentGroupId);
+    // this.api.get("/user-exams/results?userId=" + student.id).subscribe((results: IUserExamResult[]) => {
+    //   this.workspaceData = new ExamResultWorkspaceData(results.map(r => ExamResult.create(r)));
+    // }, err => alert(err));
+    this.workspaceData = new StudentExamsWorkspaceData(student);
   }
 
   loadGroups() {
@@ -218,6 +235,24 @@ export class AdminComponent implements OnInit {
       error: err => {
         this.errorMessage = err.toString();
         alert(err)
+      }
+    })
+  }
+
+  addUserToCurrentGroup(group: StudentGroup) {
+    this.workspaceData = new AddStudentWorkspaceData(group)
+  }
+
+  addStudent(student: UserData) {
+    let toSend = JSON.parse(JSON.stringify(student));
+    toSend.userType = toSend.userType.id;
+    this.api.post("/api-users", toSend).subscribe({
+      next: (users: any[]) => {
+        let group = this.studentGroups.find(sg => student.studentGroupId === sg.id)
+        this.loadStudentsByGroup(group)
+      },
+      error: err => {
+        alert(err.toString())
       }
     })
   }

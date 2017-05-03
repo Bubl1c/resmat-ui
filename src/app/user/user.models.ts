@@ -25,6 +25,10 @@ export class UserData {
               public studentGroupId: number | null) {
   }
 
+  static empty() {
+    return new UserData(null, null, null, null, null, null, null, null, null)
+  }
+
   static fromApi(data: any): UserData {
     let parsedUser: UserData = data;
     parsedUser.userType = UserType.withId(data.userType);

@@ -1,0 +1,10 @@
+input:disabled, fieldset:disabled input {
+  color: grey;
+  cursor: default;
+}
+
+fieldset {
+  border: 0px;
+  margin: 0px;
+  padding: 0px;
+}

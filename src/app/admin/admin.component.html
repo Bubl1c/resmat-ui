@@ -28,18 +28,27 @@
     </ul>
   </div>
   <div class="workspace mui-container-fluid mui-panel">
-    <!--<div class="error-message" *ngIf="workspaceData && workspaceData.errorMessage">{{ workspaceData.errorMessage }}</div>-->
     <div *ngIf="workspaceData">
       <user *ngIf="workspaceData.type === 'user'"
             [user]="workspaceData.data"
             [config]="workspaceData.config"
             (onSaved)="workspaceData.save($event)"></user>
 
-      <group-students
-        *ngIf="workspaceData.type === 'group-students'"
-        [students]="workspaceData.data"
-        (onResultsRequested)="loadStudentResults($event)"
-        (onEditRequested)="loadEditUser($event)"></group-students>
+      <div *ngIf="workspaceData.type === 'group-students'">
+        <span class="header3">{{ workspaceData.group.name }}</span><a (click)="addUserToCurrentGroup(workspaceData.group)" style="float: right">Додати студента</a>
+        <br><br>
+        <group-students
+          [students]="workspaceData.data"
+          (onResultsRequested)="loadStudentResults($event)"
+          (onEditRequested)="loadEditUser($event)"></group-students>
+      </div>
+
+      <student-exams *ngIf="workspaceData.type === 'student_exams'"
+                      [student]="workspaceData.data" [examConfs]="examConfs"></student-exams>
+
+      <create-student *ngIf="workspaceData.type === 'add-student'"
+                      [group]="workspaceData.data"
+                      (onSaved)="addStudent($event)"></create-student>
 
       <div *ngIf="workspaceData.type === 'exam-results'">
         <div *ngFor="let result of workspaceData.data" class="exam-result">

@@ -1,0 +1,15 @@
+.exam-name {
+  font-size: 1.5em;
+}
+
+.success {
+  color: green;
+}
+
+.fail {
+  color: #F50057;
+}
+
+.locked {
+  color: #F50057;
+}

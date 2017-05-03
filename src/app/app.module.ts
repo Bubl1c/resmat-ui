@@ -34,6 +34,8 @@ import { MathJaxComponent } from './components/math-jax/math-jax.component';
 import { ExamConfComponent } from './admin/components/exam-conf/exam-conf.component';
 import { ProblemConfComponent } from './admin/components/problem-conf/problem-conf.component';
 import { CustomModal } from './admin/components/custom-modal/custom-modal.component';
+import { CreateStudentComponent } from './admin/components/create-student/create-student.component';
+import { StudentExamsComponent } from './admin/components/student-exams/student-exams.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +62,9 @@ import { CustomModal } from './admin/components/custom-modal/custom-modal.compon
     MathJaxComponent,
     ExamConfComponent,
     ProblemConfComponent,
-    CustomModal
+    CustomModal,
+    CreateStudentComponent,
+    StudentExamsComponent
   ],
   imports: [
     BrowserModule,
