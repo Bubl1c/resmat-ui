@@ -12,6 +12,7 @@ export class GroupStudentsComponent implements OnInit {
 
   @Output() onResultsRequested = new EventEmitter<UserData>();
   @Output() onEditRequested = new EventEmitter<UserData>();
+  @Output() onDeleteRequested = new EventEmitter<UserData>();
 
   constructor() { }
 
@@ -24,6 +25,10 @@ export class GroupStudentsComponent implements OnInit {
 
   results(student: UserData) {
     this.onResultsRequested.emit(student);
+  }
+
+  delete(student: UserData) {
+    this.onDeleteRequested.emit(student);
   }
 
 }

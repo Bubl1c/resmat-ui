@@ -1,4 +1,5 @@
 <div class="mui-container">
+  <div class="mui--text-dark-secondary header3">{{getCurrentUserName()}}</div>
   <div *ngFor="let exam of exams" class="mui-panel relative">
     <div class="relative">
       <border-sticky-btn (onClick)="loadExam(exam)" positionH="right" positionV="top"

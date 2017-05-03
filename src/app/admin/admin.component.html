@@ -44,7 +44,8 @@
         <group-students
           [students]="workspaceData.data"
           (onResultsRequested)="loadStudentResults($event)"
-          (onEditRequested)="loadEditUser($event)"></group-students>
+          (onEditRequested)="loadEditUser($event)"
+          (onDeleteRequested)="deleteStudent($event)"></group-students>
       </div>
 
       <student-exams *ngIf="workspaceData.type === 'student_exams'"

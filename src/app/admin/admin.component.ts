@@ -257,6 +257,15 @@ export class AdminComponent implements OnInit {
     })
   }
 
+  deleteStudent(student: UserData) {
+    let group = this.studentGroups.find(sg => student.studentGroupId === sg.id);
+    if(window.confirm("Ви дійсно хочете видалити студента " + student.firstName + " " + student.lastName + "?")) {
+      this.api.delete("/student-groups/" + student.studentGroupId + "/students/" + student.id).subscribe(() => {
+        this.loadStudentsByGroup(group)
+      }, err => alert(err.toString()))
+    }
+  }
+
   unlockAllInGroup(group: StudentGroup) {
     if(window.confirm("Ви дійсно хочете розблокувати всі роботи вгрупі " + group.name + "?")) {
       this.api.put("/user-exams/unlockAll?groupId=" + group.id, {}).subscribe(() => {

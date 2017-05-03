@@ -7,6 +7,7 @@ import { ExamStep } from "../steps/exam.step";
 import { ResultsExamStep } from "../steps/exam.results-step";
 import { ErrorResponse } from "../utils/HttpUtils";
 import { ActivatedRoute } from "@angular/router";
+import { CurrentSession } from "../current-session";
 
 class InitialExamStep extends ExamStep {
   loadInitialData(): void {}
@@ -66,6 +67,14 @@ export class ExamComponent implements OnInit {
     }, (error: ErrorResponse) => {
       alert("Не вдалося продовжити! " + error)
     })
+  }
+
+  getCurrentUserName() {
+    if(CurrentSession.user) {
+      return "Ви увійшли як: " + CurrentSession.user.firstName + " " + CurrentSession.user.lastName
+    } else {
+      return ""
+    }
   }
 
   private loadNextStep() {

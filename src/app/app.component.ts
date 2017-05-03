@@ -1,4 +1,4 @@
-import { Component, ViewContainerRef } from "@angular/core";
+import { Component, ViewContainerRef, OnInit } from "@angular/core";
 import { PageScrollConfig } from "ng2-page-scroll";
 import { LoginService } from "./login/login.service";
 import { Router } from "@angular/router";
@@ -10,12 +10,16 @@ import { Overlay } from 'angular2-modal';
   styleUrls: ['./app.component.css'],
   providers: [LoginService]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = '';
   showLogout = true;
+
   constructor(private loginService: LoginService, private router: Router, overlay: Overlay, vcRef: ViewContainerRef) {
     overlay.defaultViewContainer = vcRef;
     PageScrollConfig.defaultDuration = 500;
+  }
+
+  ngOnInit(): void {
   }
 
   logout() {

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ExamService } from "../../data/exam-service.service";
 import { IExamDto } from "../../data/exam.api-protocol";
 import { Router, ActivatedRoute } from "@angular/router";
+import { CurrentSession } from "../../../current-session";
 
 @Component({
   selector: 'my-exams',
@@ -19,7 +20,15 @@ export class MyExamsComponent implements OnInit {
     this.examService.getAvailableExamsForUser().subscribe(fetchedExams => {
       this.exams = fetchedExams;
       this.loading = false;
-    })
+    });
+  }
+
+  getCurrentUserName() {
+    if(CurrentSession.user) {
+      return "Ви увійшли як: " + CurrentSession.user.firstName + " " + CurrentSession.user.lastName
+    } else {
+      return ""
+    }
   }
 
   withStatus(e: IExamDto, s: string): IExamDto {
