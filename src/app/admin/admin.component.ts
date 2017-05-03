@@ -256,4 +256,25 @@ export class AdminComponent implements OnInit {
       }
     })
   }
+
+  unlockAllInGroup(group: StudentGroup) {
+    if(window.confirm("Ви дійсно хочете розблокувати всі роботи вгрупі " + group.name + "?")) {
+      this.api.put("/user-exams/unlockAll?groupId=" + group.id, {}).subscribe(() => {
+        alert("Успішно розблоковано")
+      }, error => alert(error))
+    }
+  }
+
+  lockAllInGroup(group: StudentGroup) {
+    let hoursToLock = parseInt(prompt("На скільки годин блокуємо?", "24"));
+    if(isNaN(hoursToLock) || hoursToLock < 0) {
+      alert("Введено невірне значееня, введіть число більше 0");
+      return;
+    }
+    if(window.confirm("Ви дійсно хочете заблокувати всі роботи вгрупі " + group.name + "?")) {
+      this.api.put("/user-exams/lockAll?groupId=" + group.id + "&hoursAmount=" + hoursToLock, {}).subscribe(() => {
+        alert("Успішно зазблоковано")
+      }, error => alert(error))
+    }
+  }
 }

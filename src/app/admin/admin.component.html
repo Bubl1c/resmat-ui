@@ -36,6 +36,10 @@
 
       <div *ngIf="workspaceData.type === 'group-students'">
         <span class="header3">{{ workspaceData.group.name }}</span><a (click)="addUserToCurrentGroup(workspaceData.group)" style="float: right">Додати студента</a>
+        <br>
+        <a (click)="lockAllInGroup(workspaceData.group)">Заблокувати всі роботи в групі</a>
+        <br>
+        <a (click)="unlockAllInGroup(workspaceData.group)">Розблокувати всі роботи в групі</a>
         <br><br>
         <group-students
           [students]="workspaceData.data"

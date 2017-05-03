@@ -65,6 +65,14 @@ export class ExamService {
     return this.api.put("/user-exams/" + examId + "/unlock", {}).map(this.mapUserExamDto);
   }
 
+  lockAll(groupId: number, hoursAmount: number): Observable<IExamDto> {
+    return this.api.put("/user-exams/lockAll?groupId=" + groupId + "&hoursAmount=" + hoursAmount, {});
+  }
+
+  unlockAll(groupId: number): Observable<IExamDto> {
+    return this.api.put("/user-exams/unlockAll?groupId=" + groupId, {});
+  }
+
   getExamForUser(): Observable<IExamDto> {
     return this.api.get("/user-exams/current")
       .map(this.mapUserExamDto);
