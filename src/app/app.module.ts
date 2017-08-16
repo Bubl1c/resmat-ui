@@ -6,6 +6,7 @@ import { ChartsModule } from "ng2-charts/ng2-charts";
 import {PrettyJsonModule} from 'angular2-prettyjson';
 import { ModalModule } from 'angular2-modal';
 import { BootstrapModalModule } from 'angular2-modal/plugins/bootstrap';
+import { FileUploadModule } from 'ng2-file-upload';
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -36,6 +37,7 @@ import { ProblemConfComponent } from './admin/components/problem-conf/problem-co
 import { CustomModal } from './admin/components/custom-modal/custom-modal.component';
 import { CreateStudentComponent } from './admin/components/create-student/create-student.component';
 import { StudentExamsComponent } from './admin/components/student-exams/student-exams.component';
+import { UploadComponent } from './components/upload/upload.component';
 
 @NgModule({
   declarations: [
@@ -64,7 +66,8 @@ import { StudentExamsComponent } from './admin/components/student-exams/student-
     ProblemConfComponent,
     CustomModal,
     CreateStudentComponent,
-    StudentExamsComponent
+    StudentExamsComponent,
+    UploadComponent
   ],
   imports: [
     BrowserModule,
@@ -75,7 +78,8 @@ import { StudentExamsComponent } from './admin/components/student-exams/student-
     Ng2PageScrollModule.forRoot(),
     PrettyJsonModule,
     ModalModule.forRoot(),
-    BootstrapModalModule
+    BootstrapModalModule,
+    FileUploadModule
   ],
   providers: [ApiService],
   bootstrap: [AppComponent],
