@@ -9,7 +9,7 @@
   <input type="file" ng2FileSelect [uploader]="uploader"/>
   <br>
   <div class="file-holder">
-    <div *ngFor="let item of (uploader.queue[0] ? [uploader.queue[0]] : [])">
+    <div *ngFor="let item of uploader.queue">
       <div>{{ item?.file?.name }}</div>
       <div>{{ item?.file?.size/1024/1024 | number:'.2' }} MB</div>
       <div>

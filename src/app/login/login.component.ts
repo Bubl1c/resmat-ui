@@ -13,6 +13,10 @@ export class LoginComponent implements OnInit {
   errorMessage: string;
   isStudent: boolean = true;
 
+  path = "/auth/upload";
+  onUploaded = (e) => alert('uploaded: ' + e);
+  onUploadFailed = (e) => alert("uload failed " + JSON.stringify(e));
+
   constructor(private router: Router, private loginService: LoginService) { }
 
   ngOnInit() {

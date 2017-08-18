@@ -24,5 +24,8 @@
       </form>
       <div class="error-message">{{ errorMessage }}</div>
     </div>
+
+    <upload [path]="path" (onUploaded)="onUploaded($event)" (onUploadFailed)="onUploadFailed($event)"></upload>
+
   </div>
 </div>

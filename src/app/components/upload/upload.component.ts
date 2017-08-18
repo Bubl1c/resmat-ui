@@ -9,7 +9,7 @@ import { HttpUtils } from "../../utils/HttpUtils";
 })
 export class UploadComponent implements OnInit {
 
-  @Input() path?: string;
+  @Input() path: string;
 
   @Output() onUploaded = new EventEmitter<string>();
   @Output() onUploadFailed = new EventEmitter<string>();
@@ -23,8 +23,9 @@ export class UploadComponent implements OnInit {
   ngOnInit() {
     this.uploader = new FileUploader({url: HttpUtils.baseUrl + this.path});
     this.uploader.onAfterAddingFile = (file: any) => {
-      this.uploader.clearQueue();
-      this.uploader.addToQueue(file);
+      if(this.uploader.queue.length > 1) {
+        this.uploader.removeFromQueue(this.uploader.queue[0])
+      }
     }
   }
 
