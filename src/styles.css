@@ -37,6 +37,24 @@ body {
   right: -10px;
 }
 
+.resmat-header {
+  margin-top: 5px;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+.resmat-success {
+  color: green;
+}
+
+.resmat-primary {
+  color: #2196F3;
+}
+
+.resmat-error {
+  color: red;
+}
+
 @media print
 {
   .no-print, .no-print *

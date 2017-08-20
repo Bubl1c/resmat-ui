@@ -12,6 +12,7 @@ import {
   IProblemConf, IProblemVariantConf,
   IProblemConfWithVariants
 } from "./components/problem-conf/problem-conf.component";
+import { ITestDto } from "../exam/data/test-set.api-protocol";
 
 class WorkspaceDataTypes {
   static user = "user";
@@ -21,6 +22,8 @@ class WorkspaceDataTypes {
   static exam = "exam";
   static problem = "problem";
   static studentExams = "student_exams";
+  static testGroup = "test_group";
+  static editTestConf = "edit_test_conf";
 }
 
 abstract class WorkspaceData {
@@ -90,6 +93,33 @@ class StudentExamsWorkspaceData extends WorkspaceData {
   }
 }
 
+class TestGroupWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.testGroup;
+  constructor(public data: ITestGroupConfWithTestConfs) {
+    super();
+  }
+}
+
+class EditTestConfWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.editTestConf;
+  constructor(public data: ITestDto) {
+    super();
+  }
+
+  save(updatedTest: ITestDto) {
+    alert("saving " + JSON.stringify(updatedTest))
+  }
+}
+
+interface ITestGroupConfWithTestConfs extends ITestGroupConf {
+  testConfs: any[]
+}
+
+interface ITestGroupConf {
+  id: number
+  name: string
+}
+
 @Component({
   selector: 'admin',
   templateUrl: './admin.component.html',
@@ -106,6 +136,8 @@ export class AdminComponent implements OnInit {
 
   examConfs: IExamConf[];
   problemConfs: IProblemConf[];
+
+  testsGroupConfs: ITestGroupConf[];
 
   workspaceData: WorkspaceData;
 
@@ -125,6 +157,7 @@ export class AdminComponent implements OnInit {
     this.loadGroups();
     this.loadExamConfs();
     this.loadProblemConfs();
+    this.loadTestGroupConfs();
   }
 
   loadUsers() {
@@ -237,6 +270,36 @@ export class AdminComponent implements OnInit {
         alert(err)
       }
     })
+  }
+
+  loadTestGroupConfs() {
+    this.api.get("/test-groups").subscribe({
+      next: (testGroupConfs: ITestGroupConf[]) => {
+        this.testsGroupConfs = testGroupConfs;
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
+  }
+
+  loadTestGroupConf(testGroupConf: ITestGroupConf) {
+    this.api.get("/test-groups/" + testGroupConf.id + "/tests").subscribe({
+      next: (testGroupTestConfs: ITestDto[]) => {
+        let copy = Object.assign({}, testGroupConf) as ITestGroupConfWithTestConfs;
+        copy.testConfs = testGroupTestConfs;
+        this.workspaceData = new TestGroupWorkspaceData(copy)
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
+  }
+
+  editTestConf(testConf: ITestDto) {
+    this.workspaceData = new EditTestConfWorkspaceData(testConf)
   }
 
   addUserToCurrentGroup(group: StudentGroup) {

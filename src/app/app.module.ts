@@ -38,6 +38,8 @@ import { CustomModal } from './admin/components/custom-modal/custom-modal.compon
 import { CreateStudentComponent } from './admin/components/create-student/create-student.component';
 import { StudentExamsComponent } from './admin/components/student-exams/student-exams.component';
 import { UploadComponent } from './components/upload/upload.component';
+import { TestConfPreviewComponent } from './admin/components/test-conf-preview/test-conf-preview.component';
+import { EditTestConfComponent } from './admin/components/edit-test-conf/edit-test-conf.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +69,9 @@ import { UploadComponent } from './components/upload/upload.component';
     CustomModal,
     CreateStudentComponent,
     StudentExamsComponent,
-    UploadComponent
+    UploadComponent,
+    TestConfPreviewComponent,
+    EditTestConfComponent
   ],
   imports: [
     BrowserModule,

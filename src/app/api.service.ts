@@ -40,7 +40,7 @@ export class ApiService {
     options = options || new RequestOptions();
     options.headers = options.headers || new Headers();
     if(CurrentSession.token) {
-      options.headers.append('Token', CurrentSession.token);
+      options.headers.append('Authorization', CurrentSession.token);
     }
     options.headers.append('Content-Type', 'application/json');
     return options;

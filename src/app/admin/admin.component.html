@@ -25,9 +25,16 @@
           <li *ngFor="let p of problemConfs"><a (click)="loadProblemConf(p.id)">{{ p.name }}</a></li>
         </ul>
       </li>
+      <li>
+        <strong>Групи тестів</strong>
+        <ul>
+          <li *ngFor="let g of testsGroupConfs"><a (click)="loadTestGroupConf(g)">{{ g.name }}</a></li>
+        </ul>
+      </li>
     </ul>
   </div>
   <div class="workspace mui-container-fluid mui-panel">
+
     <div *ngIf="workspaceData">
       <user *ngIf="workspaceData.type === 'user'"
             [user]="workspaceData.data"
@@ -68,6 +75,21 @@
 
       <div *ngIf="workspaceData.type === 'problem'">
         <problem-conf [problemConf]="workspaceData.data" [variants]="workspaceData.data.variants"></problem-conf>
+      </div>
+
+      <div *ngIf="workspaceData.type === 'test_group'">
+        <p class="resmat-header">{{workspaceData.data.name}}</p>
+        <table class="mui-table mui-table--bordered">
+          <tr *ngFor="let t of workspaceData.data.testConfs">
+            <td>
+              <test-conf-preview [test]="t" (onEdit)="editTestConf($event)"></test-conf-preview>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div *ngIf="workspaceData.type === 'edit_test_conf'">
+        <edit-test-conf [test]="workspaceData.data" (onSave)="workspaceData.save($event)"></edit-test-conf>
       </div>
     </div>
 

@@ -5,34 +5,32 @@
      class="upload-drop-zone">
   Перетягніть або виберіть файл вручну
   <br>
+  <input class="file-selector" type="file" ng2FileSelect multiple [uploader]="uploader"/>
   <br>
-  <input type="file" ng2FileSelect [uploader]="uploader"/>
-  <br>
-  <div class="file-holder">
-    <div *ngFor="let item of uploader.queue">
-      <div>{{ item?.file?.name }}</div>
-      <div>{{ item?.file?.size/1024/1024 | number:'.2' }} MB</div>
-      <div>
-        <span>isSuccess {{ item.isSuccess }}</span>
-        <span>isCancel {{ item.isCancel }}</span>
-        <span>isError {{ item.isError }}</span>
-        <span>isReady {{ item.isReady }}</span>
-        <span>isUploading {{ item.isUploading }}</span>
-      </div>
-      <div>
-        <button type="button" class="btn btn-success btn-xs"
-                (click)="uploadFile(item)" [disabled]="item.isReady || item.isUploading || item.isSuccess">
-          <i class="material-icons">backup</i> Upload
-        </button>
-        <button type="button" class="btn btn-warning btn-xs"
-                (click)="item.cancel()" [disabled]="!item.isUploading">
-          <i class="material-icons">not_interested</i> Cancel
-        </button>
-        <button type="button" class="btn btn-danger btn-xs"
-                (click)="item.remove()">
-          <i class="material-icons">clear</i> Remove
-        </button>
-      </div>
-    </div>
-  </div>
+  <table class="items-holder">
+    <tr *ngFor="let item of uploader.queue">
+
+      <td style="width: 70%;">{{ item?.file?.name }}</td>
+      <td style="width: 15%;">{{ item?.file?.size/1024/1024 | number:'.2' }} MB</td>
+      <td style="min-width: 60px;">
+        <img src="../img/facebook_loading.gif" [hidden]="!item.isUploading"/>
+        <i class="material-icons resmat-success" [hidden]="!item.isSuccess">done</i>
+        <i class="material-icons resmat-error" [hidden]="!item.isError && !item.isCancel">error_outline</i>
+      </td>
+      <td style="width: 10%;">
+        <div class="item-buttons-flex-container">
+          <div class="cursor-pointer resmat-primary" (click)="uploadFile(item)" [hidden]="item.isSuccess">
+            <i class="material-icons">backup</i>
+          </div>
+          <div class="cursor-pointer" (click)="item.cancel()" [hidden]="!item.isUploading">
+            <i class="material-icons">not_interested</i>
+          </div>
+          <div class="cursor-pointer" (click)="item.remove()" [hidden]="item.isUploading">
+            <i class="material-icons">delete_forever</i>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr [hidden]="!errorMessage" colspan="4" class="resmat-error">{{ errorMessage }}</tr>
+  </table>
 </div>

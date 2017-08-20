@@ -1,0 +1,20 @@
+<form (submit)="save()">
+  <p>{{ updated.id }} / {{ updated.groupId }}</p>
+  <div class="mui-textfield">
+    <textarea placeholder="Запитання" name="question" [(ngModel)]="updated.question"></textarea>
+    <label>Запитання</label>
+  </div>
+  <img [src]="updated.imageUrl">
+  <img [src]="updated.help">
+  <p>{{ updated.testType }}</p>
+
+  <div class="mui-textfield" *ngFor="let opt of updated.options">
+    <input type="text" name="option-value-{{opt.id}}" [(ngModel)]="opt.value">
+    <label>Відповідь {{ opt.id }} тип {{ opt.valueType }}</label>
+  </div>
+
+  <button class="mui-btn mui-btn--primary"
+          type="submit">
+    {{ isSaving ? 'Збереження' : 'Зберегти' }}
+  </button>
+</form>

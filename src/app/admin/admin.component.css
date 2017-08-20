@@ -48,7 +48,7 @@
 
 .side-menu strong {
   display: block;
-  padding: 15px 22px;
+  padding: 0 22px;
   cursor: pointer;
 }
 
@@ -57,7 +57,7 @@
 /*}*/
 
 .side-menu strong + ul > li {
-  padding: 6px 0px;
+  padding: 0.2em 0;
 }
 
 .exam-result .mui-divider {
