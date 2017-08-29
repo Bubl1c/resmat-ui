@@ -40,6 +40,7 @@ import { StudentExamsComponent } from './admin/components/student-exams/student-
 import { UploadComponent } from './components/upload/upload.component';
 import { TestConfPreviewComponent } from './admin/components/test-conf-preview/test-conf-preview.component';
 import { EditTestConfComponent } from './admin/components/edit-test-conf/edit-test-conf.component';
+import { DropdownComponent } from './components/dropdown/dropdown.component';
 
 @NgModule({
   declarations: [
@@ -71,7 +72,8 @@ import { EditTestConfComponent } from './admin/components/edit-test-conf/edit-te
     StudentExamsComponent,
     UploadComponent,
     TestConfPreviewComponent,
-    EditTestConfComponent
+    EditTestConfComponent,
+    DropdownComponent
   ],
   imports: [
     BrowserModule,

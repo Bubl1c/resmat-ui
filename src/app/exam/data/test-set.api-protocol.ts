@@ -4,10 +4,12 @@ export class TestTypes {
   static all = [TestTypes.Checkbox, TestTypes.Radio]
 }
 
+export type TestOptionValueType = "words" | "img"
+
 export interface ITestOptionDto {
   id: number;
   value: string;
-  valueType: string;
+  valueType: TestOptionValueType;
 }
 
 export interface ITestDto {
@@ -18,6 +20,10 @@ export interface ITestDto {
   options: ITestOptionDto[];
   help: string;
   testType: string;
+}
+
+export interface ITestWithCorrectDto extends ITestDto {
+  correctOptionId: number
 }
 
 export interface ITestSetConf {

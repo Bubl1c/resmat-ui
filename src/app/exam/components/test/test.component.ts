@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import { ArrayUtils } from "../../../utils/ArrayUtils";
-import { ITestOptionDto, ITestDto, TestTypes } from "../../data/test-set.api-protocol";
+import {ITestOptionDto, ITestDto, TestTypes, TestOptionValueType} from "../../data/test-set.api-protocol";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 
 export class TestOption {
   constructor(public id: number,
-              public valueType: string,
+              public valueType: TestOptionValueType,
               public value: string,
               public checked: boolean = false,
               public correct: boolean = false) {}

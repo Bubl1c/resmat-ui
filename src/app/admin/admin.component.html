@@ -89,7 +89,7 @@
       </div>
 
       <div *ngIf="workspaceData.type === 'edit_test_conf'">
-        <edit-test-conf [test]="workspaceData.data" (onSave)="workspaceData.save($event)"></edit-test-conf>
+        <edit-test-conf [testToUpdate]="workspaceData.data" (onSave)="workspaceData.save($event)"></edit-test-conf>
       </div>
     </div>
 

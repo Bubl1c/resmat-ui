@@ -6,12 +6,22 @@ body {
   padding-bottom: 90px;
 }
 
+.text-ellipsis {
+  white-space: nowrap; /* Запрещаем перенос строк */
+  overflow: hidden; /* Обрезаем все, что не помещается в область */
+  text-overflow: ellipsis; /* Добавляем многоточие */
+}
+
 .relative {
   position: relative;
 }
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.full-width {
+  width: 100%;
 }
 
 .border-sticky-item {

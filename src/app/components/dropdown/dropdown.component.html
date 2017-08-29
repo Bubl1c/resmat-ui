@@ -1,0 +1,18 @@
+<div class="mui-dropdown" [ngStyle]="{ 'max-width.px': maxWidthPx }">
+  <button class="mui-btn mui-btn--flat text-ellipsis full-width dropdown-button" data-mui-toggle="dropdown">
+    {{
+      selectedOption
+      ? selectedOption.text
+      : (selectedOptionPlaceholder ? selectedOptionPlaceholder : "Натисніть щоб вибрати")
+    }}
+    <span class="mui-caret"></span>
+  </button>
+  <ul class="mui-dropdown__menu">
+    <li *ngFor="let option of options">
+      <a (click)="select(option)" [ngClass]="{'selected-option': selectedOption === option}">
+        {{ option.text }}
+      </a>
+    </li>
+    <li [hidden]="options.length > 0">Список пустий</li>
+  </ul>
+</div>

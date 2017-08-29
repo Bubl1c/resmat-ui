@@ -1,6 +1,6 @@
 <div class="login-container">
   <div class="mui-panel">
-    <div class="relative">
+    <div class="relative" hidden>
       <border-sticky-btn (onClick)="isStudent = !isStudent" positionH="right" positionV="top">
         <i class="material-icons" [hidden]="!isStudent">vpn_key</i>
         <i class="material-icons" [hidden]="isStudent">group</i>
@@ -24,5 +24,7 @@
       </form>
       <div class="error-message">{{ errorMessage }}</div>
     </div>
+
+    <edit-test-conf [testToUpdate]="testToUpdate" (onSave)="saveUpdatedTest($event)"></edit-test-conf>
   </div>
 </div>
