@@ -1,4 +1,45 @@
+.question label {
+  font-size: inherit;
+}
+
+.test-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .test-image {
+  width: 95%;
   max-height: 300px;
   max-width: 1000px;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.option-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.option-img {
+  max-height: 60px;
+  max-width: 1000px;
+}
+
+.option-value-container {
+  flex: 1;
+  margin: 0 1em;
+}
+
+.option-type-dropdown {
+  margin-right: 1em;
+}
+
+.section-name {
+  color: rgba(0,0,0,.54);
 }

@@ -1,18 +1,62 @@
 <form (submit)="save()">
-  <dropdown [options]="testTypes"
-            [selectedOption]="testTypeSelectedDropdownOption"
+  <dropdown [options]="dropdownTestTypes"
+            [selectedOptionId]="updated.testType"
             selectedOptionPlaceholder="Виберіть тип тесту" (onSelected)="testTypeSelected($event)" ></dropdown>
 
-  <div class="mui-textfield">
+  <div class="mui-textfield question">
     <textarea placeholder="Запитання" name="question" [(ngModel)]="updated.question"></textarea>
     <label>Запитання</label>
   </div>
-  <p><img [src]="updated.imageUrl" class="test-image"></p>
 
-  <div class="mui-textfield" *ngFor="let opt of updated.options">
-    <input type="text" name="option-value-{{opt.id}}" [(ngModel)]="opt.value">
-    <label>Варіант {{ opt.id }}</label>
+  <div class="test-image-container">
+    <img [src]="updated.imageUrl" [hidden]="!updated.imageUrl" class="test-image">
+    <upload [path]="uploadTempImgPath" [hidden]="updated.imageUrl"
+            (onUploaded)="testImageUploaded($event, true)"
+            (onUploadFailed)="testImageUploaded($event, false)"></upload>
+    <div><a (click)="updated.imageUrl = ''"><i class="material-icons">delete_forever</i></a></div>
   </div>
+
+  <br>
+  <p class="section-name">Варіанти відповіді:</p>
+
+  <div class="options-container">
+    <div class="option-container" *ngFor="let opt of updated.options">
+      <div class="option-check">
+        <input type="{{ updated.testType === testType.Checkbox ? 'checkbox' : 'radio'}}" name="radiogroup"
+               [checked]="isCorrectOption(opt)"
+               [value]="opt.id"
+               (change)="onOptionCheckChanged(opt)">
+      </div>
+      <div class="option-value-container">
+        <div *ngIf="opt.valueType === optionValueType.Words" class="mui-textfield mui-textfield--float-label">
+          <input type="text" name="option-value-{{opt.id}}" [(ngModel)]="opt.value" placeholder="Введіть текст або формулу">
+        </div>
+        <div *ngIf="opt.valueType === optionValueType.Img">
+          <div class="relative" [hidden]="!opt.value">
+            <border-sticky-btn (onClick)="opt.value = ''" positionH="right" positionV="top">
+              <i style="color: red;" class="material-icons">clear</i>
+            </border-sticky-btn>
+            <img class="option-img" [src]="opt.value">
+          </div>
+          <upload [path]="uploadTempImgPath" [hidden]="opt.value"
+                  (onUploaded)="optionImageUploaded(opt, $event, true)"
+                  (onUploadFailed)="optionImageUploaded(opt, $event, false)"></upload>
+        </div>
+      </div>
+      <dropdown [options]="dropdownOptionValueTypes"
+                [selectedOptionId]="opt.valueType"
+                selectedOptionPlaceholder="Виберіть тип"
+                (onSelected)="optionTypeSelected(opt, $event)" class="option-type-dropdown resmat-primary"></dropdown>
+      <a (click)="deleteOption(opt)"><i class="material-icons">delete_forever</i></a>
+    </div>
+    <div style="text-align: center; width: 100%;">
+      <a (click)="addBlankOption()"><i class="material-icons">playlist_add</i></a>
+    </div>
+  </div>
+
+  <br>
+
+  <br>
 
   <p hidden>Допоміжні матеріали: <br><img [src]="updated.help"></p>
 

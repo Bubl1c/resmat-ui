@@ -105,3 +105,9 @@ a {
 .header5 {
   font-size: 1.1em;
 }
+
+
+/* OVERRIDE MUI*/
+.material-icons {
+  line-height: inherit;
+}

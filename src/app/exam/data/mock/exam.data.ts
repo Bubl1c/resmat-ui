@@ -1,5 +1,5 @@
 // import {
-//   ITestAnswerData, TestTypes, IExamDto, IExamStepPreview, ExamStepTypes, ITestDto
+//   ITestAnswerData, TestType, IExamDto, IExamStepPreview, ExamStepTypes, ITestDto
 // } from "../exam.api-protocol";
 // import { IExamTaskFlowStepData, TaskFlowStepTypes, ISchemaVar } from "../task-flow.api-protocol";
 // import { IExamTaskFlowTaskData } from "../i-exam-task-flow-task-data";
@@ -76,7 +76,7 @@
 //       id: 1,
 //       groupId: 1,
 //       question: 'Коефіцієнт Пуассона – це',
-//       testType: TestTypes.Checkbox,
+//       testType: TestType.Checkbox,
 //       help: null,
 //       options: [
 //         new TestOption(1, 'words', 'Міра зміни поперечних розмірів ізотропного тіла при деформації розтягу'),
@@ -89,7 +89,7 @@
 //       id: 2,
 //       groupId: 1,
 //       question: 'Формула для визначення циліндричної жорсткості',
-//       testType: TestTypes.Radio,
+//       testType: TestType.Radio,
 //       help: null,
 //       options: [
 //         new TestOption(1, 'img', 'img/tasks/hardness/h1.png'),
@@ -102,7 +102,7 @@
 //       id: 3,
 //       groupId: 1,
 //       question: 'У яких одиницях вимірюється Коефіцієнт Пуассона?',
-//       testType: TestTypes.Radio,
+//       testType: TestType.Radio,
 //       help: null,
 //       options: [
 //         new TestOption(1, 'words', 'кН*м'),
@@ -141,7 +141,7 @@
 //         new TestOption(3, 'words', 'Мембрани')
 //       ],
 //       help: 'img/class.png',
-//       testType: TestTypes.Radio
+//       testType: TestType.Radio
 //     }),
 //     ExamData.tfs(2, TaskFlowStepTypes.InputSet, 2,
 //       "Введіть значення граничних умов, якщо умова невідома - залиште поле пустим",
@@ -185,7 +185,7 @@
 //         new TestOption(1, 'words', 'Забезпечується'),
 //         new TestOption(2, 'words', 'Не забезпечується')
 //       ],
-//       testType: TestTypes.Radio
+//       testType: TestType.Radio
 //     }),
 //     ExamData.tfs(7, TaskFlowStepTypes.Finished, 7, "", {})
 //   ];

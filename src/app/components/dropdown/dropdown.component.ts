@@ -1,7 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 
 export class DropdownOption {
-  constructor(public id: any, public text: string) {}
+  constructor(public id: any, public text: string, public selectedText: string = null) {
+    if(this.selectedText === null) {
+      this.selectedText = text
+    }
+  }
 }
 
 @Component({
@@ -11,13 +15,19 @@ export class DropdownOption {
 })
 export class DropdownComponent implements OnInit {
 
-  @Input() selectedOption?: DropdownOption;
+  @Input() selectedOptionId?: any;
   @Input() selectedOptionPlaceholder?: string;
   @Input() options: DropdownOption[] = [];
 
-  @Input() maxWidthPx: number = 500;
+  @Input() maxWidthPx?: number = 500;
+  @Input() widthPx?: number;
+  stylesObj: any = {};
 
   @Output() onSelected = new EventEmitter<DropdownOption>();
+
+  selectedOption: DropdownOption;
+
+  muiCaret = '<span class="mui-caret"></span>';
 
   constructor() { }
 
@@ -25,18 +35,35 @@ export class DropdownComponent implements OnInit {
     if(!this.options || this.options.length === 0) {
       console.error("Empty options array passed to dropdown.")
     }
-    if(this.selectedOption) {
-      if(this.options.indexOf(this.selectedOption) === -1) {
+    const selectDefault = () => this.selectedOption = this.options.length > 0 ? this.options[0] : null;
+    if(typeof this.selectedOptionId !== "undefined") {
+      const selected = this.options.find(o => o.id === this.selectedOptionId);
+      if(!selected) {
         console.error(`Selected option passed to dropdown must be 1 of passed options.` +
           ` Passed selected: ${JSON.stringify(this.selectedOption)}, passed options: ${JSON.stringify(this.options)}`)
+        selectDefault()
+      } else {
+        this.selectedOption = selected
       }
     } else {
-      this.selectedOption = this.options.length > 0 ? this.options[0] : null;
+      selectDefault()
     }
+    this.selectedOptionPlaceholder = this.selectedOptionPlaceholder ? this.selectedOptionPlaceholder : 'Вибрати';
+    this.setupStyles()
   }
 
   select(option: DropdownOption) {
     this.onSelected.emit(option);
+    this.selectedOption = option;
+  }
+
+  private setupStyles() {
+    if(typeof this.widthPx !== "undefined") {
+      this.stylesObj['width.px'] = this.widthPx;
+    }
+    if(typeof this.maxWidthPx !== "undefined") {
+      this.stylesObj['max-width.px'] = this.maxWidthPx;
+    }
   }
 
 }

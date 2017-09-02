@@ -1,10 +1,16 @@
-export class TestTypes {
-  static Checkbox = 'checkbox';
-  static Radio = 'radio';
-  static all = [TestTypes.Checkbox, TestTypes.Radio]
+export type TestType = 'checkbox' | 'radio'
+export namespace TestType {
+  export const Checkbox: TestType = 'checkbox';
+  export const Radio: TestType = 'radio';
+  export const all: TestType[] = [TestType.Checkbox, TestType.Radio]
 }
 
 export type TestOptionValueType = "words" | "img"
+export namespace TestOptionValueType {
+  export const Words: TestOptionValueType = "words";
+  export const Img: TestOptionValueType = "img";
+  export const all: TestOptionValueType[] = [Words, Img]
+}
 
 export interface ITestOptionDto {
   id: number;
@@ -19,11 +25,11 @@ export interface ITestDto {
   imageUrl: string;
   options: ITestOptionDto[];
   help: string;
-  testType: string;
+  testType: TestType;
 }
 
 export interface ITestWithCorrectDto extends ITestDto {
-  correctOptionId: number
+  correctOptionIds: number[]
 }
 
 export interface ITestSetConf {

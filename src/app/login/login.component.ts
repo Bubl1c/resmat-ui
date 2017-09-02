@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { LoginService } from "./login.service";
 import { UserData, UserType } from "../user/user.models";
-import {ITestWithCorrectDto, TestTypes} from "../exam/data/test-set.api-protocol";
+import {ITestWithCorrectDto, TestType} from "../exam/data/test-set.api-protocol";
 
 @Component({
   selector: 'app-login',
@@ -17,18 +17,23 @@ export class LoginComponent implements OnInit {
   testToUpdate: ITestWithCorrectDto = {
     id: 1,
     groupId: 2,
-    question: "Запитання буде десь тут",
+    question: "Чому небо синє?",
     imageUrl: "../img/class.png",
     options: [
       {
         id: 1,
-        value: "Скыльки пороху закладено у Андрыя в головы?",
+        value: "Бо воно синє!",
+        valueType: "words"
+      },
+      {
+        id: 2,
+        value: "Тому, що його розфарбували.",
         valueType: "words"
       }
     ],
     help: "../img/equations.png",
-    testType: TestTypes.Radio,
-    correctOptionId: 1
+    testType: TestType.Radio,
+    correctOptionIds: [1]
   }
 
   saveUpdatedTest(updated: ITestWithCorrectDto) {

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import { ArrayUtils } from "../../../utils/ArrayUtils";
-import {ITestOptionDto, ITestDto, TestTypes, TestOptionValueType} from "../../data/test-set.api-protocol";
+import {ITestOptionDto, ITestDto, TestType, TestOptionValueType} from "../../data/test-set.api-protocol";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 
 export class TestOption {
@@ -61,7 +61,7 @@ export class TestComponent implements OnInit {
   @Output() onSubmitted: EventEmitter<TestAnswer>;
   @Output() onContinue: EventEmitter<any>;
 
-  testTypes = TestTypes;
+  testType = TestType;
 
   constructor() {
     this.onSubmitted = new EventEmitter<TestAnswer>();
@@ -97,11 +97,11 @@ export class TestComponent implements OnInit {
 
   private checkDefaultOption() {
     // let anyChecked = this.test.options.find(opt => opt.checked);
-    // if(!anyChecked && this.test.type == TestTypes.Radio) {
+    // if(!anyChecked && this.test.type == TestType.Radio) {
     //   this.test.options[0].checked = true;
     // }
     this.test.options.forEach(o => o.checked = false);
-    if(this.test.type == TestTypes.Radio) {
+    if(this.test.type == TestType.Radio) {
       this.test.options[0].checked = true;
     }
   }
@@ -115,11 +115,11 @@ export class TestComponent implements OnInit {
 
   private refillOptions(checkedOption: TestOption) {
     switch(this.test.type) {
-      case TestTypes.Checkbox: {
+      case TestType.Checkbox: {
         checkedOption.checked = !checkedOption.checked;
         break;
       }
-      case TestTypes.Radio: {
+      case TestType.Radio: {
         for (let opt of this.test.options) {
           opt.checked = opt.id === checkedOption.id;
         }

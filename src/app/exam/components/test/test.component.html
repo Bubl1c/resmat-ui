@@ -16,7 +16,7 @@
         </div>
       </td>
       <td class="radiobutton">
-        <input type="{{ test.type === testTypes.Checkbox ? 'checkbox' : 'radio'}}" name="radiogroup"
+        <input type="{{ test.type === testType.Checkbox ? 'checkbox' : 'radio'}}" name="radiogroup"
                [checked]="option.checked"
                [value]="option.id"
                (change)="onOptionChecked(option)">

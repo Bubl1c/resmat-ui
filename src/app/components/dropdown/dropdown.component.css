@@ -1,12 +1,10 @@
-.selected-option {
+.resmat-dropdown-button {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mui-dropdown__menu .resmat-dropdown-selected-option {
   font-weight: bolder;
-}
-
-.container {
-  display: block;
-}
-
-.dropdown-button {
-  padding-left: 1px;
-  padding-right: 5px;
 }
