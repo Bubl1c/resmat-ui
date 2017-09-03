@@ -3,7 +3,7 @@
 
 <app-test *ngIf="preview" [test]="preview" (onContinue)="previewStub()" (onSubmitted)="previewStub()"></app-test>
 
-<form [hidden]="preview" (submit)="save()">
+<form *ngIf="!preview" (submit)="save()">
   <dropdown [options]="dropdownTestTypes"
             [selectedOptionId]="updated.testType"
             selectedOptionPlaceholder="Виберіть тип тесту" (onSelected)="testTypeSelected($event)" ></dropdown>
@@ -35,7 +35,11 @@
       </div>
       <div class="option-value-container">
         <div *ngIf="opt.valueType === optionValueType.Words" class="mui-textfield option-words-value">
-          <input type="text" name="option-value-{{opt.id}}" [(ngModel)]="opt.value" placeholder="Введіть текст або формулу">
+          <textarea autosize
+                    name="option-value-{{opt.id}}"
+                    [(ngModel)]="opt.value"
+                    placeholder="Введіть текст або формулу"
+                    class="option-words-value-textarea"></textarea>
         </div>
         <div *ngIf="opt.valueType === optionValueType.Img">
           <div class="option-image-container relative" *ngIf="opt.value">

@@ -164,7 +164,9 @@ class EditTestConfWorkspaceData extends WorkspaceData {
           updatedOrCreatedTest.id = result.id;
           updatedOrCreatedTest.imageUrl = result.imageUrl;
           updatedOrCreatedTest.help = result.help;
-          updatedOrCreatedTest.options = result.options;
+          updatedOrCreatedTest.options.forEach((opt, index) => {
+            opt.value = result.options[index].value
+          });
         }
         alert("Успішно збережено")
       },

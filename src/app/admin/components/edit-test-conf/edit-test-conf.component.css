@@ -45,6 +45,9 @@
   margin-bottom: 5px;
   padding-top: 5px;
 }
+.option-words-value-textarea {
+  min-height: 1em;
+}
 .option-type-dropdown {
   margin-right: 1em;
 }

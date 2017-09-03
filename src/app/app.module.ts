@@ -41,6 +41,7 @@ import { UploadComponent } from './components/upload/upload.component';
 import { TestConfPreviewComponent } from './admin/components/test-conf-preview/test-conf-preview.component';
 import { EditTestConfComponent } from './admin/components/edit-test-conf/edit-test-conf.component';
 import { DropdownComponent } from './components/dropdown/dropdown.component';
+import { TextareaAutosizeDirective } from './components/textarea-autosize.directive';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import { DropdownComponent } from './components/dropdown/dropdown.component';
     UploadComponent,
     TestConfPreviewComponent,
     EditTestConfComponent,
-    DropdownComponent
+    DropdownComponent,
+    TextareaAutosizeDirective
   ],
   imports: [
     BrowserModule,
