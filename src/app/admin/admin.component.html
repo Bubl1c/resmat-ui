@@ -79,13 +79,26 @@
 
       <div *ngIf="workspaceData.type === 'test_group'">
         <div style="display: flex; justify-content: space-between">
-          <span class="resmat-header" style="flex: 1">{{workspaceData.data.name}}</span>
+          <div style="flex: 1">
+            <a (click)="workspaceData.edit()" [hidden]="workspaceData.editing" class="resmat-header resmat-regular">{{workspaceData.data.name}}</a>
+            <div *ngIf="workspaceData.editing" class="mui-textfield option-words-value">
+              <input [(ngModel)]="workspaceData.data.name" placeholder="Введіть ім'я групи" required>
+            </div>
+            <button *ngIf="workspaceData.editing"
+                    (click)="workspaceData.save()"
+                    class="mui-btn mui-btn--primary">Зберегти назву групи</button>
+            <button *ngIf="workspaceData.editing"
+                    (click)="workspaceData.cancel()"
+                    class="mui-btn">Відмінити</button>
+          </div>
           <a (click)="editTestConf(workspaceData.data.id, null)" class="resmat-primary">Додати тест</a>
         </div>
         <table class="mui-table mui-table--bordered">
           <tr *ngFor="let t of workspaceData.data.testConfs">
             <td>
-              <test-conf-preview [test]="t" (onEdit)="editTestConf(workspaceData.data.id, $event)"></test-conf-preview>
+              <test-conf-preview [test]="t"
+                                 (onEdit)="editTestConf(workspaceData.data.id, $event)"
+                                 (onDelete)="workspaceData.deleteTestConf($event)"></test-conf-preview>
             </td>
           </tr>
         </table>

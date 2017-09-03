@@ -10,6 +10,7 @@ export class TestConfPreviewComponent implements OnInit {
 
   @Input() test: ITestDto;
   @Output() onEdit = new EventEmitter<ITestDto>();
+  @Output() onDelete = new EventEmitter<ITestDto>();
 
   constructor() { }
 
@@ -18,6 +19,10 @@ export class TestConfPreviewComponent implements OnInit {
 
   edit() {
     this.onEdit.emit(this.test);
+  }
+
+  delete() {
+    this.onDelete.emit(this.test);
   }
 
 }

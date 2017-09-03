@@ -1,4 +1,9 @@
-<form (submit)="save()">
+<a [hidden]="preview" (click)="showPreview()">Попередній перегляд</a>
+<a [hidden]="!preview" (click)="backFromPreview()">Назад до редагування</a>
+
+<app-test *ngIf="preview" [test]="preview" (onContinue)="previewStub()" (onSubmitted)="previewStub()"></app-test>
+
+<form [hidden]="preview" (submit)="save()">
   <dropdown [options]="dropdownTestTypes"
             [selectedOptionId]="updated.testType"
             selectedOptionPlaceholder="Виберіть тип тесту" (onSelected)="testTypeSelected($event)" ></dropdown>
@@ -9,7 +14,7 @@
   </div>
 
   <div class="test-image-container">
-    <img [src]="updated.imageUrl" [hidden]="!updated.imageUrl" class="test-image">
+    <img [src]="updated.imageUrl" *ngIf="updated.imageUrl" class="test-image">
     <upload [path]="uploadTempImgPath" [auto]="true"
             [hidden]="updated.imageUrl"
             (onUploaded)="testImageUploaded($event, true)"
@@ -63,7 +68,7 @@
       Допоміжні матеріали:
     </p>
     <div class="help-img-container">
-      <img [hidden]="!updated.help" [src]="updated.help" class="help-img">
+      <img *ngIf="updated.help" [src]="updated.help" class="help-img">
       <upload [hidden]="updated.help"
               [auto]="true"
               [path]="uploadTempImgPath"

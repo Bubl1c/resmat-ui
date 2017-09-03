@@ -53,6 +53,10 @@ body {
   font-size: 1.5em;
 }
 
+.resmat-regular {
+  color: rgba(0,0,0,.87);
+}
+
 .resmat-success {
   color: green;
 }

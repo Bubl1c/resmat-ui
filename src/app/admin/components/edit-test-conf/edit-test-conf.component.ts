@@ -3,14 +3,15 @@ import {
   ITestEditDto, ITestOptionWithCorrectDto, TestOptionValueType, TestType
 } from "../../../exam/data/test-set.api-protocol";
 import {DropdownOption} from "../../../components/dropdown/dropdown.component";
+import {Test} from "../../../exam/components/test/test.component";
 
 export class TestEdit implements ITestEditDto {
   id: number = -1;
   groupId: number = -1;
   question: string = "";
-  imageUrl: string = "";
+  imageUrl: string = null;
   options: ITestOptionWithCorrectDto[] = [];
-  help: string = "";
+  help: string = null;
   testType: TestType = TestType.Radio;
 
   constructor(other?: TestEdit) {
@@ -38,6 +39,7 @@ export class EditTestConfComponent implements OnInit {
   @Output() onSave = new EventEmitter<ITestEditDto>();
 
   updated: ITestEditDto;
+  preview: Test;
 
   testType = TestType;
   dropdownTestTypes: DropdownOption[] = [
@@ -143,6 +145,18 @@ export class EditTestConfComponent implements OnInit {
     if(this.validate()) {
       this.onSave.emit(this.updated)
     }
+  }
+
+  showPreview() {
+    this.preview = new Test(this.updated, 1)
+  }
+
+  backFromPreview() {
+    this.preview = null;
+  }
+
+  previewStub() {
+    alert("Кнопка не працює в режимі попереднього перегляду")
   }
 
   private validate(): boolean {

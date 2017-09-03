@@ -96,8 +96,54 @@ class StudentExamsWorkspaceData extends WorkspaceData {
 
 class TestGroupWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.testGroup;
-  constructor(public data: ITestGroupConfWithTestConfs) {
+  editing = false;
+  nameBeforeEditing: string;
+  constructor(public data: ITestGroupConfWithTestConfs, private api: ApiService) {
     super();
+  }
+
+  edit() {
+    this.nameBeforeEditing = this.data.name;
+    this.editing = true;
+  }
+
+  save() {
+    if(!this.data.name) {
+      alert("Ім'я групи не можу бути пустим");
+      return;
+    }
+    this.api.put("/test-groups/" + this.data.id, this.data).subscribe({
+      next: (updated: ITestGroupConf) => {
+        this.editing = false;
+        alert("Успішно збережено");
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert("Помилка під час збереження: " + JSON.stringify(err))
+      }
+    })
+  }
+
+  cancel() {
+    this.data.name = this.nameBeforeEditing;
+    this.editing = false;
+  }
+
+  deleteTestConf(testConf: ITestEditDto) {
+    if(window.confirm("Ви дійсно хочете видалити тест '" + testConf.question + "' ? " +
+        "Це призведе до видалення тесту з усіх робіт де він використовувався.")) {
+      this.api.delete("/test-groups/" + this.data.id + "/tests/" + testConf.id).subscribe({
+        next: () => {
+          const idx = this.data.testConfs.indexOf(testConf);
+          this.data.testConfs.splice(idx, 1);
+          alert("Успішно видалено");
+        },
+        error: err => {
+          this.errorMessage = err.toString();
+          alert("Помилка під час збереження: " + JSON.stringify(err))
+        }
+      })
+    }
   }
 }
 
@@ -114,7 +160,12 @@ class EditTestConfWorkspaceData extends WorkspaceData {
     const subscribeCallback = {
       next: (result: ITestEditDto) => {
         this.isSaving = false;
-        updatedOrCreatedTest.id = result.id;
+        if(updatedOrCreatedTest.id < 1) {
+          updatedOrCreatedTest.id = result.id;
+          updatedOrCreatedTest.imageUrl = result.imageUrl;
+          updatedOrCreatedTest.help = result.help;
+          updatedOrCreatedTest.options = result.options;
+        }
         alert("Успішно збережено")
       },
       error: err => {
@@ -313,7 +364,7 @@ export class AdminComponent implements OnInit {
       next: (testGroupTestConfs: ITestEditDto[]) => {
         let copy = Object.assign({}, testGroupConf) as ITestGroupConfWithTestConfs;
         copy.testConfs = testGroupTestConfs;
-        this.workspaceData = new TestGroupWorkspaceData(copy)
+        this.workspaceData = new TestGroupWorkspaceData(copy, this.api)
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -323,28 +374,6 @@ export class AdminComponent implements OnInit {
   }
 
   editTestConf(groupId: number, testConf: ITestEditDto) {
-    // const testToUpdate: ITestEditDto = {
-    //   id: 1,
-    //   groupId: 2,
-    //   question: "Чому небо синє?",
-    //   imageUrl: "../img/class.png",
-    //   options: [
-    //     {
-    //       id: 1,
-    //       value: "../img/class.png",
-    //       valueType: "img",
-    //       correct: true
-    //     },
-    //     {
-    //       id: 2,
-    //       value: "Тому, що його розфарбували.",
-    //       valueType: "words",
-    //       correct: false
-    //     }
-    //   ],
-    //   help: "../img/equations.png",
-    //   testType: TestType.Radio
-    // };
     if(!testConf) {
       testConf = new TestEdit();
       testConf.groupId = groupId;
