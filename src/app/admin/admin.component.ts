@@ -12,7 +12,8 @@ import {
   IProblemConf, IProblemVariantConf,
   IProblemConfWithVariants
 } from "./components/problem-conf/problem-conf.component";
-import { ITestDto } from "../exam/data/test-set.api-protocol";
+import {ITestDto, TestType, ITestEditDto} from "../exam/data/test-set.api-protocol";
+import {TestEdit} from "./components/edit-test-conf/edit-test-conf.component";
 
 class WorkspaceDataTypes {
   static user = "user";
@@ -102,17 +103,40 @@ class TestGroupWorkspaceData extends WorkspaceData {
 
 class EditTestConfWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.editTestConf;
-  constructor(public data: ITestDto) {
+  isSaving = false;
+
+  constructor(public data: ITestEditDto, private api: ApiService) {
     super();
   }
 
-  save(updatedTest: ITestDto) {
-    alert("saving " + JSON.stringify(updatedTest))
+  save(updatedOrCreatedTest: ITestEditDto) {
+    this.isSaving = true;
+    const subscribeCallback = {
+      next: (result: ITestEditDto) => {
+        this.isSaving = false;
+        updatedOrCreatedTest.id = result.id;
+        alert("Успішно збережено")
+      },
+      error: err => {
+        this.isSaving = false;
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    };
+    if(updatedOrCreatedTest.id > 0) {
+      this.api.put(
+        "/test-groups/" + updatedOrCreatedTest.groupId + "/tests/" + updatedOrCreatedTest.id, updatedOrCreatedTest
+      ).subscribe(subscribeCallback)
+    } else {
+      this.api.post(
+        "/test-groups/" + updatedOrCreatedTest.groupId + "/tests", updatedOrCreatedTest
+      ).subscribe(subscribeCallback)
+    }
   }
 }
 
 interface ITestGroupConfWithTestConfs extends ITestGroupConf {
-  testConfs: any[]
+  testConfs: ITestEditDto[]
 }
 
 interface ITestGroupConf {
@@ -286,7 +310,7 @@ export class AdminComponent implements OnInit {
 
   loadTestGroupConf(testGroupConf: ITestGroupConf) {
     this.api.get("/test-groups/" + testGroupConf.id + "/tests").subscribe({
-      next: (testGroupTestConfs: ITestDto[]) => {
+      next: (testGroupTestConfs: ITestEditDto[]) => {
         let copy = Object.assign({}, testGroupConf) as ITestGroupConfWithTestConfs;
         copy.testConfs = testGroupTestConfs;
         this.workspaceData = new TestGroupWorkspaceData(copy)
@@ -298,8 +322,34 @@ export class AdminComponent implements OnInit {
     })
   }
 
-  editTestConf(testConf: ITestDto) {
-    this.workspaceData = new EditTestConfWorkspaceData(testConf)
+  editTestConf(groupId: number, testConf: ITestEditDto) {
+    // const testToUpdate: ITestEditDto = {
+    //   id: 1,
+    //   groupId: 2,
+    //   question: "Чому небо синє?",
+    //   imageUrl: "../img/class.png",
+    //   options: [
+    //     {
+    //       id: 1,
+    //       value: "../img/class.png",
+    //       valueType: "img",
+    //       correct: true
+    //     },
+    //     {
+    //       id: 2,
+    //       value: "Тому, що його розфарбували.",
+    //       valueType: "words",
+    //       correct: false
+    //     }
+    //   ],
+    //   help: "../img/equations.png",
+    //   testType: TestType.Radio
+    // };
+    if(!testConf) {
+      testConf = new TestEdit();
+      testConf.groupId = groupId;
+    }
+    this.workspaceData = new EditTestConfWorkspaceData(testConf, this.api)
   }
 
   addUserToCurrentGroup(group: StudentGroup) {

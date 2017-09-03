@@ -4,16 +4,17 @@
             selectedOptionPlaceholder="Виберіть тип тесту" (onSelected)="testTypeSelected($event)" ></dropdown>
 
   <div class="mui-textfield question">
-    <textarea placeholder="Запитання" name="question" [(ngModel)]="updated.question"></textarea>
+    <textarea placeholder="Введіть запитання" name="question" [(ngModel)]="updated.question"></textarea>
     <label>Запитання</label>
   </div>
 
   <div class="test-image-container">
     <img [src]="updated.imageUrl" [hidden]="!updated.imageUrl" class="test-image">
-    <upload [path]="uploadTempImgPath" [hidden]="updated.imageUrl"
+    <upload [path]="uploadTempImgPath" [auto]="true"
+            [hidden]="updated.imageUrl"
             (onUploaded)="testImageUploaded($event, true)"
-            (onUploadFailed)="testImageUploaded($event, false)"></upload>
-    <div><a (click)="updated.imageUrl = ''"><i class="material-icons">delete_forever</i></a></div>
+            (onUploadFailed)="testImageUploaded($event, false)" class="test-img-uploader"></upload>
+    <div [hidden]="!updated.imageUrl"><a (click)="updated.imageUrl = ''"><i class="material-icons">delete_forever</i></a></div>
   </div>
 
   <br>
@@ -23,22 +24,23 @@
     <div class="option-container" *ngFor="let opt of updated.options">
       <div class="option-check">
         <input type="{{ updated.testType === testType.Checkbox ? 'checkbox' : 'radio'}}" name="radiogroup"
-               [checked]="isCorrectOption(opt)"
+               [checked]="opt.correct"
                [value]="opt.id"
                (change)="onOptionCheckChanged(opt)">
       </div>
       <div class="option-value-container">
-        <div *ngIf="opt.valueType === optionValueType.Words" class="mui-textfield mui-textfield--float-label">
+        <div *ngIf="opt.valueType === optionValueType.Words" class="mui-textfield option-words-value">
           <input type="text" name="option-value-{{opt.id}}" [(ngModel)]="opt.value" placeholder="Введіть текст або формулу">
         </div>
         <div *ngIf="opt.valueType === optionValueType.Img">
-          <div class="relative" [hidden]="!opt.value">
+          <div class="option-image-container relative" *ngIf="opt.value">
             <border-sticky-btn (onClick)="opt.value = ''" positionH="right" positionV="top">
-              <i style="color: red;" class="material-icons">clear</i>
+              <i class="material-icons resmat-primary option-image-delete">delete_forever</i>
             </border-sticky-btn>
             <img class="option-img" [src]="opt.value">
           </div>
-          <upload [path]="uploadTempImgPath" [hidden]="opt.value"
+          <upload [hidden]="opt.value" [auto]="true"
+                  [path]="uploadTempImgPath"
                   (onUploaded)="optionImageUploaded(opt, $event, true)"
                   (onUploadFailed)="optionImageUploaded(opt, $event, false)"></upload>
         </div>
@@ -56,11 +58,24 @@
 
   <br>
 
-  <br>
+  <div>
+    <p class="section-name">
+      Допоміжні матеріали:
+    </p>
+    <div class="help-img-container">
+      <img [hidden]="!updated.help" [src]="updated.help" class="help-img">
+      <upload [hidden]="updated.help"
+              [auto]="true"
+              [path]="uploadTempImgPath"
+              (onUploaded)="helpImageUploaded($event, true)"
+              (onUploadFailed)="helpImageUploaded(opt, $event, false)" class="help-img-uploader"></upload>
+      <a (click)="updated.help = ''">
+        <i [hidden]="!updated.help" class="material-icons resmat-primary">delete_forever</i>
+      </a>
+    </div>
+  </div>
 
-  <p hidden>Допоміжні матеріали: <br><img [src]="updated.help"></p>
-
-  <button class="mui-btn mui-btn--primary"
+  <button [disabled]="isSaving" class="mui-btn mui-btn--primary"
           type="submit">
     {{ isSaving ? 'Збереження' : 'Зберегти' }}
   </button>

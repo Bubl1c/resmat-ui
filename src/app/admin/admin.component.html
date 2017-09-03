@@ -78,18 +78,21 @@
       </div>
 
       <div *ngIf="workspaceData.type === 'test_group'">
-        <p class="resmat-header">{{workspaceData.data.name}}</p>
+        <div style="display: flex; justify-content: space-between">
+          <span class="resmat-header" style="flex: 1">{{workspaceData.data.name}}</span>
+          <a (click)="editTestConf(workspaceData.data.id, null)" class="resmat-primary">Додати тест</a>
+        </div>
         <table class="mui-table mui-table--bordered">
           <tr *ngFor="let t of workspaceData.data.testConfs">
             <td>
-              <test-conf-preview [test]="t" (onEdit)="editTestConf($event)"></test-conf-preview>
+              <test-conf-preview [test]="t" (onEdit)="editTestConf(workspaceData.data.id, $event)"></test-conf-preview>
             </td>
           </tr>
         </table>
       </div>
 
       <div *ngIf="workspaceData.type === 'edit_test_conf'">
-        <edit-test-conf [testToUpdate]="workspaceData.data" (onSave)="workspaceData.save($event)"></edit-test-conf>
+        <edit-test-conf [isSaving]="workspaceData.isSaving" [testToUpdate]="workspaceData.data" (onSave)="workspaceData.save($event)"></edit-test-conf>
       </div>
     </div>
 

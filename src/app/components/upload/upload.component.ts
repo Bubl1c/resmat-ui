@@ -11,6 +11,7 @@ import { CurrentSession } from "../../current-session";
 export class UploadComponent implements OnInit {
 
   @Input() path: string;
+  @Input() auto: boolean;
 
   @Output() onUploaded = new EventEmitter<string>();
   @Output() onUploadFailed = new EventEmitter<string>();
@@ -25,6 +26,9 @@ export class UploadComponent implements OnInit {
   ngOnInit() {
     this.uploader = new FileUploader({url: HttpUtils.baseUrl + this.path, authToken: CurrentSession.token});
     this.uploader.onAfterAddingFile = (file: FileItem) => {
+      if(this.auto) {
+        this.uploadFile(file)
+      }
       this.errorMessage = '';
       if(this.uploader.queue.length > 1) {
         this.uploader.removeFromQueue(this.uploader.queue[0])
@@ -47,6 +51,9 @@ export class UploadComponent implements OnInit {
     };
     item.onComplete = (response: string, status: number, headers: any) => {
       if(status === 200) {
+        if(this.auto) {
+          this.uploader.queue = [];
+        }
         this.errorMessage = '';
         this.onUploaded && this.onUploaded.emit(response);
       } else {

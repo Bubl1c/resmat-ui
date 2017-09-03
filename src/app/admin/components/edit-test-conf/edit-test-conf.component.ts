@@ -1,9 +1,30 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
-  ITestOptionDto, ITestWithCorrectDto, TestOptionValueType,
-  TestType
+  ITestEditDto, ITestOptionWithCorrectDto, TestOptionValueType, TestType
 } from "../../../exam/data/test-set.api-protocol";
 import {DropdownOption} from "../../../components/dropdown/dropdown.component";
+
+export class TestEdit implements ITestEditDto {
+  id: number = -1;
+  groupId: number = -1;
+  question: string = "";
+  imageUrl: string = "";
+  options: ITestOptionWithCorrectDto[] = [];
+  help: string = "";
+  testType: TestType = TestType.Radio;
+
+  constructor(other?: TestEdit) {
+    if(other && Object.keys(other).length > 0) {
+      this.id = other.id;
+      this.groupId = other.groupId;
+      this.question = other.question;
+      this.imageUrl = other.imageUrl;
+      this.options = other.options;
+      this.help = other.help;
+      this.testType = other.testType;
+    }
+  }
+}
 
 @Component({
   selector: 'edit-test-conf',
@@ -12,10 +33,11 @@ import {DropdownOption} from "../../../components/dropdown/dropdown.component";
 })
 export class EditTestConfComponent implements OnInit {
 
-  @Input() testToUpdate: ITestWithCorrectDto;
-  @Output() onSave = new EventEmitter<ITestWithCorrectDto>();
+  @Input() isSaving: boolean = false;
+  @Input() testToUpdate: ITestEditDto;
+  @Output() onSave = new EventEmitter<ITestEditDto>();
 
-  updated: ITestWithCorrectDto;
+  updated: ITestEditDto;
 
   testType = TestType;
   dropdownTestTypes: DropdownOption[] = [
@@ -30,19 +52,22 @@ export class EditTestConfComponent implements OnInit {
     new DropdownOption("img", "Зображення", "<i class=\"material-icons\">photo</i>")
   ];
 
-  uploadTempImgPath: string = "";
-
-  isSaving = false;
+  uploadTempImgPath: string = "/upload-temp-file";
 
   constructor() { }
 
   ngOnInit() {
-    this.updated = Object.assign({}, this.testToUpdate) as ITestWithCorrectDto;
+    if(!this.testToUpdate || !this.testToUpdate.groupId || this.testToUpdate.groupId < 1) {
+      const errMsg = "Не можливо завантажити редактор тесту оскільки об'єкт не визначений " +
+        "або не вказано id групи: " + JSON.stringify(this.testToUpdate);
+      alert(errMsg);
+      throw new Error(errMsg)
+    }
+    this.updated = new TestEdit(this.testToUpdate);
+    if(this.updated.options.length === 0) {
+      this.addBlankOption(true);
+    }
     this.testTypeSelectedDropdownOption = this.dropdownTestTypes.find(o => o.id === this.updated.testType)
-  }
-
-  save() {
-    this.onSave.emit(this.updated)
   }
 
   testTypeSelected(testTypeDropdownOption: DropdownOption) {
@@ -58,29 +83,21 @@ export class EditTestConfComponent implements OnInit {
     }
   }
 
-  isCorrectOption(option: ITestOptionDto) {
-    return this.updated.correctOptionIds.indexOf(option.id) > -1
-  }
-
-  onOptionCheckChanged(option: ITestOptionDto) {
+  onOptionCheckChanged(option: ITestOptionWithCorrectDto) {
     if(this.updated.testType === TestType.Checkbox) {
-      const existingCorrectOptionIndex = this.updated.correctOptionIds.indexOf(option.id);
-      if(existingCorrectOptionIndex > -1) {
-        this.updated.correctOptionIds.splice(existingCorrectOptionIndex, 1)
-      } else {
-        this.updated.correctOptionIds.push(option.id)
-      }
+      option.correct = !option.correct;
     } else {
-      this.updated.correctOptionIds = [option.id];
+      this.updated.options.forEach(opt => opt.correct = false);
+      option.correct = true;
     }
   }
 
-  optionTypeSelected(option: ITestOptionDto, testTypeDropdownOption: DropdownOption) {
+  optionTypeSelected(option: ITestOptionWithCorrectDto, testTypeDropdownOption: DropdownOption) {
     option.valueType = testTypeDropdownOption.id;
     option.value = "";
   }
 
-  optionImageUploaded(option: ITestOptionDto, urlOrFailureReason: string, success: boolean) {
+  optionImageUploaded(option: ITestOptionWithCorrectDto, urlOrFailureReason: string, success: boolean) {
     if(success) {
       option.value = urlOrFailureReason;
     } else {
@@ -88,7 +105,7 @@ export class EditTestConfComponent implements OnInit {
     }
   }
 
-  deleteOption(option: ITestOptionDto) {
+  deleteOption(option: ITestOptionWithCorrectDto) {
     if(this.updated.options.length < 3) {
       alert("Тест повинен мати не менше 2 варіантів відповіді.");
       return;
@@ -98,7 +115,7 @@ export class EditTestConfComponent implements OnInit {
     this.reassignOptionIds();
   }
 
-  addBlankOption() {
+  addBlankOption(correct: boolean = false) {
     let id = 1;
     let valueType = TestOptionValueType.Words;
     if(this.updated.options.length > 0) {
@@ -109,8 +126,55 @@ export class EditTestConfComponent implements OnInit {
     this.updated.options.push({
       id: id,
       value: '',
+      correct: correct,
       valueType: valueType
     })
+  }
+
+  helpImageUploaded(urlOrFailureReason: string, success: boolean) {
+    if(success) {
+      this.updated.help = urlOrFailureReason
+    } else {
+      alert("Failed to upload help image. Reason: " + urlOrFailureReason)
+    }
+  }
+
+  save() {
+    if(this.validate()) {
+      this.onSave.emit(this.updated)
+    }
+  }
+
+  private validate(): boolean {
+    const obj: ITestEditDto = this.updated;
+    const errors: string[] = [];
+    if(!obj.question && !obj.imageUrl) {
+      errors.push("В тесті має бути хоча б запитання або зображення або і те і інше.")
+    }
+    errors.push(...this.validateOptions());
+
+    if(errors.length > 0) {
+      alert("Виправте наступні помилки: \n" + errors.join("\n"));
+      return false;
+    }
+    return true;
+  }
+
+  private validateOptions(): string[] {
+    const errors: string[] = [];
+    const correctOptIds: number[] = this.updated.options.filter(o => o.correct).map(o => o.id);
+    const opts: ITestOptionWithCorrectDto[] = this.updated.options;
+    if(correctOptIds.length === 0) {
+      errors.push("Тест повинен мати не менше 1 правильної відповіді")
+    }
+    if(this.updated.testType === TestType.Radio && correctOptIds.length !== 1) {
+      errors.push("Тест повинен мати лише 1 правильну відповідь")
+    }
+    const emptyValues = opts.filter(opt => !opt.value);
+    if(emptyValues.length > 0) {
+      errors.push(`Варіанти відповіді ${emptyValues.map(opt => opt.id).join(", ")} пусті. Заповніть або видаліть їх.`)
+    }
+    return errors;
   }
 
   private reassignOptionIds() {
@@ -118,6 +182,5 @@ export class EditTestConfComponent implements OnInit {
       this.updated.options[i].id = i + 1;
     }
   }
-
 
 }

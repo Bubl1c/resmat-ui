@@ -19,7 +19,7 @@
       </td>
       <td style="width: 10%;">
         <div class="item-buttons-flex-container">
-          <div class="cursor-pointer resmat-primary" (click)="uploadFile(item)" [hidden]="item.isSuccess">
+          <div class="cursor-pointer resmat-primary" (click)="uploadFile(item)" [hidden]="item.isUploading || item.isSuccess">
             <i class="material-icons">backup</i>
           </div>
           <div class="cursor-pointer" (click)="item.cancel()" [hidden]="!item.isUploading">

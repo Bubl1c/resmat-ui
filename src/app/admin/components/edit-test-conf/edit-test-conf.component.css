@@ -7,11 +7,12 @@
   align-items: center;
   justify-content: space-between;
 }
-
 .test-image {
-  width: 95%;
+  max-width: 95%;
   max-height: 300px;
-  max-width: 1000px;
+}
+.test-img-uploader {
+  flex: 1;
 }
 
 .options-container {
@@ -24,22 +25,42 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 0.2em;
 }
-
+.option-image-container {
+  display: inline-block;
+}
 .option-img {
   max-height: 60px;
   max-width: 1000px;
 }
-
+.option-image-delete {
+  background-color: white;
+}
 .option-value-container {
   flex: 1;
   margin: 0 1em;
 }
-
+.option-words-value {
+  margin-bottom: 5px;
+  padding-top: 5px;
+}
 .option-type-dropdown {
   margin-right: 1em;
 }
 
 .section-name {
   color: rgba(0,0,0,.54);
+}
+
+.help-img-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.help-img {
+  max-width: 95%;
+}
+.help-img-uploader {
+  flex: 1;
 }

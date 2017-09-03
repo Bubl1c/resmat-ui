@@ -18,18 +18,28 @@ export interface ITestOptionDto {
   valueType: TestOptionValueType;
 }
 
-export interface ITestDto {
+export interface ITestOptionWithCorrectDto {
+  id: number;
+  value: string;
+  correct: boolean;
+  valueType: TestOptionValueType;
+}
+
+interface ITestWithoutOptions {
   id: number;
   groupId: number;
   question: string;
   imageUrl: string;
-  options: ITestOptionDto[];
   help: string;
   testType: TestType;
 }
 
-export interface ITestWithCorrectDto extends ITestDto {
-  correctOptionIds: number[]
+export interface ITestDto extends ITestWithoutOptions {
+  options: ITestOptionDto[];
+}
+
+export interface ITestEditDto extends ITestWithoutOptions {
+  options: ITestOptionWithCorrectDto[];
 }
 
 export interface ITestSetConf {
