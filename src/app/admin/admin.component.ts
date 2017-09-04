@@ -25,6 +25,7 @@ class WorkspaceDataTypes {
   static studentExams = "student_exams";
   static testGroup = "test_group";
   static editTestConf = "edit_test_conf";
+  static addTestGroup = "add_test_group";
 }
 
 abstract class WorkspaceData {
@@ -96,25 +97,15 @@ class StudentExamsWorkspaceData extends WorkspaceData {
 
 class TestGroupWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.testGroup;
-  editing = false;
-  nameBeforeEditing: string;
-  constructor(public data: ITestGroupConfWithTestConfs, private api: ApiService) {
+  constructor(public data: ITestGroupConfWithTestConfs, private api: ApiService, private adminComponent: AdminComponent) {
     super();
   }
 
-  edit() {
-    this.nameBeforeEditing = this.data.name;
-    this.editing = true;
-  }
-
-  save() {
-    if(!this.data.name) {
-      alert("Ім'я групи не можу бути пустим");
-      return;
-    }
+  save(name: string) {
+    this.data.name = name;
     this.api.put("/test-groups/" + this.data.id, this.data).subscribe({
       next: (updated: ITestGroupConf) => {
-        this.editing = false;
+        this.adminComponent.loadTestGroupConfs();
         alert("Успішно збережено");
       },
       error: err => {
@@ -122,11 +113,6 @@ class TestGroupWorkspaceData extends WorkspaceData {
         alert("Помилка під час збереження: " + JSON.stringify(err))
       }
     })
-  }
-
-  cancel() {
-    this.data.name = this.nameBeforeEditing;
-    this.editing = false;
   }
 
   deleteTestConf(testConf: ITestEditDto) {
@@ -160,14 +146,10 @@ class EditTestConfWorkspaceData extends WorkspaceData {
     const subscribeCallback = {
       next: (result: ITestEditDto) => {
         this.isSaving = false;
-        if(updatedOrCreatedTest.id < 1) {
-          updatedOrCreatedTest.id = result.id;
-          updatedOrCreatedTest.imageUrl = result.imageUrl;
-          updatedOrCreatedTest.help = result.help;
-          updatedOrCreatedTest.options.forEach((opt, index) => {
-            opt.value = result.options[index].value
-          });
-        }
+        updatedOrCreatedTest.id = result.id;
+        updatedOrCreatedTest.imageUrl = result.imageUrl;
+        updatedOrCreatedTest.help = result.help;
+        updatedOrCreatedTest.options = result.options;
         alert("Успішно збережено")
       },
       error: err => {
@@ -185,6 +167,33 @@ class EditTestConfWorkspaceData extends WorkspaceData {
         "/test-groups/" + updatedOrCreatedTest.groupId + "/tests", updatedOrCreatedTest
       ).subscribe(subscribeCallback)
     }
+  }
+}
+
+class AddTestGroupWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.addTestGroup;
+  constructor(public data: string, private api: ApiService, private adminComponent: AdminComponent) {
+    super();
+  }
+
+  save() {
+    if(!this.data) {
+      alert("Введіть ім'я групи");
+      return;
+    }
+    this.api.post(
+      "/test-groups", {id: -1, name: this.data}
+    ).subscribe({
+      next: (result: ITestGroupConf) => {
+        this.adminComponent.loadTestGroupConfs();
+        this.data = "";
+        alert("Успішно збережено");
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
   }
 }
 
@@ -361,12 +370,17 @@ export class AdminComponent implements OnInit {
     })
   }
 
+  addTestGroupConf() {
+    this.workspaceData = new AddTestGroupWorkspaceData("", this.api, this)
+  }
+
+
   loadTestGroupConf(testGroupConf: ITestGroupConf) {
     this.api.get("/test-groups/" + testGroupConf.id + "/tests").subscribe({
       next: (testGroupTestConfs: ITestEditDto[]) => {
         let copy = Object.assign({}, testGroupConf) as ITestGroupConfWithTestConfs;
         copy.testConfs = testGroupTestConfs;
-        this.workspaceData = new TestGroupWorkspaceData(copy, this.api)
+        this.workspaceData = new TestGroupWorkspaceData(copy, this.api, this)
       },
       error: err => {
         this.errorMessage = err.toString();

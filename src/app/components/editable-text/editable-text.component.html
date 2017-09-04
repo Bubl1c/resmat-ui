@@ -1,0 +1,10 @@
+<a (click)="edit()" [hidden]="isEditing" class="resmat-regular">
+  {{ text }}
+</a>
+<div *ngIf="isEditing" class="editor-container">
+  <div class="mui-textfield editor-input">
+    <input [(ngModel)]="text" [placeholder]="inputPlaceholder" [required]="required">
+  </div>
+  <a (click)="save()" class="resmat-success"><i class="material-icons">done</i></a>
+  <a (click)="cancel()" class="resmat-regular"><i class="material-icons">highlight_off</i></a>
+</div>
