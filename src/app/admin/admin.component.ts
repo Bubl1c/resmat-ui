@@ -197,6 +197,33 @@ class AddTestGroupWorkspaceData extends WorkspaceData {
   }
 }
 
+class AddStudentGroupWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.addTestGroup;
+  constructor(public data: string, private api: ApiService, private adminComponent: AdminComponent) {
+    super();
+  }
+
+  save() {
+    if(!this.data) {
+      alert("Введіть ім'я групи");
+      return;
+    }
+    this.api.post(
+      "/student-groups", {id: -1, name: this.data}
+    ).subscribe({
+      next: (result: StudentGroup) => {
+        this.adminComponent.loadGroups();
+        this.data = "";
+        alert("Успішно збережено");
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
+  }
+}
+
 interface ITestGroupConfWithTestConfs extends ITestGroupConf {
   testConfs: ITestEditDto[]
 }
@@ -290,6 +317,10 @@ export class AdminComponent implements OnInit {
         this.errorMessage = err.toString()
       }
     })
+  }
+
+  addStudentGroup() {
+    this.workspaceData = new AddStudentGroupWorkspaceData("", this.api, this);
   }
 
   loadExamConfs() {

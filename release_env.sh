@@ -4,6 +4,7 @@ set -e
 ENV=${1}
 RELOAD_LIBS=${2}
 RELOAD_CONFIGS=${3}
+RELOAD_RESOURCES=${4}
 
 case ${ENV} in
     vm)
@@ -22,6 +23,6 @@ case ${ENV} in
     ;;
 esac
 
-./release.sh ${CERT} ${REMOTE_HOST} ${REMOTE_USER} ${RELOAD_LIBS} ${RELOAD_CONFIGS}
+./release.sh ${CERT} ${REMOTE_HOST} ${REMOTE_USER} ${RELOAD_LIBS} ${RELOAD_CONFIGS} ${RELOAD_RESOURCES}
 
 exit

@@ -15,10 +15,17 @@ else
   RELOAD_CONFIGS=false
 fi
 
+if [ "${6}" == "reload_resources" ]; then
+  RELOAD_RESOURCES=true
+else
+  RELOAD_RESOURCES=false
+fi
+
 echo =====================================
 echo Releasing to ${REMOTE_USER}@${REMOTE_HOST}. Cert: ${CERT}
 echo Reload libs = ${RELOAD_LIBS}
 echo Reload configs = ${RELOAD_CONFIGS}
+echo Reload resources = ${RELOAD_RESOURCES}
 echo =====================================
 
 read -p "Press enter to continue"
@@ -59,10 +66,12 @@ function prepare {
     runSSH "rm -rf config"
   fi
 
-  echo "Cleaning RESOURCES in ${REMOTE_FOLDER}"
+  if [ ${RELOAD_RESOURCES} = true ]; then
+    echo "Cleaning RESOURCES in ${REMOTE_FOLDER}"
     for i in ${RESOURCES[@]}; do
       runSSH "rm -rf ${i}"
     done
+  fi
 
   echo "Cleaning DIST files in ${REMOTE_FOLDER}"
   for i in ${FILES[@]}; do
@@ -89,9 +98,11 @@ for i in ${FILES[@]}; do
   scpToRemote ${DIST_FOLDER}/${i} ${REMOTE_FOLDER}
 done
 
-for i in ${RESOURCES[@]}; do
-  scpToRemote ${i} ${REMOTE_FOLDER} "-r"
-done
+if [ ${RELOAD_RESOURCES} = true ]; then
+  for i in ${RESOURCES[@]}; do
+    scpToRemote ${i} ${REMOTE_FOLDER} "-r"
+  done
+fi
 
 if [ ${RELOAD_LIBS} = true ]; then
   zipAndSendLibs

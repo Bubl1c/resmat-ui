@@ -8,7 +8,12 @@
         </ul>
       </li>
       <li>
-        <strong>Групи</strong>
+        <div class="side-menu-with-creator">
+          <strong>Групи</strong>
+          <a class="side-menu-creator" (click)="addStudentGroup()">
+            <i class="material-icons header4">control_point</i>
+          </a>
+        </div>
         <ul>
           <li *ngFor="let group of studentGroups"><a (click)="loadStudentsByGroup(group)">{{ group.name }}</a></li>
         </ul>
@@ -26,12 +31,14 @@
         </ul>
       </li>
       <li>
-        <div style="display: flex; justify-content: space-around; align-items: center;">
-          <strong style="flex: 6;">Групи тестів</strong>
-          <a style="margin-right: 5px;" (click)="addTestGroupConf()"><i class="material-icons header4">control_point</i> </a>
+        <div class="side-menu-with-creator">
+          <strong>Групи тестів</strong>
+          <a class="side-menu-creator" (click)="addTestGroupConf()">
+            <i class="material-icons header4">control_point</i>
+          </a>
         </div>
         <ul>
-          <li *ngFor="let g of testsGroupConfs" style="margin-bottom: 0.5em;"><a (click)="loadTestGroupConf(g)">{{ g.name }}</a></li>
+          <li *ngFor="let g of testsGroupConfs"><a (click)="loadTestGroupConf(g)">{{ g.name }}</a></li>
         </ul>
       </li>
     </ul>
@@ -108,6 +115,13 @@
           <input [(ngModel)]="workspaceData.data" placeholder="Введіть ім'я групи">
         </div>
        <button class="mui-btn mui-btn--primary" (click)="workspaceData.save()">Зберегти</button>
+      </div>
+
+      <div *ngIf="workspaceData.type === 'add_student_group'">
+        <div class="mui-textfield editor-input">
+          <input [(ngModel)]="workspaceData.data" placeholder="Введіть ім'я групи">
+        </div>
+        <button class="mui-btn mui-btn--primary" (click)="workspaceData.save()">Зберегти</button>
       </div>
     </div>
 

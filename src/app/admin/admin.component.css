@@ -46,18 +46,30 @@
   padding-top: 15px;
 }
 
+.side-menu > ul > li > ul {
+  padding-left: 2em;
+}
+
+.side-menu > ul > li > ul > li {
+  margin-bottom: 0.5em;
+}
+
 .side-menu strong {
   display: block;
-  padding: 0 22px;
+  padding: 0 1em;
   cursor: pointer;
 }
 
-/*.side-menu strong:hover {*/
-  /*background-color: #E0E0E0;*/
-/*}*/
-
-.side-menu strong + ul > li {
-  padding: 0.2em 0;
+.side-menu-with-creator {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.side-menu-with-creator strong {
+  flex: 1;
+}
+.side-menu-creator {
+  margin-right: 5px;
 }
 
 .exam-result .mui-divider {
