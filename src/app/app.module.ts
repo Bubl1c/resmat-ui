@@ -43,6 +43,7 @@ import { EditTestConfComponent } from './admin/components/edit-test-conf/edit-te
 import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { TextareaAutosizeDirective } from './components/textarea-autosize.directive';
 import { EditableTextComponent } from './components/editable-text/editable-text.component';
+import { TextEditorComponent } from './components/text-editor/text-editor.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import { EditableTextComponent } from './components/editable-text/editable-text.
     EditTestConfComponent,
     DropdownComponent,
     TextareaAutosizeDirective,
-    EditableTextComponent
+    EditableTextComponent,
+    TextEditorComponent
   ],
   imports: [
     BrowserModule,
