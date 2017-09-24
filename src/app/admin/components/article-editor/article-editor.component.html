@@ -1,0 +1,56 @@
+<div class="tinymce-text-editor-container">
+  <table [hidden]="showPreview" class="full-width full-height">
+    <tr>
+      <td>
+        <input type="checkbox" [(ngModel)]="updatedData.meta.visible"> Показувати студентам
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="mui-textfield mui-textfield--float-label">
+          <input type="text" [(ngModel)]="updatedData.header">
+          <label>Заголовок</label>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="tinymce-text-editor-controls-container">
+          <div style="flex: 1">
+            <div class="tinymce-text-editor-uploaded-urls">
+              <p *ngFor="let url of updatedData.meta.uploadedFileUrls">{{ url }}</p>
+            </div>
+            <upload [path]="uploadTempPath" (onUploaded)="addUploadedFileUrl($event)" [auto]="true"></upload>
+          </div>
+          <div class="tinymce-text-editor-submit-container">
+            <a (click)="startPreview()">
+              Попередній перегляд
+            </a>
+            <button class="mui-btn mui-btn--raised" (click)="save()">
+              Зберегти
+            </button>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="resmat-header">Скорочено для попереднього перегляду в списку</span>
+        <text-editor [text]="updatedData.preview" (onChanged)="onPreviewChanged($event)"></text-editor>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="resmat-header">Повний текст</span>
+        <text-editor [text]="updatedData.body" (onChanged)="onBodyChanged($event)"></text-editor>
+      </td>
+    </tr>
+  </table>
+  <div *ngIf="showPreview">
+    <a (click)="backToEditing()">Назад до редагування</a>
+    <div class="mui-panel">
+      <article-preview *ngIf="!showPreviewDetails" [header]="updatedData.header" [previewText]="updatedData.preview" (onDetailsClicked)="previewDetails()"></article-preview>
+      <article *ngIf="showPreviewDetails" [header]="updatedData.header" [bodyText]="updatedData.body"></article>
+    </div>
+  </div>
+</div>

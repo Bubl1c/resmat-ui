@@ -1,19 +1,19 @@
-import { Component, OnInit } from "@angular/core";
-import { ApiService } from "../api.service";
-import { Router } from "@angular/router";
-import { UserData, UserType, StudentGroup } from "../user/user.models";
-import { CurrentSession } from "../current-session";
-import { UserComponentConfig } from "./components/user/user.component";
-import { ExamResult } from "../exam/components/exam-results/exam-results.component";
-import { IUserExamResult } from "../steps/exam.results-step";
-import { IExamDto } from "../exam/data/exam.api-protocol";
-import { IExamConfWithSteps, IExamConf, IExamStepConf } from "./components/exam-conf/exam-conf.component";
+import {Component, OnInit} from "@angular/core";
+import {ApiService} from "../api.service";
+import {Router} from "@angular/router";
+import {StudentGroup, UserData, UserType} from "../user/user.models";
+import {CurrentSession} from "../current-session";
+import {UserComponentConfig} from "./components/user/user.component";
+import {ExamResult} from "../exam/components/exam-results/exam-results.component";
+import {IExamConf, IExamConfWithSteps, IExamStepConf} from "./components/exam-conf/exam-conf.component";
 import {
-  IProblemConf, IProblemVariantConf,
-  IProblemConfWithVariants
+  IProblemConf,
+  IProblemConfWithVariants,
+  IProblemVariantConf
 } from "./components/problem-conf/problem-conf.component";
-import {ITestDto, TestType, ITestEditDto} from "../exam/data/test-set.api-protocol";
+import {ITestEditDto} from "../exam/data/test-set.api-protocol";
 import {TestEdit} from "./components/edit-test-conf/edit-test-conf.component";
+import {ArticleDto} from "./components/article-editor/article-editor.component";
 
 class WorkspaceDataTypes {
   static user = "user";
@@ -26,6 +26,7 @@ class WorkspaceDataTypes {
   static testGroup = "test_group";
   static editTestConf = "edit_test_conf";
   static addTestGroup = "add_test_group";
+  static articles = "articles";
 }
 
 abstract class WorkspaceData {
@@ -51,6 +52,59 @@ class UserWorkspaceData extends WorkspaceData {
       }
     })
   }
+}
+
+class ArticlesWorkspaceData extends WorkspaceData {
+  type = WorkspaceDataTypes.articles;
+
+  showArticles = true;
+  articleToEdit: ArticleDto;
+  articleToShow: ArticleDto;
+  newArticleHeader: string = '';
+
+  constructor(public data: ArticleDto[], private api: ApiService, private adminComponent: AdminComponent) {
+    super();
+  }
+
+
+  createNewArticle() {
+    //call api
+    this.showArticles = false;
+    this.articleToEdit = {
+      id: 2222,
+      header: this.newArticleHeader,
+      preview: '',
+      body: '',
+      meta: {
+        visible: false,
+        uploadedFileUrls: []
+      }
+    };
+    this.newArticleHeader = undefined;
+    this.data.unshift(this.articleToEdit)
+  }
+  show(article: ArticleDto) {
+    this.showArticles = false;
+    this.articleToShow = article;
+  }
+  edit(article: ArticleDto) {
+    this.showArticles = false;
+    this.articleToEdit = article;
+  }
+  saveEdited(article: ArticleDto) {
+    for(let i = 0; i < this.data.length; i++) {
+      let cur = this.data[i];
+      if(cur.id === article.id) {
+        cur[i] = article;
+      }
+    }
+  }
+  backToList() {
+    this.showArticles = true;
+    this.articleToShow = null;
+    this.articleToEdit = null;
+  }
+
 }
 
 class AddStudentWorkspaceData extends WorkspaceData {
@@ -286,6 +340,18 @@ export class AdminComponent implements OnInit {
 
   loadEditUser(user: UserData) {
     this.workspaceData = new UserWorkspaceData(user, this.api);
+  }
+
+  loadArticles() {
+    this.workspaceData = new ArticlesWorkspaceData([
+      {
+        id: 1,
+        "header": "Lorem Ipsum",
+        "preview": "<h2>Что такое Lorem Ipsum?</h2>\n<p><strong>Lorem Ipsum</strong>&nbsp;- это текст-\"рыба\", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной \"рыбой\" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.</p>",
+        "body": "<div>\n<h2>Почему он используется?</h2>\n<p>Давно выяснено, что при оценке дизайна и композиции читаемый текст мешает сосредоточиться. Lorem Ipsum используют потому, что тот обеспечивает более или менее стандартное заполнение шаблона, а также реальное распределение букв и пробелов в абзацах, которое не получается при простой дубликации \"Здесь ваш текст.. Здесь ваш текст.. Здесь ваш текст..\" Многие программы электронной вёрстки и редакторы HTML используют Lorem Ipsum в качестве текста по умолчанию, так что поиск по ключевым словам \"lorem ipsum\" сразу показывает, как много веб-страниц всё ещё дожидаются своего настоящего рождения. За прошедшие годы текст Lorem Ipsum получил много версий. Некоторые версии появились по ошибке, некоторые - намеренно (например, юмористические варианты).</p>\n</div>\n<p>&nbsp;</p>\n<div>\n<h2>Откуда он появился?</h2>\n<p>Многие думают, что Lorem Ipsum - взятый с потолка псевдо-латинский набор слов, но это не совсем так. Его корни уходят в один фрагмент классической латыни 45 года н.э., то есть более двух тысячелетий назад. Ричард МакКлинток, профессор латыни из колледжа Hampden-Sydney, штат Вирджиния, взял одно из самых странных слов в Lorem Ipsum, \"consectetur\", и занялся его поисками в классической латинской литературе. В результате он нашёл неоспоримый первоисточник Lorem Ipsum в разделах 1.10.32 и 1.10.33 книги \"de Finibus Bonorum et Malorum\" (\"О пределах добра и зла\"), написанной Цицероном в 45 году н.э. Этот трактат по теории этики был очень популярен в эпоху Возрождения. Первая строка Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", происходит от одной из строк в разделе 1.10.32</p>\n</div>",
+        "meta": { visible: false, "uploadedFileUrls": [] }
+      }
+    ], this.api, this);
   }
 
   loadStudentsByGroup(group: StudentGroup) {

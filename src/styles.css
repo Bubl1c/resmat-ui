@@ -24,6 +24,10 @@ body {
   width: 100%;
 }
 
+.full-height {
+  height: 100%;
+}
+
 .border-sticky-item {
   position: absolute;
   color: #2196F3;

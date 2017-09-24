@@ -1,0 +1,17 @@
+.tinymce-text-editor-container {
+  min-width: 680px;
+}
+
+.tinymce-text-editor-controls-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.tinymce-text-editor-uploaded-urls {
+  max-height: 100px;
+  overflow: scroll
+}
+
+.tinymce-text-editor-submit-container {
+  display: flex; flex-direction: column; justify-content: flex-end; margin-left: 1em;
+}

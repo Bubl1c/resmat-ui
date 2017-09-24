@@ -1,0 +1,8 @@
+<div>
+  <span [hidden]="!invisible || !editable" class="resmat-error">Ця стаття не доступна студентам</span>
+  <p class="resmat-header">{{ header }}</p>
+  <div [innerHtml]="previewText | safeInnerHtml"></div>
+  <br>
+  <a (click)="detailsClicked()">Повний текст...</a>
+  <a [hidden]="!editable" (click)="editClicked()">Редагувати</a>
+</div>

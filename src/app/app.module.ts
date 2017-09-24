@@ -44,6 +44,10 @@ import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { TextareaAutosizeDirective } from './components/textarea-autosize.directive';
 import { EditableTextComponent } from './components/editable-text/editable-text.component';
 import { TextEditorComponent } from './components/text-editor/text-editor.component';
+import { SafeInnerHtmlPipe } from './components/safe-inner-html/safe-inner-html.pipe';
+import { ArticleEditorComponent } from "./admin/components/article-editor/article-editor.component";
+import { ArticleComponent } from './admin/components/article/article.component';
+import { ArticlePreviewComponent } from './admin/components/article-preview/article-preview.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +83,11 @@ import { TextEditorComponent } from './components/text-editor/text-editor.compon
     DropdownComponent,
     TextareaAutosizeDirective,
     EditableTextComponent,
-    TextEditorComponent
+    TextEditorComponent,
+    ArticleEditorComponent,
+    SafeInnerHtmlPipe,
+    ArticleComponent,
+    ArticlePreviewComponent
   ],
   imports: [
     BrowserModule,

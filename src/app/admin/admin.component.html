@@ -4,8 +4,12 @@
       <li *ngIf="isAdmin">
         <strong>Користувачі</strong>
         <ul>
-          <li *ngFor="let user of users"><a (click)="loadEditUser(user)">{{ user.firstName + ' ' + user.lastName }}</a></li>
+          <li *ngFor="let user of users"><a (click)="loadEditUser(user)">{{ user.firstName + ' ' + user.lastName }}</a>
+          </li>
         </ul>
+      </li>
+      <li *ngIf="isAdmin">
+        <strong><a (click)="loadArticles()">Статті</a></strong>
       </li>
       <li>
         <div class="side-menu-with-creator">
@@ -52,7 +56,8 @@
             (onSaved)="workspaceData.save($event)"></user>
 
       <div *ngIf="workspaceData.type === 'group-students'">
-        <span class="header3">{{ workspaceData.group.name }}</span><a (click)="addUserToCurrentGroup(workspaceData.group)" style="float: right">Додати студента</a>
+        <span class="header3">{{ workspaceData.group.name }}</span><a
+        (click)="addUserToCurrentGroup(workspaceData.group)" style="float: right">Додати студента</a>
         <br>
         <a (click)="lockAllInGroup(workspaceData.group)">Заблокувати всі роботи в групі</a>
         <br>
@@ -66,7 +71,7 @@
       </div>
 
       <student-exams *ngIf="workspaceData.type === 'student_exams'"
-                      [student]="workspaceData.data" [examConfs]="examConfs"></student-exams>
+                     [student]="workspaceData.data" [examConfs]="examConfs"></student-exams>
 
       <create-student *ngIf="workspaceData.type === 'add-student'"
                       [group]="workspaceData.data"
@@ -93,7 +98,8 @@
                          [text]="workspaceData.data.name"
                          inputPlaceholder="Введіть назву групи"
                          (onSave)="workspaceData.save($event)"></editable-text>
-          <a style="flex: 1; text-align: right;" (click)="editTestConf(workspaceData.data.id, null)" class="resmat-primary">Додати тест</a>
+          <a style="flex: 1; text-align: right;" (click)="editTestConf(workspaceData.data.id, null)"
+             class="resmat-primary">Додати тест</a>
         </div>
         <table class="mui-table mui-table--bordered">
           <tr *ngFor="let t of workspaceData.data.testConfs">
@@ -107,14 +113,15 @@
       </div>
 
       <div *ngIf="workspaceData.type === 'edit_test_conf'">
-        <edit-test-conf [isSaving]="workspaceData.isSaving" [testToUpdate]="workspaceData.data" (onSave)="workspaceData.save($event)"></edit-test-conf>
+        <edit-test-conf [isSaving]="workspaceData.isSaving" [testToUpdate]="workspaceData.data"
+                        (onSave)="workspaceData.save($event)"></edit-test-conf>
       </div>
 
       <div *ngIf="workspaceData.type === 'add_test_group'">
         <div class="mui-textfield editor-input">
           <input [(ngModel)]="workspaceData.data" placeholder="Введіть ім'я групи">
         </div>
-       <button class="mui-btn mui-btn--primary" (click)="workspaceData.save()">Зберегти</button>
+        <button class="mui-btn mui-btn--primary" (click)="workspaceData.save()">Зберегти</button>
       </div>
 
       <div *ngIf="workspaceData.type === 'add_student_group'">
@@ -122,6 +129,37 @@
           <input [(ngModel)]="workspaceData.data" placeholder="Введіть ім'я групи">
         </div>
         <button class="mui-btn mui-btn--primary" (click)="workspaceData.save()">Зберегти</button>
+      </div>
+
+      <div *ngIf="workspaceData.type === 'articles'">
+        <div [hidden]="!workspaceData.showArticles">
+          <div style="display: flex;">
+            <div class="mui-textfield mui-textfield--float-label" style="flex: 1">
+              <input type="text" [(ngModel)]="workspaceData.newArticleHeader">
+              <label>Створити статтю з таким заголовком</label>
+            </div>
+            <button class="mui-btn mui-btn--raised" (click)="workspaceData.createNewArticle()">
+              Створити
+            </button>
+          </div>
+          <div class="mui-panel" *ngFor="let article of workspaceData.data">
+            <article-preview [header]="article.header"
+                             [previewText]="article.preview"
+                             [editable]="true"
+                             [invisible]="!article.meta.visible"
+                             (onDetailsClicked)="workspaceData.show(article)"
+                             (onEditClicked)="workspaceData.edit(article)"></article-preview>
+          </div>
+        </div>
+        <div *ngIf="!workspaceData.showArticles">
+          <a (click)="workspaceData.backToList()">Назад до списку статей</a>
+          <article-editor *ngIf="workspaceData.articleToEdit"
+                          [data]="workspaceData.articleToEdit"
+                          (onSave)="workspaceData.saveEdited()"></article-editor>
+          <article *ngIf="workspaceData.articleToShow"
+                   [header]="workspaceData.articleToShow.header"
+                   [bodyText]="workspaceData.articleToShow.body"></article>
+        </div>
       </div>
     </div>
 
