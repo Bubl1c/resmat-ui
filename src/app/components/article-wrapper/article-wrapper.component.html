@@ -1,0 +1,5 @@
+<div class="mui-container">
+  <a (click)="backToList()">Повернутись до списку</a>
+  <br>
+  <article *ngIf="article" [header]="article.header" [bodyText]="article.body"></article>
+</div>

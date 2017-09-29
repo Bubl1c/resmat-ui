@@ -2,7 +2,7 @@
   <table [hidden]="showPreview" class="full-width full-height">
     <tr>
       <td>
-        <input type="checkbox" [(ngModel)]="updatedData.meta.visible"> Показувати студентам
+        <input type="checkbox" [(ngModel)]="updatedData.visible"> Показувати студентам
       </td>
     </tr>
     <tr>
@@ -17,10 +17,10 @@
       <td>
         <div class="tinymce-text-editor-controls-container">
           <div style="flex: 1">
+            <upload [path]="uploadPath" (onUploaded)="addUploadedFileUrl($event)" (onUploadFailed)="onUploadFailed($event)" [auto]="true"></upload>
             <div class="tinymce-text-editor-uploaded-urls">
               <p *ngFor="let url of updatedData.meta.uploadedFileUrls">{{ url }}</p>
             </div>
-            <upload [path]="uploadTempPath" (onUploaded)="addUploadedFileUrl($event)" [auto]="true"></upload>
           </div>
           <div class="tinymce-text-editor-submit-container">
             <a (click)="startPreview()">

@@ -146,7 +146,7 @@
             <article-preview [header]="article.header"
                              [previewText]="article.preview"
                              [editable]="true"
-                             [invisible]="!article.meta.visible"
+                             [visible]="!article.visible"
                              (onDetailsClicked)="workspaceData.show(article)"
                              (onEditClicked)="workspaceData.edit(article)"></article-preview>
           </div>
@@ -155,7 +155,7 @@
           <a (click)="workspaceData.backToList()">Назад до списку статей</a>
           <article-editor *ngIf="workspaceData.articleToEdit"
                           [data]="workspaceData.articleToEdit"
-                          (onSave)="workspaceData.saveEdited()"></article-editor>
+                          (onSave)="workspaceData.saveEdited($event)"></article-editor>
           <article *ngIf="workspaceData.articleToShow"
                    [header]="workspaceData.articleToShow.header"
                    [bodyText]="workspaceData.articleToShow.body"></article>

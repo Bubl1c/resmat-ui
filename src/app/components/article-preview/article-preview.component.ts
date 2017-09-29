@@ -10,7 +10,7 @@ export class ArticlePreviewComponent implements OnInit {
   @Input() header: string;
   @Input() previewText: string;
   @Input() editable: boolean = false;
-  @Input() invisible: boolean = false;
+  @Input() visible: boolean = false;
   @Output() onDetailsClicked = new EventEmitter<void>();
   @Output() onEditClicked = new EventEmitter<void>();
 

@@ -13,5 +13,5 @@
 }
 
 .tinymce-text-editor-submit-container {
-  display: flex; flex-direction: column; justify-content: flex-end; margin-left: 1em;
+  display: flex; flex-direction: column; justify-content: flex-start; margin-left: 1em;
 }

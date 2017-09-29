@@ -1,5 +1,5 @@
 <div>
-  <span [hidden]="!invisible || !editable" class="resmat-error">Ця стаття не доступна студентам</span>
+  <span [hidden]="visible || !editable" class="resmat-error">Ця стаття не доступна студентам</span>
   <p class="resmat-header">{{ header }}</p>
   <div [innerHtml]="previewText | safeInnerHtml"></div>
   <br>

@@ -66,22 +66,24 @@ class ArticlesWorkspaceData extends WorkspaceData {
     super();
   }
 
-
   createNewArticle() {
-    //call api
-    this.showArticles = false;
-    this.articleToEdit = {
-      id: 2222,
+    this.api.post('/articles', {
+      id: -1,
       header: this.newArticleHeader,
       preview: '',
       body: '',
+      visible: false,
       meta: {
-        visible: false,
         uploadedFileUrls: []
       }
-    };
-    this.newArticleHeader = undefined;
-    this.data.unshift(this.articleToEdit)
+    }).subscribe({
+      next: (savedArticle: ArticleDto) => {
+        this.data.unshift(savedArticle);
+        this.articleToEdit = savedArticle;
+      },
+      error: (e) => alert(JSON.stringify(e)),
+      complete: () => this.newArticleHeader = undefined,
+    });
   }
   show(article: ArticleDto) {
     this.showArticles = false;
@@ -92,12 +94,19 @@ class ArticlesWorkspaceData extends WorkspaceData {
     this.articleToEdit = article;
   }
   saveEdited(article: ArticleDto) {
-    for(let i = 0; i < this.data.length; i++) {
-      let cur = this.data[i];
-      if(cur.id === article.id) {
-        cur[i] = article;
-      }
-    }
+    const toSend = JSON.parse(JSON.stringify(article));
+    this.api.put(`/articles/${article.id}`, toSend).subscribe({
+      next: (savedArticle: ArticleDto) => {
+        for(let i = 0; i < this.data.length; i++) {
+          let cur = this.data[i];
+          if(cur.id === savedArticle.id) {
+            cur[i] = savedArticle;
+          }
+        }
+        alert("Збережено успішно")
+      },
+      error: (e) => alert(JSON.stringify(e))
+    });
   }
   backToList() {
     this.showArticles = true;
@@ -343,15 +352,19 @@ export class AdminComponent implements OnInit {
   }
 
   loadArticles() {
-    this.workspaceData = new ArticlesWorkspaceData([
-      {
-        id: 1,
-        "header": "Lorem Ipsum",
-        "preview": "<h2>Что такое Lorem Ipsum?</h2>\n<p><strong>Lorem Ipsum</strong>&nbsp;- это текст-\"рыба\", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной \"рыбой\" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.</p>",
-        "body": "<div>\n<h2>Почему он используется?</h2>\n<p>Давно выяснено, что при оценке дизайна и композиции читаемый текст мешает сосредоточиться. Lorem Ipsum используют потому, что тот обеспечивает более или менее стандартное заполнение шаблона, а также реальное распределение букв и пробелов в абзацах, которое не получается при простой дубликации \"Здесь ваш текст.. Здесь ваш текст.. Здесь ваш текст..\" Многие программы электронной вёрстки и редакторы HTML используют Lorem Ipsum в качестве текста по умолчанию, так что поиск по ключевым словам \"lorem ipsum\" сразу показывает, как много веб-страниц всё ещё дожидаются своего настоящего рождения. За прошедшие годы текст Lorem Ipsum получил много версий. Некоторые версии появились по ошибке, некоторые - намеренно (например, юмористические варианты).</p>\n</div>\n<p>&nbsp;</p>\n<div>\n<h2>Откуда он появился?</h2>\n<p>Многие думают, что Lorem Ipsum - взятый с потолка псевдо-латинский набор слов, но это не совсем так. Его корни уходят в один фрагмент классической латыни 45 года н.э., то есть более двух тысячелетий назад. Ричард МакКлинток, профессор латыни из колледжа Hampden-Sydney, штат Вирджиния, взял одно из самых странных слов в Lorem Ipsum, \"consectetur\", и занялся его поисками в классической латинской литературе. В результате он нашёл неоспоримый первоисточник Lorem Ipsum в разделах 1.10.32 и 1.10.33 книги \"de Finibus Bonorum et Malorum\" (\"О пределах добра и зла\"), написанной Цицероном в 45 году н.э. Этот трактат по теории этики был очень популярен в эпоху Возрождения. Первая строка Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", происходит от одной из строк в разделе 1.10.32</p>\n</div>",
-        "meta": { visible: false, "uploadedFileUrls": [] }
+    this.api.get("/articles").subscribe({
+      next: (articles: any[]) => {
+        articles.forEach(a => a.meta = JSON.parse(a.meta));
+        this.workspaceData = new ArticlesWorkspaceData(
+          articles,
+          this.api,
+          this
+        )
+      },
+      error: err => {
+        this.errorMessage = err.toString()
       }
-    ], this.api, this);
+    });
   }
 
   loadStudentsByGroup(group: StudentGroup) {

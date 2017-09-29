@@ -1,0 +1,7 @@
+<div class="mui-container" *ngFor="let article of list">
+  <article-preview
+    [header]="article.header"
+    [previewText]="article.preview"
+    [visible]="article.visible"
+    (onDetailsClicked)="onArticleSelected(article)"></article-preview>
+</div>

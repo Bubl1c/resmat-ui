@@ -46,8 +46,10 @@ import { EditableTextComponent } from './components/editable-text/editable-text.
 import { TextEditorComponent } from './components/text-editor/text-editor.component';
 import { SafeInnerHtmlPipe } from './components/safe-inner-html/safe-inner-html.pipe';
 import { ArticleEditorComponent } from "./admin/components/article-editor/article-editor.component";
-import { ArticleComponent } from './admin/components/article/article.component';
-import { ArticlePreviewComponent } from './admin/components/article-preview/article-preview.component';
+import { ArticleComponent } from './components/article/article.component';
+import { ArticlePreviewComponent } from './components/article-preview/article-preview.component';
+import { ArticleListComponent } from './components/article-list/article-list.component';
+import { ArticleWrapperComponent } from './components/article-wrapper/article-wrapper.component';
 
 @NgModule({
   declarations: [
@@ -87,7 +89,9 @@ import { ArticlePreviewComponent } from './admin/components/article-preview/arti
     ArticleEditorComponent,
     SafeInnerHtmlPipe,
     ArticleComponent,
-    ArticlePreviewComponent
+    ArticlePreviewComponent,
+    ArticleListComponent,
+    ArticleWrapperComponent
   ],
   imports: [
     BrowserModule,

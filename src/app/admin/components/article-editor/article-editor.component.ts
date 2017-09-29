@@ -5,9 +5,9 @@ export interface ArticleDto {
   header: string
   preview: string
   body: string
+  visible: boolean
   meta: {
-    uploadedFileUrls: string[],
-    visible: boolean
+    uploadedFileUrls: string[]
   }
 }
 
@@ -24,7 +24,7 @@ export class ArticleEditorComponent implements OnInit {
 
   updatedData: ArticleDto;
 
-  uploadTempPath: string = "/upload-temp-file";
+  uploadPath: string = "/upload-temp-file";
 
   showPreview: boolean = false;
   showPreviewDetails: boolean = false;
@@ -35,17 +35,9 @@ export class ArticleEditorComponent implements OnInit {
   ngOnInit(): void {
     if (this.data) {
       this.updatedData = JSON.parse(JSON.stringify(this.data));
+      this.uploadPath = `/articles/${this.updatedData.id}/upload-file`;
     } else {
-      this.updatedData = {
-        id: -1,
-        header: '',
-        preview: '',
-        body: '',
-        meta: {
-          visible: false,
-          uploadedFileUrls: []
-        }
-      }
+      throw new Error("article data must be defined");
     }
   }
 
@@ -63,7 +55,12 @@ export class ArticleEditorComponent implements OnInit {
   }
 
   addUploadedFileUrl(url) {
+    console.log(this.updatedData.meta);
     this.updatedData.meta.uploadedFileUrls.unshift(url)
+  }
+
+  onUploadFailed(err) {
+    alert("uploading failed: " + JSON.stringify(err))
   }
 
   startPreview() {
