@@ -1,0 +1,20 @@
+<div class="mui-container">
+  <div [hidden]="!isLoading">Завантаження...</div>
+  <div *ngIf="!isLoading">
+    <div [hidden]="availableArticles.length > 0">Немає матеріалів доступних для Вашої групи</div>
+    <div [hidden]="articleDetails">
+      <a class="resmat-header" routerLink="../exams">На головну</a>
+      <div *ngFor="let a of availableArticles" class="mui-panel">
+        <article-preview
+          [header]="a.header"
+          [previewText]="a.preview"
+          (onDetailsClicked)="viewDetails(a)"></article-preview>
+      </div>
+    </div>
+    <div *ngIf="articleDetails">
+      <a (click)="backToList()">Повернутись до списку</a>
+      <article [header]="articleDetails.header" [bodyText]="articleDetails.body"></article>
+    </div>
+  </div>
+
+</div>

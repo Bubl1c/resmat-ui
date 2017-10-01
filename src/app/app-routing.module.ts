@@ -7,12 +7,14 @@ import { MyExamsComponent } from "./exam/components/my-exams/my-exams.component"
 import {ArticleEditorComponent} from "./admin/components/article-editor/article-editor.component";
 import {ArticleListComponent} from "./components/article-list/article-list.component";
 import {ArticleWrapperComponent} from "./components/article-wrapper/article-wrapper.component";
+import {StudentArticlesComponent} from "./exam/components/student-articles/student-articles.component";
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   // { path: '/exam', component: ExamComponent }
   { path: 'users/:id/exams', component: MyExamsComponent },
+  { path: 'users/:id/study', component: StudentArticlesComponent },
   { path: 'users/:id/exams/:examId', component: ExamComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'blog', component: ArticleEditorComponent },

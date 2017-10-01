@@ -6,9 +6,10 @@ import { PositionHOptions, PositionVOptions } from "../position-options";
   templateUrl: './border-sticky-btn.component.html'
 })
 export class BorderStickyBtnComponent implements OnInit {
-  @Input() altText: string;
-  @Input() positionH: PositionHOptions;
-  @Input() positionV: PositionVOptions;
+  @Input() altText?: string;
+  @Input() positionH?: PositionHOptions;
+  @Input() positionV?: PositionVOptions;
+  @Input() paddingPx?: number;
 
   @Output() onClick: EventEmitter<any>;
 
@@ -20,6 +21,7 @@ export class BorderStickyBtnComponent implements OnInit {
     if(!this.positionH) this.positionH = 'left';
     if(!this.positionV) this.positionV = 'bottom';
     if(!this.altText) this.altText = '';
+    if(!this.paddingPx) this.paddingPx = 0
   }
 
   click() {

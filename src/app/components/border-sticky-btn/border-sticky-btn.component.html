@@ -1,3 +1,7 @@
-<a (click)="click()" [title]="altText" class="border-sticky-item cursor-pointer" [ngClass]="[positionH, positionV]">
+<a (click)="click()"
+   [title]="altText"
+   class="border-sticky-item cursor-pointer"
+   [ngClass]="[positionH, positionV]"
+   [ngStyle]="{'padding.px': paddingPx}">
   <ng-content></ng-content>
 </a>

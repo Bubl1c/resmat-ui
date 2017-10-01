@@ -34,6 +34,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy, OnInit {
       statusbar: false,
       autoresize_bottom_margin: 10,
       autoresize_min_height: 200,
+      autoresize_max_height: 700,
       setup: editor => {
         this.editor = editor;
         editor.on('Init', () => {

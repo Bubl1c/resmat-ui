@@ -20,6 +20,12 @@
   max-width: 20%;
 }
 
+.side-menu-collapsed {
+  min-width: 30px;
+  flex: 0;
+  text-align: center;
+}
+
 .workspace {
   margin: 1em;
   flex-grow: 1;

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FileUploader, FileItem } from "ng2-file-upload";
+import {FileUploader, FileItem, FileUploaderOptions} from "ng2-file-upload";
 import { HttpUtils } from "../../utils/HttpUtils";
 import { CurrentSession } from "../../current-session";
 
@@ -12,6 +12,7 @@ export class UploadComponent implements OnInit {
 
   @Input() path: string;
   @Input() auto: boolean;
+  @Input() onlyImages: boolean = true;
 
   @Output() onUploaded = new EventEmitter<string>();
   @Output() onUploadFailed = new EventEmitter<string>();
@@ -24,7 +25,11 @@ export class UploadComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    this.uploader = new FileUploader({url: HttpUtils.baseUrl + this.path, authToken: CurrentSession.token});
+    const options: FileUploaderOptions  = {url: HttpUtils.baseUrl + this.path, authToken: CurrentSession.token};
+    if(this.onlyImages) {
+      options.allowedMimeType = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/svg+xml', 'image/tiff', 'image/vnd.microsoft.icon', 'image/vnd.wap.wbmp', 'image/webp',]
+    }
+    this.uploader = new FileUploader(options);
     this.uploader.onAfterAddingFile = (file: FileItem) => {
       if(this.auto) {
         this.uploadFile(file)
@@ -32,6 +37,11 @@ export class UploadComponent implements OnInit {
       this.errorMessage = '';
       if(this.uploader.queue.length > 1) {
         this.uploader.removeFromQueue(this.uploader.queue[0])
+      }
+    };
+    this.uploader.onWhenAddingFileFailed = (file: any, filter: any, options: any) => {
+      if(filter && filter.name === 'mimeType') {
+        alert("Завантажувати можна лише зображення")
       }
     }
   }
@@ -46,9 +56,6 @@ export class UploadComponent implements OnInit {
     }
     this.addFileSizeHeader(item);
     this.uploader.uploadItem(item);
-    item.onCancel = (response: string, status: number, headers: any) => {
-      this.errorMessage = 'Завантаження відмінене' + (response ? ': ' + response : '');
-    };
     item.onComplete = (response: string, status: number, headers: any) => {
       if(status === 200) {
         if(this.auto) {
@@ -63,6 +70,12 @@ export class UploadComponent implements OnInit {
         this.onUploadFailed && this.onUploadFailed.emit(status + ": " + response);
       }
     };
+    item.onCancel = (response: string, status: number, headers: any) => {
+      (item as any).errorMessage = 'Завантаження відмінене' + (response ? ': ' + response : '');
+    };
+    item.onError = (response: string, status: number, headers: any) => {
+      (item as any).errorMessage = 'Помилка під час завантаження файлу: ' + status + " " + (response ? ': ' + response : '');
+    }
   }
 
   private addFileSizeHeader(item: FileItem): void {

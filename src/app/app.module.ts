@@ -50,6 +50,9 @@ import { ArticleComponent } from './components/article/article.component';
 import { ArticlePreviewComponent } from './components/article-preview/article-preview.component';
 import { ArticleListComponent } from './components/article-list/article-list.component';
 import { ArticleWrapperComponent } from './components/article-wrapper/article-wrapper.component';
+import { GroupArticlesEditorComponent } from './admin/components/group-articles-editor/group-articles-editor.component';
+import { ItemSelectorComponent } from './components/item-selector/item-selector.component';
+import { StudentArticlesComponent } from './exam/components/student-articles/student-articles.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +94,10 @@ import { ArticleWrapperComponent } from './components/article-wrapper/article-wr
     ArticleComponent,
     ArticlePreviewComponent,
     ArticleListComponent,
-    ArticleWrapperComponent
+    ArticleWrapperComponent,
+    GroupArticlesEditorComponent,
+    ItemSelectorComponent,
+    StudentArticlesComponent
   ],
   imports: [
     BrowserModule,

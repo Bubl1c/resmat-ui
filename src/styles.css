@@ -124,6 +124,14 @@ a {
   font-size: 0.7em;
 }
 
+/* FLEXBOX */
+.flex-container {
+  display: flex;
+}
+.flex-1 {
+  flex: 1;
+}
+
 /* OVERRIDE MUI*/
 .material-icons {
   line-height: inherit;

@@ -17,7 +17,11 @@
       <td>
         <div class="tinymce-text-editor-controls-container">
           <div style="flex: 1">
-            <upload [path]="uploadPath" (onUploaded)="addUploadedFileUrl($event)" (onUploadFailed)="onUploadFailed($event)" [auto]="true"></upload>
+            <upload [path]="uploadPath"
+                    [auto]="true"
+                    [onlyImages]="false"
+                    (onUploaded)="addUploadedFileUrl($event)"
+                    (onUploadFailed)="onUploadFailed($event)"></upload>
             <div class="tinymce-text-editor-uploaded-urls">
               <p *ngFor="let url of updatedData.meta.uploadedFileUrls">{{ url }}</p>
             </div>

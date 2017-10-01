@@ -1,6 +1,10 @@
 <div class="container">
-  <div class="side-menu mui--no-user-select mui-panel">
-    <ul>
+  <div class="side-menu mui--no-user-select mui-panel" [ngClass]="{'side-menu-collapsed': sideMenuCollapsed}">
+    <a (click)="sideMenuCollapsed = !sideMenuCollapsed" class="resmat-regular">
+      <i class="material-icons" [hidden]="sideMenuCollapsed" style="float: right">first_page</i>
+      <i class="material-icons" [hidden]="!sideMenuCollapsed">settings_ethernet</i>
+    </a>
+    <ul [hidden]="sideMenuCollapsed">
       <li *ngIf="isAdmin">
         <strong>Користувачі</strong>
         <ul>
@@ -9,7 +13,7 @@
         </ul>
       </li>
       <li *ngIf="isAdmin">
-        <strong><a (click)="loadArticles()">Статті</a></strong>
+        <strong><a class="resmat-regular" (click)="loadArticles()">Навчальні матеріали</a></strong>
       </li>
       <li>
         <div class="side-menu-with-creator">
@@ -56,8 +60,13 @@
             (onSaved)="workspaceData.save($event)"></user>
 
       <div *ngIf="workspaceData.type === 'group-students'">
-        <span class="header3">{{ workspaceData.group.name }}</span><a
-        (click)="addUserToCurrentGroup(workspaceData.group)" style="float: right">Додати студента</a>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <editable-text class="resmat-header resmat-regular" style="flex: 5"
+                         [text]="workspaceData.group.name"
+                         inputPlaceholder="Введіть назву групи"
+                         (onSave)="workspaceData.saveGroupName($event)"></editable-text>
+          <a (click)="addUserToCurrentGroup(workspaceData.group)" style="float: right">Додати студента</a>
+        </div>
         <br>
         <a (click)="lockAllInGroup(workspaceData.group)">Заблокувати всі роботи в групі</a>
         <br>
@@ -68,6 +77,16 @@
           (onResultsRequested)="loadStudentResults($event)"
           (onEditRequested)="loadEditUser($event)"
           (onDeleteRequested)="deleteStudent($event)"></group-students>
+        <br>
+        <div class="resmat-header">Доступні навчальні матеріали</div>
+        <div class="mui-panel">
+          <div [hidden]="workspaceData.selectableArticles.length > 0">Немає доступних матеріалів</div>
+          <item-selector *ngIf="workspaceData.selectableArticles.length > 0"
+                         [items]="workspaceData.selectableArticles"
+                         [config]="workspaceData.itemSelectorConfig"
+                         class="header4"></item-selector>
+        </div>
+        <button class="mui-btn mui-btn--primary" (click)="workspaceData.saveSelectedArticles()">Зберегти вибрані навчальні матеріали</button>
       </div>
 
       <student-exams *ngIf="workspaceData.type === 'student_exams'"
@@ -142,11 +161,14 @@
               Створити
             </button>
           </div>
-          <div class="mui-panel" *ngFor="let article of workspaceData.data">
+          <div class="mui-panel relative" *ngFor="let article of workspaceData.data">
+            <border-sticky-btn positionH="right" positionV="top" paddingPx="15" (onClick)="workspaceData.deleteArticle(article)">
+              <i class="material-icons">delete_forever</i>
+            </border-sticky-btn>
             <article-preview [header]="article.header"
                              [previewText]="article.preview"
                              [editable]="true"
-                             [visible]="!article.visible"
+                             [visible]="article.visible"
                              (onDetailsClicked)="workspaceData.show(article)"
                              (onEditClicked)="workspaceData.edit(article)"></article-preview>
           </div>

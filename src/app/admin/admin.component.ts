@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, group, OnInit} from "@angular/core";
 import {ApiService} from "../api.service";
 import {Router} from "@angular/router";
 import {StudentGroup, UserData, UserType} from "../user/user.models";
@@ -14,6 +14,8 @@ import {
 import {ITestEditDto} from "../exam/data/test-set.api-protocol";
 import {TestEdit} from "./components/edit-test-conf/edit-test-conf.component";
 import {ArticleDto} from "./components/article-editor/article-editor.component";
+import {SelectableItem} from "../components/item-selector/item-selector.component";
+import {Observable} from "rxjs/Observable";
 
 class WorkspaceDataTypes {
   static user = "user";
@@ -98,15 +100,31 @@ class ArticlesWorkspaceData extends WorkspaceData {
     this.api.put(`/articles/${article.id}`, toSend).subscribe({
       next: (savedArticle: ArticleDto) => {
         for(let i = 0; i < this.data.length; i++) {
-          let cur = this.data[i];
-          if(cur.id === savedArticle.id) {
-            cur[i] = savedArticle;
+          if(this.data[i].id === savedArticle.id) {
+            this.data[i] = savedArticle;
+            break;
           }
         }
         alert("Збережено успішно")
       },
       error: (e) => alert(JSON.stringify(e))
     });
+  }
+  deleteArticle(article: ArticleDto) {
+    if(window.confirm("Ви дійсно хочете видалити статтю '" + article.header + "' ?")) {
+      this.api.delete(`/articles/${article.id}`).subscribe({
+        next: () => {
+          const index = this.data.indexOf(article);
+          if(index === -1) {
+            alert("Щось не так з видаленням матеріалу, не найдено у списку")
+          } else {
+            alert("Видалено успішно");
+            this.data.splice(index, 1)
+          }
+        },
+        error: e => alert("Не вдалося видалити матеріал: " + JSON.stringify(e))
+      })
+    }
   }
   backToList() {
     this.showArticles = true;
@@ -125,8 +143,49 @@ class AddStudentWorkspaceData extends WorkspaceData {
 
 class GroupStudentsWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.groupStudents;
-  constructor(public data: UserData[], public group: StudentGroup) {
+  selectableArticles: SelectableItem[] = [];
+  itemSelectorConfig = {
+    mutateInput: true
+  };
+
+  constructor(public data: UserData[], public group: StudentGroup, private api: ApiService) {
     super();
+    this.loadSelectableArticles();
+  }
+
+  loadSelectableArticles() {
+    Observable.forkJoin([
+      this.api.get('/articles'),
+      this.api.get(`/articles?studentGroupId=${this.group.id}`)
+    ]).subscribe(([all, group]: ArticleDto[][]) => {
+      all.forEach(a => {
+        this.selectableArticles.push(
+          new SelectableItem(a.id, `${a.header}${!a.visible ? ' (Приховано)' : ''}`, !!group.find(ga => ga.id === a.id))
+        )
+      })
+    });
+  }
+
+  saveSelectedArticles() {
+    this.api.put(
+      `/student-groups/${this.group.id}/articles`,
+      this.selectableArticles.filter(a => a.isSelected).map(a => a.id)
+    ).subscribe({
+      next: () => alert("Успішно збережено"),
+      error: e => alert("Не вдалося зберегти вибрані матеріали")
+    })
+  }
+
+  saveGroupName(editedGroupName: string) {
+    const previousName = this.group.name;
+    this.group.name = editedGroupName;
+    this.api.put(`/student-groups/${this.group.id}`, this.group).subscribe({
+      next: () => alert("Успішно збережено"),
+      error: e => {
+        this.group.name = previousName;
+        alert("Не вдалося оновити ім'я групи: " + JSON.stringify(e))
+      }
+    })
   }
 }
 
@@ -306,6 +365,8 @@ export class AdminComponent implements OnInit {
   currentUser: UserData;
   isAdmin: boolean;
 
+  sideMenuCollapsed: boolean = false;
+
   studentGroups: StudentGroup[];
   users: UserData[];
   students: UserData[];
@@ -354,7 +415,6 @@ export class AdminComponent implements OnInit {
   loadArticles() {
     this.api.get("/articles").subscribe({
       next: (articles: any[]) => {
-        articles.forEach(a => a.meta = JSON.parse(a.meta));
         this.workspaceData = new ArticlesWorkspaceData(
           articles,
           this.api,
@@ -371,7 +431,7 @@ export class AdminComponent implements OnInit {
     this.api.get("/student-groups/" + group.id + "/students").subscribe({
       next: (students: any[]) => {
         let mappedStudents = students.map(UserData.fromApi);
-        this.workspaceData = new GroupStudentsWorkspaceData(mappedStudents, group);
+        this.workspaceData = new GroupStudentsWorkspaceData(mappedStudents, group, this.api);
       },
       error: err => {
         this.errorMessage = err.toString()

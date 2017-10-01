@@ -1,0 +1,15 @@
+<div [hidden]="updatedItems.length > 0">
+  {{ config && config.noItemsMessage ? config.noItemsMessage : "Список пустий." }}
+</div>
+
+<div *ngFor="let item of updatedItems">
+  <div class="item-container flex-container">
+    <div class="item-selector">
+      <input type="checkbox"
+             [checked]="item.isSelected"
+             [value]="item.id"
+             (change)="selectItem(item)">
+    </div>
+    <div class="flex-1">{{ item.label }}</div>
+  </div>
+</div>
