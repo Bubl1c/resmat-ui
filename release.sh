@@ -42,6 +42,8 @@ FILES=(
   "main.bundle.js.map"
   "styles.bundle.js"
   "styles.bundle.js.map"
+  "scripts.bundle.js"
+  "scripts.bundle.js.map"
   "vendor.bundle.js"
   "vendor.bundle.js.map"
 )

@@ -118,6 +118,7 @@ export class ExamService {
           name: stepConf.name,
           isHelpStep: stepConf.isHelpStep,
           data: JSON.parse(r.taskFlowStepData),
+          helpSteps: r.helpSteps.map(s => { s.data = JSON.parse(s.data); return s; })
         }
       }
     )

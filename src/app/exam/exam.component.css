@@ -12,6 +12,10 @@
   margin-bottom: 0.5em;
 }
 
+.task-container {
+  min-width: 900px;
+}
+
 .loading {
   text-align: center;
 }

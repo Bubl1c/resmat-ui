@@ -9,6 +9,7 @@ export interface ISchemaVar {
 export class TaskFlowStepTypes {
   static Test = 'test';
   static InputSet = 'input-set';
+  static VariableValueSet = 'var-value-set';
   static Charts = 'charts';
   static Finished = 'finished';
   static Loading = 'loading';
@@ -21,6 +22,7 @@ export interface IExamTaskFlowStepData {
   name: string;
   isHelpStep: boolean;
   data: any;
+  helpSteps: ITaskFlowHelpStepDto[]
 }
 
 export interface IUserExamStepAttemptTaskFlowStep {
@@ -41,10 +43,18 @@ export interface ITaskFlowStepConf {
   stepData: string
 }
 
+export interface ITaskFlowHelpStepDto {
+  name: string;
+  id: number
+  stepType: string
+  data: any
+}
+
 export interface ItaskFlowStepDto {
   taskFlowStepConf: ITaskFlowStepConf;
   stepAttemptTaskFlowStep: IUserExamStepAttemptTaskFlowStep;
   taskFlowStepData: any
+  helpSteps: ITaskFlowHelpStepDto[]
 }
 
 export interface IVerifiedTaskFlowStepAnswer {

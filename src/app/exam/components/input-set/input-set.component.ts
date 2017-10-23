@@ -46,8 +46,12 @@ export class InputVariable {
               public description: string = '',
               public required: boolean = false,
               //Result input width = 100 * inputWidthRate px. See the template
-              public inputWidthRate: number = 1) {
+              public inputWidthRate: number = 1,
+              value?: number) {
     this.name = MathSymbolConverter.convertString(name);
+    if(typeof value !== 'undefined') {
+      this.value = value
+    }
   }
 }
 
@@ -66,6 +70,7 @@ export class InputSetComponent implements OnInit {
   @Input() data: InputSetData;
 
   @Input() hideHeader: boolean;
+  @Input() readonly: boolean = false;
 
   groups: VariableGroup[];
 
@@ -87,6 +92,9 @@ export class InputSetComponent implements OnInit {
   }
 
   submit() {
+    if(this.readonly) {
+      return;
+    }
     this.data.status = InputSetStatus.Verifying;
 
     console.log("Submitting: ", this.groups, this.data.variables);
@@ -100,6 +108,9 @@ export class InputSetComponent implements OnInit {
   }
 
   nextAssignment() {
+    if(this.readonly) {
+      return;
+    }
     this.onContinue.emit();
   }
 

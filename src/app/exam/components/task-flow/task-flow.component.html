@@ -4,7 +4,17 @@
   </div>
   <div class="help-data" *ngIf="helpDataItems.length > 0">
     <div class="help-data-item mui-panel" *ngFor="let helpDataItem of helpDataItems">
-      <chart-set [data]="helpDataItem.data" *ngIf="helpDataItem.type === 'charts'"></chart-set>
+      <div class="relative">
+        <p [hidden]="!helpDataItem.collapsed">{{ helpDataItem.name }}</p>
+        <div [ngSwitch]="helpDataItem.type" [hidden]="helpDataItem.collapsed">
+          <chart-set [data]="helpDataItem.data" *ngSwitchCase="'charts'"></chart-set>
+          <input-set [data]="helpDataItem.data" *ngSwitchCase="'var-value-set'" [readonly]="true"></input-set>
+        </div>
+        <border-sticky-btn (onClick)="helpDataItem.collapsed = !helpDataItem.collapsed" positionH="right">
+          <i class="material-icons" [hidden]="helpDataItem.collapsed">keyboard_arrow_up</i>
+          <i class="material-icons" [hidden]="!helpDataItem.collapsed">keyboard_arrow_down</i>
+        </border-sticky-btn>
+      </div>
     </div>
   </div>
   <div class="loading" [hidden]="step.type !== 'loading'">
@@ -15,7 +25,8 @@
               (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></app-test>
   </div>
   <div class="mui-panel" *ngIf="step.type === 'input-set'">
-    <input-set [data]="step.data" (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></input-set>
+    <input-set [data]="step.data" [readonly]="step.readOnly"
+               (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></input-set>
   </div>
   <div class="mui-panel" *ngIf="step.type === 'charts'">
     <div class="mui--text-subhead">

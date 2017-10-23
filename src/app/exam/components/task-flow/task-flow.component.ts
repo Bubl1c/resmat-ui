@@ -1,15 +1,16 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, Inject } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { ExamService } from "../../data/exam-service.service";
 import {
   IExamTaskFlowStepData,
-  TaskFlowStepTypes,
-  IVerifiedTaskFlowStepAnswer
+  ITaskFlowHelpStepDto,
+  IVerifiedTaskFlowStepAnswer,
+  TaskFlowStepTypes
 } from "../../data/task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
-import { InputSetData, InputSetAnswer, InputSetStatus, InputVariable } from "../input-set/input-set.component";
-import { TestAnswer, Test, TestStatus } from "../test/test.component";
+import { InputSetAnswer, InputSetData, InputSetStatus, InputVariable } from "../input-set/input-set.component";
+import { Test, TestAnswer, TestStatus } from "../test/test.component";
 import { ChartSet } from "../chart-set/chart-set.component";
-import { PageScrollService, PageScrollInstance } from "ng2-page-scroll";
+import { PageScrollInstance, PageScrollService } from "ng2-page-scroll";
 import { DOCUMENT } from "@angular/platform-browser";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 import { ITestDto } from "../../data/test-set.api-protocol";
@@ -65,15 +66,32 @@ export class TaskFlowComponent implements OnInit {
     this.examService.getCurrentTaskFlowStep(this.task.examId, this.task.examStepSequence, this.task.examStepAttemptId, this.task.taskFlowId)
       .subscribe((step: IExamTaskFlowStepData) => {
           console.log("Task flow step " + step.sequence + " loaded: ", step);
-          if(step.isHelpStep) {
-            that.helpDataItems.push(new HelpDataItem(step.type, step.data));
-            that.loadCurrentStep();
-            return;
-          }
+          that.helpDataItems.push(...that.prepareHelpSteps(that.helpDataItems, step.helpSteps));
           that.step = that.createStep(step);
-          that.scrollToBottom()
+          setTimeout(() => that.scrollToBottom(), 500)
         }
       );
+  }
+
+  private prepareHelpSteps(currentHelpSteps: HelpDataItem[], helpSteps: ITaskFlowHelpStepDto[]): HelpDataItem[] {
+    return helpSteps
+      .filter(s => !currentHelpSteps.find(cs => cs.id === s.id))
+      .map(s => {
+        switch (s.stepType) {
+          case TaskFlowStepTypes.Charts:
+            break;
+          case TaskFlowStepTypes.VariableValueSet:
+            let preparedInputs = s.data.inputs.map((i: InputVariable) => {
+              i.name = MathSymbolConverter.convertString(i.name);
+              return i;
+            });
+            s.data = new InputSetData(s.id, -1, s.name, preparedInputs);
+            break;
+          default:
+            alert(`Invalid help step type: ${s.stepType}`)
+        }
+        return new HelpDataItem(s.id, s.name, s.stepType, s.data);
+      })
   }
 
   private createStep(stepData: IExamTaskFlowStepData): TaskFlowStep {
@@ -111,12 +129,12 @@ abstract class TaskFlowStep {
 }
 
 class HelpDataItem {
-  constructor(public type: string, public data: any) {}
+  constructor(public id: number, public name: string, public type: string, public data: any, public collapsed: boolean = false) {}
 }
 
 class InputSetTaskFlowStep extends TaskFlowStep {
   data: InputSetData;
-  constructor(taskData: IExamTaskFlowTaskData, stepData: IExamTaskFlowStepData, public examService: ExamService) {
+  constructor(taskData: IExamTaskFlowTaskData, stepData: IExamTaskFlowStepData, public examService: ExamService, public readOnly = false) {
     super(taskData, stepData);
   }
 

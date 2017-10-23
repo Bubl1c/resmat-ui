@@ -1,6 +1,6 @@
 <div class="container mui-container">
   <div class="mui--text-subhead" [hidden]="hideHeader">
-    <span class="test-number">{{ data.sequence }}.</span>
+    <span class="test-number" [hidden]="readonly">{{ data.sequence }}.</span>
     {{ data.description }}
   </div>
   <form #inputSetForm="ngForm" class="data">
@@ -16,7 +16,7 @@
               <input type="number" step="any" [(ngModel)]="variable.value" [name]="variable.name"
                      [style.width]="(100 * variable.inputWidthRate) + 'px'"
                      [ngClass]="{ 'mui-invalid': isVerified() && !variable.correct, 'correct': isVerified() && variable.correct }"
-                     [required]="variable.required">
+                     [required]="variable.required" [disabled]="readonly">
               <label class="input-label" [innerHTML]="variable.name"></label>
             </div>
             <span class="units" [innerHTML]="variable.units"></span>
@@ -28,7 +28,7 @@
 
     </div>
   </form>
-  <status-with-navigation [showStatus]="isVerified()"
+  <status-with-navigation *ngIf="!readonly" [showStatus]="isVerified()"
                           [statusSuccess]="data.status === 1"
                           statusSuccessMessage="Відповідь правильна."
                           statusFailureMessage="Відповідь не вірна, введіть інше значення."
