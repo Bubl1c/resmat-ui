@@ -1,0 +1,7 @@
+<div class="mui-textfield mui-textfield--float-label container">
+  <input type="number" step="any" [(ngModel)]="data.value" [name]="name"
+         [style.width]="(100 * widthRate) + 'px'"
+         [ngClass]="{ 'mui-invalid': showValidation && !correct, 'correct': showValidation && correct }"
+         [required]="required" [disabled]="readonly">
+  <label class="input-label" [innerHTML]="label"></label>
+</div>

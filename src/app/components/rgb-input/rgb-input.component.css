@@ -1,0 +1,27 @@
+.correct {
+  border-color: rgba(0, 238, 0, 0.5);
+  border-width: 2px;
+}
+
+.mui-textfield--float-label .input-label {
+  color: black;
+  font-size: 1.15em;
+  overflow: visible;
+}
+
+.container input {
+  text-align: center;
+}
+
+.mui-invalid {
+  border-color: #F44336;
+  border-width: 2px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}

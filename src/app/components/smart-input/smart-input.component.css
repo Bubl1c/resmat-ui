@@ -1,0 +1,51 @@
+.variable-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 1em;
+}
+
+.variable {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  text-align: left;
+}
+
+.description {
+  margin-top: -20px;
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 0.9em;
+}
+
+.units {
+  color: rgba(0,0,0,.5);
+}
+
+.correct {
+  border-color: rgba(0, 238, 0, 0.5);
+  border-width: 2px;
+}
+
+.mui-textfield--float-label .input-label {
+  color: black;
+  font-size: 1.15em;
+  overflow: visible;
+}
+
+.variable input {
+  text-align: center;
+}
+
+.mui-invalid {
+  border-color: #F44336;
+  border-width: 2px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}

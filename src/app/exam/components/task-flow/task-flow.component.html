@@ -1,8 +1,8 @@
 <div #taskFlowContainer>
-  <div class="mui-panel">
+  <div class="mui-panel" style="display: none">
     <task [task]="task"></task>
   </div>
-  <div class="help-data" *ngIf="helpDataItems.length > 0">
+  <div class="help-data" *ngIf="helpDataItems.length > 0" style="display: none">
     <div class="help-data-item mui-panel" *ngFor="let helpDataItem of helpDataItems">
       <div class="relative">
         <p [hidden]="!helpDataItem.collapsed">{{ helpDataItem.name }}</p>
@@ -27,6 +27,9 @@
   <div class="mui-panel" *ngIf="step.type === 'input-set'">
     <input-set [data]="step.data" [readonly]="step.readOnly"
                (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></input-set>
+  </div>
+  <div class="mui-panel" *ngIf="step.type === 'equation-set'">
+    <equation-set [data]="step.data" (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></equation-set>
   </div>
   <div class="mui-panel" *ngIf="step.type === 'charts'">
     <div class="mui--text-subhead">

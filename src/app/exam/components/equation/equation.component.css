@@ -1,0 +1,22 @@
+.container {
+  display: inline-flex;
+}
+
+.left-part {
+  display: inline-flex;
+}
+
+.right-part {
+  display: inline-flex;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.2em;
+  font-size: 1.3em;
+}
+
+.input {
+  width: 20px;
+}

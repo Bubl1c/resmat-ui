@@ -53,6 +53,10 @@ import { ArticleWrapperComponent } from './components/article-wrapper/article-wr
 import { GroupArticlesEditorComponent } from './admin/components/group-articles-editor/group-articles-editor.component';
 import { ItemSelectorComponent } from './components/item-selector/item-selector.component';
 import { StudentArticlesComponent } from './exam/components/student-articles/student-articles.component';
+import { EquationComponent } from './exam/components/equation/equation.component';
+import { EquationSetComponent } from './exam/components/equation-set/equation-set.component';
+import { SmartInputComponent } from './components/smart-input/smart-input.component';
+import { RgbInputComponent } from './components/rgb-input/rgb-input.component';
 
 @NgModule({
   declarations: [
@@ -97,7 +101,11 @@ import { StudentArticlesComponent } from './exam/components/student-articles/stu
     ArticleWrapperComponent,
     GroupArticlesEditorComponent,
     ItemSelectorComponent,
-    StudentArticlesComponent
+    StudentArticlesComponent,
+    EquationComponent,
+    EquationSetComponent,
+    SmartInputComponent,
+    RgbInputComponent
   ],
   imports: [
     BrowserModule,

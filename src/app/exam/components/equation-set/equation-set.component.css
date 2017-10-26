@@ -1,0 +1,9 @@
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+.set {
+  display: flex;
+  flex-direction: column;
+}

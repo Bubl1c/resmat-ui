@@ -9,21 +9,11 @@
 
       <span class="var-group-name" [innerHTML]="group.name"></span>
       <div class="variables-container">
-        <div class="variable-container" *ngFor="let variable of group.variables">
-
-          <div class="variable">
-            <div class="mui-textfield mui-textfield--float-label">
-              <input type="number" step="any" [(ngModel)]="variable.value" [name]="variable.name"
-                     [style.width]="(100 * variable.inputWidthRate) + 'px'"
-                     [ngClass]="{ 'mui-invalid': isVerified() && !variable.correct, 'correct': isVerified() && variable.correct }"
-                     [required]="variable.required" [disabled]="readonly">
-              <label class="input-label" [innerHTML]="variable.name"></label>
-            </div>
-            <span class="units" [innerHTML]="variable.units"></span>
-          </div>
-          <span class="description" [innerHTML]="variable.description"></span>
-
-        </div>
+        <smart-input *ngFor="let variable of group.variables"
+                     [variable]="variable"
+                     [showValidation]="isVerified()"
+                     [readonly]="readonly">
+        </smart-input>
       </div>
 
     </div>

@@ -1,0 +1,24 @@
+<div class="container">
+  <div class="left-part">
+    <div class="item" *ngFor="let item of equation.items">
+      <div>{{ item.prefix }}</div>
+      <div [ngSwitch]="item.value.type">
+        <div *ngSwitchCase="ValueType.input">
+          <rgb-input [data]="item.value.value"
+                     [name]="item.value.value.id"
+                     [correct]="item.value.value.correct"
+                     [required]="true"
+                     [showValidation]="showValidation"
+                     [widthRate]="1"></rgb-input>
+        </div>
+        <div *ngSwitchCase="ValueType.staticString">
+          {{ valueAsStr(item.value) }}
+        </div>
+        <div *ngSwitchCase="ValueType.dynamicDouble">
+          {{ valueAsDouble(item.value).value }}
+        </div>
+      </div>
+      <div>{{ item.suffix }}</div>
+    </div>
+  </div>
+</div>

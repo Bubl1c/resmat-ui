@@ -7,13 +7,23 @@ import {
   TaskFlowStepTypes
 } from "../../data/task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
-import { InputSetAnswer, InputSetData, InputSetStatus, InputVariable } from "../input-set/input-set.component";
+import {
+  InputSetAnswer, InputSetData, InputSetStatus, InputVariable,
+  VarirableAnswer
+} from "../input-set/input-set.component";
 import { Test, TestAnswer, TestStatus } from "../test/test.component";
 import { ChartSet } from "../chart-set/chart-set.component";
 import { PageScrollInstance, PageScrollService } from "ng2-page-scroll";
 import { DOCUMENT } from "@angular/platform-browser";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 import { ITestDto } from "../../data/test-set.api-protocol";
+import {
+  Equation,
+  EquationDto, EquationItemDto, EquationItemValue, EquationItemValueDto, EquationItemValueType, ItemValueDouble,
+  ItemValueInput,
+  ItemValueStr
+} from "../equation/equation.component";
+import { EquationSet, EquationSystemDto } from "../equation-set/equation-set.component";
 
 @Component({
   selector: 'task-flow',
@@ -100,6 +110,8 @@ export class TaskFlowComponent implements OnInit {
         return new TestTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.InputSet:
         return new InputSetTaskFlowStep(this.task, stepData, this.examService);
+      case TaskFlowStepTypes.EquationSet:
+        return new EquationSetTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.Charts:
         return new ChartSetTaskFlowStep(this.task, stepData);
       case TaskFlowStepTypes.Finished:
@@ -130,6 +142,91 @@ abstract class TaskFlowStep {
 
 class HelpDataItem {
   constructor(public id: number, public name: string, public type: string, public data: any, public collapsed: boolean = false) {}
+}
+
+class EquationSetTaskFlowStep extends TaskFlowStep {
+  data: EquationSet;
+  constructor(taskData: IExamTaskFlowTaskData, stepData: IExamTaskFlowStepData, public examService: ExamService) {
+    super(taskData, stepData);
+  }
+
+  onSubmitted(submittedData: InputSetAnswer): void {
+    console.log("Verify input set answer: ", submittedData);
+    this.examService.verifyTaskFlowStepAnswer(
+      this.taskData.examId,
+      this.taskData.examStepSequence,
+      this.taskData.examStepAttemptId,
+      this.taskData.taskFlowId,
+      this.id,
+      JSON.stringify(submittedData)
+    ).subscribe((verified: IVerifiedTaskFlowStepAnswer) => {
+      let verifiedIputSet: {[key: number]:boolean} = JSON.parse(verified.answer);
+      submittedData.inputAnswers.forEach(va => {
+        va.correct = verifiedIputSet[va.id] || false;
+      });
+      this.data.status = verified.isCorrectAnswer ? InputSetStatus.Correct : InputSetStatus.Incorrect
+    });
+  }
+
+  fillData(data: EquationSystemDto): void {
+    this.data = new EquationSet(1, 1, 'hello there', data.equations.map(e => this.fillEquation(e)))
+  }
+
+  fillEquation(eqDto: EquationDto): Equation {
+    const items = this.mergeParts(eqDto).map(i => {
+      const valueType = this.getItemValueType(i.value);
+      let value = i.value[valueType];
+      let newValue: EquationItemValue = {
+        type: valueType,
+        value: null
+      };
+      switch(valueType) {
+        case EquationItemValueType.input:
+          value = (value as ItemValueInput);
+          newValue.value = new VarirableAnswer(value.id, null);
+          break;
+        case EquationItemValueType.staticString:
+          value = (value as ItemValueStr);
+          newValue.value = MathSymbolConverter.convertString(value.value);
+          break;
+        case EquationItemValueType.dynamicDouble:
+          value = (value as ItemValueDouble);
+          value.value = parseFloat(this.roundToFixed(value.value, value.precision));
+          newValue.value = value
+      }
+      return {
+        value: newValue,
+        prefix: i.prefix,
+        suffix: i.suffix
+      };
+    });
+    return {
+      id: eqDto.id,
+      items: items
+    }
+  }
+
+  private roundToFixed(value: number, accuracy: number): string {
+    return typeof value === 'undefined' ? '0' : value.toFixed(accuracy);
+  }
+
+  private getItemValueType(itemValue: EquationItemValueDto): string {
+    const keys = Object.keys(itemValue);
+    if(keys.length  === 1) {
+      return keys[0]
+    } else {
+      throw new Error('Invalid item value: ' + JSON.stringify(itemValue))
+    }
+  }
+
+  private mergeParts(e: EquationDto): EquationItemDto[] {
+    const equalSign: EquationItemDto = {
+      value: { [EquationItemValueType.staticString]: { value: '=' } },
+      prefix: "",
+      suffix: ""
+    };
+    return e.leftPart.concat([equalSign]).concat(e.rightPart)
+  }
 }
 
 class InputSetTaskFlowStep extends TaskFlowStep {

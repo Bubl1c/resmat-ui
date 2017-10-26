@@ -1,8 +1,8 @@
 <div class="exam-container mui-container">
   <div class="loading" *ngIf="isLoading"><h2>Завантаження...</h2></div>
   <div class="error-message" *ngIf="!isLoading && errorMessage"><h2>{{ errorMessage }}</h2></div>
-  <div class="mui--text-dark-secondary header3">{{getCurrentUserName()}}</div>
-  <div class="exam-info" *ngIf="!isLoading && !errorMessage">
+  <div class="mui--text-dark-secondary header3" style="display: none">{{getCurrentUserName()}}</div>
+  <div class="exam-info" *ngIf="!isLoading && !errorMessage" style="display: none">
     <div>{{exam.name}}</div>
     <div><span [hidden]="step.type === 'results'">Етап {{exam.currentStep.sequence}}.</span> {{exam.currentStep.description}}</div>
   </div>

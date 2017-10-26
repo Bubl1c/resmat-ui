@@ -1,0 +1,16 @@
+<div class="variable-container">
+
+  <div class="variable">
+    <rgb-input [data]="variable"
+               [name]="variable.name"
+               [label]="variable.name"
+               [correct]="variable.correct"
+               [required]="variable.required"
+               [showValidation]="showValidation"
+               [widthRate]="variable.inputWidthRate"
+               [readonly]="readonly"></rgb-input>
+    <span class="units" [innerHTML]="variable.units"></span>
+  </div>
+  <span class="description" [innerHTML]="variable.description"></span>
+
+</div>
