@@ -20,7 +20,7 @@ export interface ItemValueStr {
 export interface ItemValueDouble {
   answerMapping: string
   value: number
-  precision: number
+  digitsAfterComma: number
 }
 
 export type EquationItemValueDto = { [key:string]: ItemValueInput | ItemValueStr | ItemValueDouble }
@@ -33,8 +33,12 @@ export interface EquationItemDto {
 
 export interface EquationDto {
   id: number
-  leftPart: EquationItemDto[]
-  rightPart: EquationItemDto[]
+  items: EquationItemDto[]
+}
+
+export interface EquationSystemDto {
+  name: string
+  equations: EquationDto[]
 }
 
 /** --------------------------------- */

@@ -1,8 +1,8 @@
 <div #taskFlowContainer>
-  <div class="mui-panel" style="display: none">
+  <div class="mui-panel">
     <task [task]="task"></task>
   </div>
-  <div class="help-data" *ngIf="helpDataItems.length > 0" style="display: none">
+  <div class="help-data" *ngIf="helpDataItems.length > 0">
     <div class="help-data-item mui-panel" *ngFor="let helpDataItem of helpDataItems">
       <div class="relative">
         <p [hidden]="!helpDataItem.collapsed">{{ helpDataItem.name }}</p>

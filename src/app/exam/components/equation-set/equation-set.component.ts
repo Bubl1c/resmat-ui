@@ -1,11 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Equation, EquationDto, EquationItemValueType } from "../equation/equation.component";
+import { Equation, EquationItemValueType } from "../equation/equation.component";
 import { InputSetAnswer, InputSetStatus, VarirableAnswer } from "../input-set/input-set.component";
-
-export interface EquationSystemDto {
-  name: string
-  equations: EquationDto[]
-}
 
 export class EquationSet {
   status: number = InputSetStatus.Initial;

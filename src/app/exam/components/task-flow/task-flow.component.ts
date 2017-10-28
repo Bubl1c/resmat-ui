@@ -19,11 +19,13 @@ import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 import { ITestDto } from "../../data/test-set.api-protocol";
 import {
   Equation,
-  EquationDto, EquationItemDto, EquationItemValue, EquationItemValueDto, EquationItemValueType, ItemValueDouble,
+  EquationDto, EquationItemValue, EquationItemValueDto, EquationItemValueType, EquationSystemDto,
+  ItemValueDouble,
   ItemValueInput,
   ItemValueStr
 } from "../equation/equation.component";
-import { EquationSet, EquationSystemDto } from "../equation-set/equation-set.component";
+import { EquationSet } from "../equation-set/equation-set.component";
+import { NumberUtils } from "../../../utils/numberUtils";
 
 @Component({
   selector: 'task-flow',
@@ -77,6 +79,7 @@ export class TaskFlowComponent implements OnInit {
       .subscribe((step: IExamTaskFlowStepData) => {
           console.log("Task flow step " + step.sequence + " loaded: ", step);
           that.helpDataItems.push(...that.prepareHelpSteps(that.helpDataItems, step.helpSteps));
+          step.sequence = step.sequence - that.helpDataItems.length;
           that.step = that.createStep(step);
           setTimeout(() => that.scrollToBottom(), 500)
         }
@@ -92,6 +95,7 @@ export class TaskFlowComponent implements OnInit {
             break;
           case TaskFlowStepTypes.VariableValueSet:
             let preparedInputs = s.data.inputs.map((i: InputVariable) => {
+              i.value = parseFloat(NumberUtils.roundToFixed(i.value));
               i.name = MathSymbolConverter.convertString(i.name);
               return i;
             });
@@ -169,11 +173,11 @@ class EquationSetTaskFlowStep extends TaskFlowStep {
   }
 
   fillData(data: EquationSystemDto): void {
-    this.data = new EquationSet(1, 1, 'hello there', data.equations.map(e => this.fillEquation(e)))
+    this.data = new EquationSet(1, this.sequence, this.name, data.equations.map(e => this.fillEquation(e)))
   }
 
   fillEquation(eqDto: EquationDto): Equation {
-    const items = this.mergeParts(eqDto).map(i => {
+    const items = eqDto.items.map(i => {
       const valueType = this.getItemValueType(i.value);
       let value = i.value[valueType];
       let newValue: EquationItemValue = {
@@ -191,7 +195,7 @@ class EquationSetTaskFlowStep extends TaskFlowStep {
           break;
         case EquationItemValueType.dynamicDouble:
           value = (value as ItemValueDouble);
-          value.value = parseFloat(this.roundToFixed(value.value, value.precision));
+          value.value = parseFloat(NumberUtils.roundToFixed(value.value, value.digitsAfterComma));
           newValue.value = value
       }
       return {
@@ -206,10 +210,6 @@ class EquationSetTaskFlowStep extends TaskFlowStep {
     }
   }
 
-  private roundToFixed(value: number, accuracy: number): string {
-    return typeof value === 'undefined' ? '0' : value.toFixed(accuracy);
-  }
-
   private getItemValueType(itemValue: EquationItemValueDto): string {
     const keys = Object.keys(itemValue);
     if(keys.length  === 1) {
@@ -217,15 +217,6 @@ class EquationSetTaskFlowStep extends TaskFlowStep {
     } else {
       throw new Error('Invalid item value: ' + JSON.stringify(itemValue))
     }
-  }
-
-  private mergeParts(e: EquationDto): EquationItemDto[] {
-    const equalSign: EquationItemDto = {
-      value: { [EquationItemValueType.staticString]: { value: '=' } },
-      prefix: "",
-      suffix: ""
-    };
-    return e.leftPart.concat([equalSign]).concat(e.rightPart)
   }
 }
 
