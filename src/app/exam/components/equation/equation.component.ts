@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { InputVariable, VarirableAnswer } from "../input-set/input-set.component";
-import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
+import { VarirableAnswer } from "../input-set/input-set.component";
 
 export const EquationItemValueType = {
   input: 'EquationItemValueInput',

@@ -8,8 +8,7 @@ import {
 } from "../../data/task-flow.api-protocol";
 import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
 import {
-  InputSetAnswer, InputSetData, InputSetStatus, InputVariable,
-  VarirableAnswer
+  InputSetAnswer, InputSetData, InputSetStatus, InputVariable, VarirableAnswer
 } from "../input-set/input-set.component";
 import { Test, TestAnswer, TestStatus } from "../test/test.component";
 import { ChartSet } from "../chart-set/chart-set.component";
@@ -169,7 +168,7 @@ class EquationSetTaskFlowStep extends TaskFlowStep {
         va.correct = verifiedIputSet[va.id] || false;
       });
       this.data.status = verified.isCorrectAnswer ? InputSetStatus.Correct : InputSetStatus.Incorrect
-    });
+    }, e => alert(JSON.stringify(e)));
   }
 
   fillData(data: EquationSystemDto): void {

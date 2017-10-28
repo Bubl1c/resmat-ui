@@ -1,4 +1,5 @@
 .correct {
+  /*doesn't work when simplified to border: ...*/
   border-color: rgba(0, 238, 0, 0.5);
   border-width: 2px;
 }
@@ -14,6 +15,7 @@
 }
 
 .mui-invalid {
+  /*doesn't work when simplified to border: ...*/
   border-color: #F44336;
   border-width: 2px;
 }
