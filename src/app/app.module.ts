@@ -57,6 +57,8 @@ import { EquationComponent } from './exam/components/equation/equation.component
 import { EquationSetComponent } from './exam/components/equation-set/equation-set.component';
 import { SmartInputComponent } from './components/smart-input/smart-input.component';
 import { RgbInputComponent } from './components/rgb-input/rgb-input.component';
+import { DynamicTableComponent } from './exam/components/dynamic-table/dynamic-table.component';
+import { SmartValueComponent } from './exam/components/smart-value/smart-value.component';
 
 @NgModule({
   declarations: [
@@ -105,7 +107,9 @@ import { RgbInputComponent } from './components/rgb-input/rgb-input.component';
     EquationComponent,
     EquationSetComponent,
     SmartInputComponent,
-    RgbInputComponent
+    RgbInputComponent,
+    DynamicTableComponent,
+    SmartValueComponent
   ],
   imports: [
     BrowserModule,

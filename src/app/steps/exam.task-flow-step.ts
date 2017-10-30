@@ -4,6 +4,22 @@ import { ExamStep } from "./exam.step";
 import { IExamTaskFlowTaskData } from "../exam/data/i-exam-task-flow-task-data";
 import { ISchemaVar } from "../exam/data/task-flow.api-protocol";
 
+export namespace TaskDataUtils {
+  export function mapVariables(inputVariableConfs: ProblemInputVariableConf[], inputVariableValues: ProblemInputVariableValue[]): ISchemaVar[] {
+    return inputVariableConfs.map(ivc => mapVariable(ivc, inputVariableValues))
+  }
+
+  function mapVariable(inputVariableConf: ProblemInputVariableConf, inputVariableValues: ProblemInputVariableValue[]): ISchemaVar {
+    let valueObj = inputVariableValues.find(v => v.variableConfId === inputVariableConf.id);
+    return {
+      name: inputVariableConf.name,
+      value: valueObj && (valueObj.value + "") || "",
+      units: inputVariableConf.units,
+      alias: inputVariableConf.alias,
+      showInExam: inputVariableConf.showInExam
+    }
+  }
+}
 
 export class TaskFlowExamStep extends ExamStep {
   taskData: IExamTaskFlowTaskData;
@@ -26,20 +42,9 @@ export class TaskFlowExamStep extends ExamStep {
       currentTaskFlowStepSequence: taskFlow.currentStepSequence,
       problemName: problemConf.name,
       schemaUrl: problemVariantConf.schemaUrl,
-      schemaVars: problemConf.inputVariableConfs.map(ivc => this.mapVariable(ivc, problemVariantConf.inputVariableValues)),
+      schemaVars: TaskDataUtils.mapVariables(problemConf.inputVariableConfs, problemVariantConf.inputVariableValues),
       description: "description"
     };
-  }
-
-  mapVariable(inputVariableConf: ProblemInputVariableConf, inputVariableValues: ProblemInputVariableValue[]): ISchemaVar {
-    let valueObj = inputVariableValues.find(v => v.variableConfId === inputVariableConf.id);
-    return {
-      name: inputVariableConf.name,
-      value: valueObj && (valueObj.value + "") || "",
-      units: inputVariableConf.units,
-      alias: inputVariableConf.alias,
-      showInExam: inputVariableConf.showInExam
-    }
   }
 }
 

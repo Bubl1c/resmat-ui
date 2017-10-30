@@ -1,0 +1,19 @@
+<div [ngSwitch]="data.type">
+  <div *ngSwitchCase="ValueType.input">
+    <rgb-input [data]="data.value.value"
+               [name]="data.value.value.id"
+               [correct]="data.value.value.correct"
+               [required]="true"
+               [showValidation]="showInputValidation"
+               [widthRate]="1"></rgb-input>
+  </div>
+  <div *ngSwitchCase="ValueType.staticString">
+    {{ valueAsStr(data).value }}
+  </div>
+  <div *ngSwitchCase="ValueType.dynamicDouble">
+    {{ valueAsDouble(data).value }}
+  </div>
+  <div *ngSwitchCase="ValueType.staticDouble">
+    {{ valueAsDouble(data).value }}
+  </div>
+</div>

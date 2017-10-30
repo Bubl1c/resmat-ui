@@ -1,7 +1,13 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 import { ISchemaVar } from "../../data/task-flow.api-protocol";
-import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
+
+export interface TaskVariantData {
+  name: string;
+  schemaUrl: string;
+  schemaVars: ISchemaVar[];
+  description: string;
+}
 
 @Component({
   selector: 'task',
@@ -10,8 +16,9 @@ import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
 })
 export class TaskComponent implements OnInit {
   errorMessage: string;
-  @Input()
-  task: IExamTaskFlowTaskData;
+
+  @Input() task: TaskVariantData;
+  @Input() hideControls: boolean = false;
 
   isCollapsed: boolean;
 
@@ -20,7 +27,7 @@ export class TaskComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.task.schemaVars.map(this.convertSymbols)
+    this.task.schemaVars.map(this.convertSymbols);
     this.task.schemaVars = this.task.schemaVars.filter(sv => sv.showInExam)
   }
 

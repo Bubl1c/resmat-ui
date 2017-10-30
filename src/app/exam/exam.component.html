@@ -31,7 +31,7 @@
   <div class="task-container" *ngIf="step.type === 'task-flow'">
     <task-flow [task]="step.taskData" (onFinished)="submitCurrentStep($event)"></task-flow>
   </div>
-  <div class="mui-panel" *ngIf="step.type === 'results'">
+  <div *ngIf="step.type === 'results'">
     <exam-results [data]="step.data" [showName]="false"></exam-results>
   </div>
 </div>

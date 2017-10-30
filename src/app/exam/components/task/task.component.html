@@ -17,8 +17,8 @@
       </div>
     </div>
   </div>
-  <help-materials imgUrl="img/equations.png" positionH="left" positionV="bottom"></help-materials>
-  <border-sticky-btn (onClick)="toggle()" positionH="right">
+  <help-materials imgUrl="img/equations.png" positionH="left" positionV="bottom" [hidden]="hideControls"></help-materials>
+  <border-sticky-btn (onClick)="toggle()" positionH="right" [hidden]="hideControls">
     <i class="material-icons" [hidden]="isCollapsed">keyboard_arrow_up</i>
     <i class="material-icons" [hidden]="!isCollapsed">keyboard_arrow_down</i>
   </border-sticky-btn>

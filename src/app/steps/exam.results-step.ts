@@ -1,7 +1,14 @@
 import { ExamService } from "../exam/data/exam-service.service";
 import { ExamStepTypes, IExamStepWithData } from "../exam/data/exam.api-protocol";
 import { ExamStep } from "./exam.step";
-import { ExamResult, ExamStepResult } from "../exam/components/exam-results/exam-results.component";
+import {
+  ExamResult,
+  ExamStepResultInfoDto
+} from "../exam/components/exam-results/exam-results.component";
+
+export interface ExamStepResultGenericInfo {
+  [objectType:string]: ExamStepResultInfoDto
+}
 
 export interface IUserExamResult{
   userExamId: number;
@@ -22,6 +29,7 @@ export interface IUserExamStepResult {
   attemptsAmount: number;
   mistakesAmount: number;
   durationMillis: number;
+  info?: ExamStepResultGenericInfo
 }
 
 export class ResultsExamStep extends ExamStep {

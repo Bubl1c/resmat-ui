@@ -2,9 +2,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { VarirableAnswer } from "../input-set/input-set.component";
 
 export const EquationItemValueType = {
-  input: 'EquationItemValueInput',
-  staticString: 'EquationItemValueStaticString',
-  dynamicDouble: 'EquationItemValueDynamicDouble'
+  input: 'SmartValueInput',
+  staticString: 'SmartValueStaticString',
+  dynamicDouble: 'SmartValueDynamicDouble',
+  staticDouble: 'SmartValueStaticDouble'
 };
 
 export interface ItemValueInput {

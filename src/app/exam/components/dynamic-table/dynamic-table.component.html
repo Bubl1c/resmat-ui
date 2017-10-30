@@ -1,0 +1,18 @@
+<div>
+  <table class="table">
+    <tr *ngIf="data.colNames.length > 0">
+      <th></th>
+      <th *ngFor="let h of data.colNames">{{ h }}</th>
+    </tr>
+    <tr *ngFor="let r of data.rows; let ri = index">
+      <td class="row-name"
+          [ngClass]="{ 'last-row': ri === data.rows.length - 1 }">
+        <span [innerHtml]="r.name"></span>
+      </td>
+      <td *ngFor="let cell of r.cells; let ci = index"
+          [ngClass]="{ 'last-col': ci === r.cells.length - 1, 'last-row': ri === data.rows.length - 1 }">
+        <smart-value [data]="cell"></smart-value>
+      </td>
+    </tr>
+  </table>
+</div>

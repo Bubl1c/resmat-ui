@@ -25,3 +25,10 @@
 .steps table td {
   padding: 2px 3px;
 }
+
+
+.task-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

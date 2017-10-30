@@ -1,25 +1,23 @@
 <div class="results-container">
-  <table class="results-table">
-    <tr [hidden]="!showName">
-      <th colspan="2" style="text-align: center">{{ data.examName }}</th>
-      <!--<td><b>Робота</b></td>-->
-      <!--<td><b>{{ data.examName }}</b></td>-->
-    </tr>
-    <tr *ngIf="isOneStep">
-      <td>Задача</td>
-      <td>{{ data.stepResults[0].name }}</td>
-    </tr>
-    <tr *ngIf="isOneStep">
-      <td>Кількість спроб</td>
-      <td>{{ data.stepResults[0].attemptsAmount }}</td>
-    </tr>
-    <tr *ngIf="isOneStep">
-      <td>Кількість помилок</td>
-      <td>{{ data.stepResults[0].mistakesAmount }}</td>
-    </tr>
-    <tr *ngIf="!isOneStep && !noSteps" class="steps">
-      <td colspan="2" class="steps-cell">
-        <!--<div>-->
+  <div class="mui-panel">
+    <table class="results-table">
+      <tr [hidden]="!showName">
+        <th colspan="2" style="text-align: center">{{ data.examName }}</th>
+      </tr>
+      <tr *ngIf="isOneStep">
+        <td>Задача</td>
+        <td>{{ data.stepResults[0].name }}</td>
+      </tr>
+      <tr *ngIf="isOneStep">
+        <td>Кількість спроб</td>
+        <td>{{ data.stepResults[0].attemptsAmount }}</td>
+      </tr>
+      <tr *ngIf="isOneStep">
+        <td>Кількість помилок</td>
+        <td>{{ data.stepResults[0].mistakesAmount }}</td>
+      </tr>
+      <tr *ngIf="!isOneStep && !noSteps" class="steps">
+        <td colspan="2" class="steps-cell">
           <table *ngFor="let step of data.stepResults">
             <tr>
               <td>Крок {{ step.sequence }}</td>
@@ -34,32 +32,42 @@
               <td>{{ step.mistakesAmount }}</td>
             </tr>
           </table>
-        <!--</div>-->
-      </td>
-    </tr>
-    <tr>
-      <td>Група</td>
-      <td>{{ data.studentGroupName }}</td>
-    </tr>
-    <tr>
-      <td>Студент</td>
-      <td>{{ data.studentName }}</td>
-    </tr>
-    <!--<tr>-->
-      <!--<td>Кількість помилок в тестах</td>-->
-      <!--<td>{{ data.mistakesAmountInTests }}</td>-->
-    <!--</tr>-->
-    <!--<tr>-->
-      <!--<td>Кількість помилок під час розв'язання задачі</td>-->
-      <!--<td>{{ data.mistakesAmountInTask }}</td>-->
-    <!--</tr>-->
-    <tr>
-      <td>Час роботи</td>
-      <td>{{ duration }}</td>
-    </tr>
-    <tr class="score">
-      <td>Оцінка</td>
-      <td>{{ data.score }}{{ data.maxScore > 0 ? '/' + data.maxScore : '' }}</td>
-    </tr>
-  </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Група</td>
+        <td>{{ data.studentGroupName }}</td>
+      </tr>
+      <tr>
+        <td>Студент</td>
+        <td>{{ data.studentName }}</td>
+      </tr>
+      <tr>
+        <td>Час роботи</td>
+        <td>{{ duration }}</td>
+      </tr>
+      <tr class="score">
+        <td>Оцінка</td>
+        <td>{{ data.score }}{{ data.maxScore > 0 ? '/' + data.maxScore : '' }}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="mui-panel" *ngIf="stepInfos && stepInfos.length > 0">
+    <div *ngFor="let stepInfo of stepInfos">
+      <div [ngSwitch]="stepInfo.type">
+        <div *ngSwitchCase="InfoTypes.taskFlow" style="display: flex; flex-direction: column">
+          <div>
+            <task [task]="stepInfo.data.variant" [hideControls]="true"></task>
+          </div>
+          <div *ngFor="let tfStep of stepInfo.data.data">
+            <div class="mui-divider" style="margin: 1em 0;"></div>
+            <div class="task-data">
+              <p class="header3">{{tfStep.name}}</p>
+              <dynamic-table [data]="tfStep.data"></dynamic-table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
