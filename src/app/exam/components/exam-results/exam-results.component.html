@@ -60,9 +60,8 @@
             <task [task]="stepInfo.data.variant" [hideControls]="true"></task>
           </div>
           <div *ngFor="let tfStep of stepInfo.data.data">
-            <div class="mui-divider" style="margin: 1em 0;"></div>
             <div class="task-data">
-              <p class="header3">{{tfStep.name}}</p>
+              <h3>{{tfStep.name}}</h3>
               <dynamic-table [data]="tfStep.data"></dynamic-table>
             </div>
           </div>

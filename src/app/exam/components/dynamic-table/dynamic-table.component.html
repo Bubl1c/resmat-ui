@@ -7,7 +7,7 @@
     <tr *ngFor="let r of data.rows; let ri = index">
       <td class="row-name"
           [ngClass]="{ 'last-row': ri === data.rows.length - 1 }">
-        <span [innerHtml]="r.name"></span>
+        <b><span [innerHtml]="r.name"></span></b>
       </td>
       <td *ngFor="let cell of r.cells; let ci = index"
           [ngClass]="{ 'last-col': ci === r.cells.length - 1, 'last-row': ri === data.rows.length - 1 }">

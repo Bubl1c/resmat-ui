@@ -2,7 +2,8 @@ export class MathSymbolConverter {
   private static mappings = {
     mu: '&mu;',
     phi: '&phi;',
-    theta: '&Theta;',
+    theta: '&theta;',
+    thetaCapital: '&Theta;',
     sigma: '&sigma;',
     tau: '&Tau;'
   };

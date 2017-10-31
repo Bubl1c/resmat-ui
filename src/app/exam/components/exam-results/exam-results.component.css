@@ -1,3 +1,7 @@
+.results-container {
+  min-width: 900px;
+}
+
 .results-table {
   margin: auto;
   border-collapse: collapse;
@@ -31,4 +35,5 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 1em
 }
