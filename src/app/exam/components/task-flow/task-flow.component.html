@@ -1,6 +1,6 @@
 <div #taskFlowContainer>
   <div class="mui-panel">
-    <task [task]="task"></task>
+    <task [task]="getTaskVariantData()"></task>
   </div>
   <div class="help-data" *ngIf="helpDataItems.length > 0">
     <div class="help-data-item mui-panel" *ngFor="let helpDataItem of helpDataItems">

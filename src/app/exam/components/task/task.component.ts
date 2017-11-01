@@ -3,6 +3,7 @@ import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 import { ISchemaVar } from "../../data/task-flow.api-protocol";
 
 export interface TaskVariantData {
+  id: number;
   name: string;
   schemaUrl: string;
   schemaVars: ISchemaVar[];

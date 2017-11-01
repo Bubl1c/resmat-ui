@@ -25,6 +25,7 @@ import {
 } from "../equation/equation.component";
 import { EquationSet } from "../equation-set/equation-set.component";
 import { NumberUtils } from "../../../utils/numberUtils";
+import { TaskVariantData } from "../task/task.component";
 
 @Component({
   selector: 'task-flow',
@@ -121,6 +122,16 @@ export class TaskFlowComponent implements OnInit {
         this.finish();
         return new LoadingTaskFlowStep();
       default: throw "Invalid task flow step types received: '" + stepData.type + "'";
+    }
+  }
+
+  getTaskVariantData(): TaskVariantData {
+    return {
+      id: this.task.problemVariantConfId,
+      name: this.task.problemName,
+      schemaUrl: this.task.schemaUrl,
+      schemaVars: this.task.schemaVars,
+      description: this.task.description
     }
   }
 

@@ -84,6 +84,7 @@ export class ExamResult {
   }
   static toTaskDataDto(taskFlowDto: TaskFlowDto): TaskVariantData {
     return {
+      id: taskFlowDto.problemVariantConf.id,
       name: taskFlowDto.problemConf.name,
       schemaUrl: taskFlowDto.problemVariantConf.schemaUrl,
       schemaVars: TaskDataUtils.mapVariables(
@@ -154,7 +155,7 @@ export class ExamResultsComponent implements OnInit {
       switch(sr.info.type) {
         case InfoTypes.taskFlow:
           info = info as TaskFlowExamStepResultInfoData;
-          info.variant.name = "Задача";
+          info.variant.name = `Варіант ${String(info.variant.id)}`;
           info.data = info.data.map(stepData => {
             stepData.data = JSON.parse(stepData.data as any);
             stepData.data.rows.forEach(r => {
