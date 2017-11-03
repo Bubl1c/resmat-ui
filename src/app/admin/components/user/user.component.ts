@@ -1,8 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import { UserData } from "../../../user/user.models";
+import { UserData, UserType } from "../../../user/user.models";
+import { DropdownOption } from "../../../components/dropdown/dropdown.component";
+import { NgForm } from "@angular/forms";
 
 export class UserComponentConfig {
-  constructor(public disabled: boolean = false) {}
+  constructor(public isSaving: boolean = false) {}
 }
 
 @Component({
@@ -18,13 +20,19 @@ export class UserComponent implements OnInit {
 
   @Input() config: UserComponentConfig;
 
+  userTypes = UserType.all.map(ut => new DropdownOption(ut.id, ut.name));
+
   constructor() {}
 
   ngOnInit() {
   }
 
+  userTypeChanged(option: DropdownOption) {
+    this.user.userType = UserType.withId(option.id)
+  }
+
   save() {
-    this.config.disabled = true;
+    this.config.isSaving = true;
     this.onSaved.emit(this.user);
   }
 

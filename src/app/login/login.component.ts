@@ -28,6 +28,7 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['users/' + login + '/exams']);
           // this.router.navigate(['users', login, 'exams', 1]);
           break;
+        case UserType.assistant:
         case UserType.instructor:
         case UserType.admin:
           this.router.navigate(['/admin']);

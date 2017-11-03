@@ -1,7 +1,7 @@
 <div class="mui-container">
   <div class="mui--text-subhead">
     <span class="test-number">{{ data.sequence }}.</span>
-    {{ data.description }}
+    <span [innerHtml]="data.description"></span>
   </div>
   <form #equationsSetForm="ngForm" class="container">
     <div class="set">

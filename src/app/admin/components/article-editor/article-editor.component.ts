@@ -56,7 +56,12 @@ export class ArticleEditorComponent implements OnInit {
 
   addUploadedFileUrl(url) {
     console.log(this.updatedData.meta);
-    this.updatedData.meta.uploadedFileUrls.unshift(url)
+    const urls = this.updatedData.meta.uploadedFileUrls || [];
+    const alreadyExistsIndex = urls.indexOf(url);
+    if(alreadyExistsIndex > -1) {
+      urls.splice(alreadyExistsIndex, 1)
+    }
+    this.updatedData.meta.uploadedFileUrls.unshift(url);
   }
 
   onUploadFailed(err) {

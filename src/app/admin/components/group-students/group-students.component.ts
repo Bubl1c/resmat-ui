@@ -9,6 +9,7 @@ import { UserData } from "../../../user/user.models";
 export class GroupStudentsComponent implements OnInit {
 
   @Input() students: UserData[] = [];
+  @Input() deletable: boolean = true;
 
   @Output() onResultsRequested = new EventEmitter<UserData>();
   @Output() onEditRequested = new EventEmitter<UserData>();

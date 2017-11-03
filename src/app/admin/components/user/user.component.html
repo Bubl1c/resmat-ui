@@ -1,17 +1,26 @@
-<form (submit)="save()">
-  <div class="mui-textfield">
+<form #userForm="ngForm" (submit)="save()">
+  <div class="mui-textfield" *ngIf="user.id">
     <input class="disabled" type="text" [value]="user.id" disabled>
     <label>ID</label>
   </div>
-  <div class="mui-textfield">
-    <input class="disabled" type="text" [value]="user.username" disabled>
-    <label>Логін</label>
-  </div>
-  <div class="mui-textfield">
-    <input class="disabled" type="text" [value]="user.userType.name" disabled>
-    <label>Тип</label>
-  </div>
-  <fieldset [disabled]="config.disabled">
+  <fieldset [disabled]="config.isSaving">
+    <div class="mui-textfield user-type">
+      <dropdown [options]="userTypes" [selectedOptionId]="user.userType.id" (onSelected)="userTypeChanged($event)"></dropdown>
+      <label>Тип</label>
+    </div>
+    <div class="mui-textfield">
+      <input type="text" name="username" [(ngModel)]="user.username" required>
+      <label>Логін</label>
+    </div>
+    <div class="mui-textfield">
+      <input type="password"
+             name="password"
+             [(ngModel)]="user.password"
+             [placeholder]="user.id ? 'Введений пароль перезапише існуючий' : ''"
+             [required]="!user.id"
+      >
+      <label>Пароль</label>
+    </div>
     <div class="mui-textfield">
       <input type="text" name="firstName" [(ngModel)]="user.firstName" required>
       <label>Ім'я</label>
@@ -30,8 +39,8 @@
     </div>
 
     <button class="mui-btn mui-btn--primary"
-            type="submit">
-      {{ isSaving ? 'Збереження' : 'Зберегти' }}
+            type="submit" [disabled]="!userForm.form.valid">
+      {{ config.isSaving ? 'Збереження' : 'Зберегти' }}
     </button>
   </fieldset>
 </form>

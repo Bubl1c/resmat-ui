@@ -40,19 +40,40 @@ abstract class WorkspaceData {
 class UserWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.user;
   config = new UserComponentConfig();
-  constructor(public data: UserData, private api: ApiService) {
+  constructor(public data: UserData, private api: ApiService, private adminComponent: AdminComponent, private isEditStudent: boolean = false) {
     super();
   }
 
   save(user: UserData) {
-    this.api.put("/api-users/" + user.id, user).subscribe({
-      next: savedUser => {
-        this.config.disabled = false;
-      },
-      error: err => {
-        this.errorMessage = err.toString();
-      }
-    })
+    if(user.id) {
+      const url = this.isEditStudent ? `/student-groups/${user.studentGroupId}/students/${user.id}` : `/api-users/${user.id}`;
+      this.api.put(url, user).subscribe({
+        next: savedUser => {
+          this.config.isSaving = false;
+          alert('Збережено успішно')
+        },
+        error: err => {
+          this.config.isSaving = false;
+          alert(JSON.stringify(err));
+          this.errorMessage = err.toString();
+        }
+      })
+    } else {
+      const copy = JSON.parse(JSON.stringify(user));
+      copy.userType = user.userType.id;
+      this.api.post("/api-users", copy).subscribe({
+        next: savedUser => {
+          this.config.isSaving = false;
+          alert('Збережено успішно')
+          this.adminComponent.loadUsers();
+        },
+        error: err => {
+          this.config.isSaving = false;
+          alert(JSON.stringify(err));
+          this.errorMessage = err.toString();
+        }
+      })
+    }
   }
 }
 
@@ -363,7 +384,14 @@ interface ITestGroupConf {
 export class AdminComponent implements OnInit {
   errorMessage: string = "error happened";
   currentUser: UserData;
-  isAdmin: boolean;
+
+  userPermission: number;
+
+  permissions = {
+    Admin: UserType.admin.rate,
+    Instructor: UserType.instructor.rate,
+    Assistant: UserType.assistant.rate
+  };
 
   sideMenuCollapsed: boolean = false;
 
@@ -387,14 +415,17 @@ export class AdminComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
-    this.isAdmin = this.currentUser.userType == UserType.admin;
-    if(this.isAdmin) {
-      this.loadUsers()
+
+    this.userPermission = this.currentUser.userType.rate;
+    if(this.userPermission >= UserType.admin.rate) {
+      this.loadUsers();
+      this.loadProblemConfs();
     }
-    this.loadGroups();
+    if(this.userPermission >= UserType.instructor.rate) {
+      this.loadTestGroupConfs();
+    }
     this.loadExamConfs();
-    this.loadProblemConfs();
-    this.loadTestGroupConfs();
+    this.loadGroups();
   }
 
   loadUsers() {
@@ -408,8 +439,12 @@ export class AdminComponent implements OnInit {
     })
   }
 
-  loadEditUser(user: UserData) {
-    this.workspaceData = new UserWorkspaceData(user, this.api);
+  loadCreateUser() {
+    this.workspaceData = new UserWorkspaceData(UserData.empty(), this.api, this);
+  }
+
+  loadEditUser(user: UserData, isEditStudent: boolean = false) {
+    this.workspaceData = new UserWorkspaceData(user, this.api, this, isEditStudent);
   }
 
   loadArticles() {
@@ -574,7 +609,7 @@ export class AdminComponent implements OnInit {
   addStudent(student: UserData) {
     let toSend = JSON.parse(JSON.stringify(student));
     toSend.userType = toSend.userType.id;
-    this.api.post("/api-users", toSend).subscribe({
+    this.api.post(`/student-groups/${student.studentGroupId}/students`, toSend).subscribe({
       next: (users: any[]) => {
         let group = this.studentGroups.find(sg => student.studentGroupId === sg.id)
         this.loadStudentsByGroup(group)

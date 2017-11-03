@@ -8,3 +8,7 @@ fieldset {
   margin: 0px;
   padding: 0px;
 }
+
+.user-type {
+  margin-bottom: 0;
+}

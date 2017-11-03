@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Equation, EquationItemValueType } from "../equation/equation.component";
 import { InputSetAnswer, InputSetStatus, VarirableAnswer } from "../input-set/input-set.component";
+import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 
 export class EquationSet {
   status: number = InputSetStatus.Initial;
@@ -25,6 +26,7 @@ export class EquationSetComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    this.data.description = MathSymbolConverter.convertString(this.data.description)
   }
 
   isVerified() {

@@ -10,7 +10,7 @@
   </div>
   <div *ngFor="let exam of exams" class="mui-panel relative">
     <div class="relative">
-      <border-sticky-btn (onClick)="deleteExam(exam)" positionH="right" positionV="top">
+      <border-sticky-btn (onClick)="deleteExam(exam)" positionH="right" positionV="top" *ngIf="deletable">
         <i style="color: red;" class="material-icons">clear</i>
       </border-sticky-btn>
       <border-sticky-btn (onClick)="toggleLock(exam)" positionH="right" positionV="bottom">

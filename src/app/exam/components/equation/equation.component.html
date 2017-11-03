@@ -1,7 +1,7 @@
 <div class="container">
   <div class="left-part">
     <div class="item" *ngFor="let item of equation.items">
-      <div>{{ item.prefix }}</div>
+      <div class="prefix" [innerHtml]="item.prefix"></div>
       <div [ngSwitch]="item.value.type">
         <div *ngSwitchCase="ValueType.input">
           <rgb-input [data]="item.value.value"
@@ -21,7 +21,7 @@
           {{ valueAsDouble(item.value).value }}
         </div>
       </div>
-      <div>{{ item.suffix }}</div>
+      <div class="suffix" [innerHtml]="item.suffix"></div>
     </div>
   </div>
 </div>

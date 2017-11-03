@@ -1,4 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
+import {
+  Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges,
+  ViewEncapsulation
+} from '@angular/core';
 
 export class DropdownOption {
   constructor(public id: any, public text: string, public selectedText: string = null) {
@@ -13,7 +16,7 @@ export class DropdownOption {
   templateUrl: './dropdown.component.html',
   styleUrls: ['./dropdown.component.css']
 })
-export class DropdownComponent implements OnInit {
+export class DropdownComponent implements OnInit, OnChanges {
 
   @Input() selectedOptionId?: any;
   @Input() selectedOptionPlaceholder?: string;
@@ -32,6 +35,9 @@ export class DropdownComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
     if(!this.options || this.options.length === 0) {
       console.error("Empty options array passed to dropdown.")
     }

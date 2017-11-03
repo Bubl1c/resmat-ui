@@ -5,14 +5,19 @@
       <i class="material-icons" [hidden]="!sideMenuCollapsed">settings_ethernet</i>
     </a>
     <ul [hidden]="sideMenuCollapsed">
-      <li *ngIf="isAdmin">
-        <strong>Користувачі</strong>
+      <li *ngIf="userPermission >= permissions.Admin">
+        <div class="side-menu-with-creator">
+          <strong>Користувачі</strong>
+          <a class="side-menu-creator" (click)="loadCreateUser()">
+            <i class="material-icons header4">control_point</i>
+          </a>
+        </div>
         <ul>
           <li *ngFor="let user of users"><a (click)="loadEditUser(user)">{{ user.firstName + ' ' + user.lastName }}</a>
           </li>
         </ul>
       </li>
-      <li *ngIf="isAdmin">
+      <li>
         <strong><a class="resmat-regular" (click)="loadArticles()">Навчальні матеріали</a></strong>
       </li>
       <li>
@@ -26,19 +31,19 @@
           <li *ngFor="let group of studentGroups"><a (click)="loadStudentsByGroup(group)">{{ group.name }}</a></li>
         </ul>
       </li>
-      <li>
+      <li *ngIf="userPermission >= permissions.Admin">
         <strong>Іспити</strong>
         <ul>
           <li *ngFor="let ec of examConfs"><a (click)="loadExamConf(ec.id)">{{ ec.name }}</a></li>
         </ul>
       </li>
-      <li>
+      <li *ngIf="userPermission >= permissions.Admin">
         <strong>Задачі</strong>
         <ul>
           <li *ngFor="let p of problemConfs"><a (click)="loadProblemConf(p.id)">{{ p.name }}</a></li>
         </ul>
       </li>
-      <li>
+      <li *ngIf="userPermission >= permissions.Instructor">
         <div class="side-menu-with-creator">
           <strong>Групи тестів</strong>
           <a class="side-menu-creator" (click)="addTestGroupConf()">
@@ -74,8 +79,9 @@
         <br><br>
         <group-students
           [students]="workspaceData.data"
+          [deletable]="userPermission >= permissions.Instructor"
           (onResultsRequested)="loadStudentResults($event)"
-          (onEditRequested)="loadEditUser($event)"
+          (onEditRequested)="loadEditUser($event, true)"
           (onDeleteRequested)="deleteStudent($event)"></group-students>
         <br>
         <div class="resmat-header">Доступні навчальні матеріали</div>
@@ -90,7 +96,10 @@
       </div>
 
       <student-exams *ngIf="workspaceData.type === 'student_exams'"
-                     [student]="workspaceData.data" [examConfs]="examConfs"></student-exams>
+                     [student]="workspaceData.data"
+                     [examConfs]="examConfs"
+                     [deletable]="userPermission >= permissions.Instructor"
+      ></student-exams>
 
       <create-student *ngIf="workspaceData.type === 'add-student'"
                       [group]="workspaceData.data"
@@ -162,7 +171,8 @@
             </button>
           </div>
           <div class="mui-panel relative" *ngFor="let article of workspaceData.data">
-            <border-sticky-btn positionH="right" positionV="top" paddingPx="15" (onClick)="workspaceData.deleteArticle(article)">
+            <border-sticky-btn positionH="right" positionV="top" paddingPx="15" [hidden]="userPermission < permissions.Instructor"
+                               (onClick)="workspaceData.deleteArticle(article)">
               <i class="material-icons">delete_forever</i>
             </border-sticky-btn>
             <article-preview [header]="article.header"

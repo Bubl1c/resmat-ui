@@ -13,6 +13,7 @@ import { IExamConf } from "../exam-conf/exam-conf.component";
 export class StudentExamsComponent implements OnInit {
   @Input() student: UserData;
   @Input() examConfs: IExamConf[];
+  @Input() deletable: boolean = true;
 
   exams: IExamDto[];
   loading = true;
