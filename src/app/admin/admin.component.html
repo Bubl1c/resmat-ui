@@ -50,8 +50,8 @@
             <i class="material-icons header4">control_point</i>
           </a>
         </div>
-        <ul>
-          <li *ngFor="let g of testsGroupConfs"><a (click)="loadTestGroupConf(g)">{{ g.name }}</a></li>
+        <ul *ngIf="testsGroupConfs">
+          <test-group-list [groups]="testsGroupConfs" (onGroupClicked)="loadTestGroupConf($event)"></test-group-list>
         </ul>
       </li>
     </ul>
@@ -129,7 +129,7 @@
           <a style="flex: 1; text-align: right;" (click)="editTestConf(workspaceData.data.id, null)"
              class="resmat-primary">Додати тест</a>
         </div>
-        <table class="mui-table mui-table--bordered">
+        <table class="mui-table mui-table--bordered" [hidden]="workspaceData.data.testConfs.length === 0">
           <tr *ngFor="let t of workspaceData.data.testConfs">
             <td>
               <test-conf-preview [test]="t"
@@ -138,18 +138,41 @@
             </td>
           </tr>
         </table>
-      </div>
-
-      <div *ngIf="workspaceData.type === 'edit_test_conf'">
-        <edit-test-conf [isSaving]="workspaceData.isSaving" [testToUpdate]="workspaceData.data"
-                        (onSave)="workspaceData.save($event)"></edit-test-conf>
+        <div class="mui-textfield parent-group-dropdown">
+          <dropdown
+            [options]="workspaceData.parentGroupOptions"
+            [selectedOptionId]="workspaceData.selectedParentGroupId"
+            [maxWidthPx]="1000"
+            (onSelected)="workspaceData.parentGroupChanged($event)"></dropdown>
+          <label>Батьківська група</label>
+        </div>
+        <div class="mui-textfield" *ngIf="workspaceData.data.childGroups.length">
+          <p style="margin-bottom: 0.5em"></p>
+          <test-group-list
+            [groups]="workspaceData.data.childGroups"
+            (onGroupClicked)="loadTestGroupConf($event)"></test-group-list>
+          <label>Підгрупи:</label>
+        </div>
       </div>
 
       <div *ngIf="workspaceData.type === 'add_test_group'">
         <div class="mui-textfield editor-input">
-          <input [(ngModel)]="workspaceData.data" placeholder="Введіть ім'я групи">
+          <input [(ngModel)]="workspaceData.data.name" placeholder="Введіть ім'я групи">
+        </div>
+        <div class="mui-textfield parent-group-dropdown">
+          <dropdown
+            [options]="workspaceData.parentGroupOptions"
+            [selectedOptionId]="workspaceData.selectedParentGroupId"
+            [maxWidthPx]="1000"
+            (onSelected)="workspaceData.parentGroupChanged($event)"></dropdown>
+          <label>Батьківська група</label>
         </div>
         <button class="mui-btn mui-btn--primary" (click)="workspaceData.save()">Зберегти</button>
+      </div>
+
+      <div *ngIf="workspaceData.type === 'edit_test_conf'">
+        <edit-test-conf [isSaving]="workspaceData.isSaving" [testToUpdate]="workspaceData.data"
+                        (onSave)="workspaceData.save($event)" (onBackToGroup)="loadTestGroupConfById(workspaceData.data.groupId)"></edit-test-conf>
       </div>
 
       <div *ngIf="workspaceData.type === 'add_student_group'">

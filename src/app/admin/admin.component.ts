@@ -16,6 +16,8 @@ import {TestEdit} from "./components/edit-test-conf/edit-test-conf.component";
 import {ArticleDto} from "./components/article-editor/article-editor.component";
 import {SelectableItem} from "../components/item-selector/item-selector.component";
 import {Observable} from "rxjs/Observable";
+import { DropdownOption } from "../components/dropdown/dropdown.component";
+import { ITestGroupConf, ITestGroupConfWithChildren } from "./components/test-group-list/test-group-list.component";
 
 class WorkspaceDataTypes {
   static user = "user";
@@ -238,15 +240,47 @@ class StudentExamsWorkspaceData extends WorkspaceData {
   }
 }
 
-class TestGroupWorkspaceData extends WorkspaceData {
-  type = WorkspaceDataTypes.testGroup;
-  constructor(public data: ITestGroupConfWithTestConfs, private api: ApiService, private adminComponent: AdminComponent) {
+abstract class TestGroupWorkspaceData extends WorkspaceData {
+  selectedParentGroupId: number;
+  parentGroupOptions: DropdownOption[];
+  notSelectedParentGroupOption = new DropdownOption(-1, "Не вибрано");
+
+  constructor(public data: ITestGroupConfWithChildren, protected api: ApiService, protected adminComponent: AdminComponent) {
     super();
+    this.initialiseParentGroupOptions();
   }
 
-  save(name: string) {
-    this.data.name = name;
-    this.api.put("/test-groups/" + this.data.id, this.data).subscribe({
+  protected initialiseParentGroupOptions() {
+    this.selectedParentGroupId = this.data.parentGroupId || this.notSelectedParentGroupOption.id;
+    const forbiddenIds = this.getGroupAndChildrenIdsRecursively(this.data);
+    this.parentGroupOptions = this.adminComponent
+      .testsGroupConfsFlat
+      .filter(g => !forbiddenIds.find(id => id === g.id))
+      .map(g => new DropdownOption(g.id, g.name))
+      .concat([this.notSelectedParentGroupOption])
+  }
+
+  protected getGroupAndChildrenIdsRecursively(group: ITestGroupConfWithChildren, initialValue: number[] = []): number[] {
+    return group.childGroups.reduce((ids, g) => {
+      return ids.concat(this.getGroupAndChildrenIdsRecursively(g, ids))
+    }, initialValue.concat(group.id))
+  }
+}
+
+class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
+  type = WorkspaceDataTypes.testGroup;
+
+  constructor(public data: ITestGroupConfWithTestConfs, api: ApiService, adminComponent: AdminComponent) {
+    super(data, api, adminComponent);
+  }
+
+  save(name: string, parentGroupId: number = this.selectedParentGroupId) {
+    let requestBody: ITestGroupConf = {
+      id: this.data.id,
+      name: name,
+      parentGroupId: parentGroupId === this.notSelectedParentGroupOption.id ? undefined : parentGroupId
+    };
+    this.api.put("/test-groups/" + this.data.id, requestBody).subscribe({
       next: (updated: ITestGroupConf) => {
         this.adminComponent.loadTestGroupConfs();
         alert("Успішно збережено");
@@ -273,6 +307,61 @@ class TestGroupWorkspaceData extends WorkspaceData {
         }
       })
     }
+  }
+
+  parentGroupChanged(option: DropdownOption) {
+    if (option.id !== this.data.id) {
+      let question = ""
+      if (option.id === this.notSelectedParentGroupOption.id) {
+        question = `Ви дійсно хочете зробити групу '${this.data.name}' незалежною групою вернього рівня?`
+      } else {
+        question = `Ви дійсно хочете перемістити групу '${this.data.name}' в групу '${option.text}' ? `
+      }
+      if(window.confirm(question)) {
+        this.save(this.data.name, option.id);
+      }
+    }
+  }
+
+}
+
+class AddTestGroupWorkspaceData extends TestGroupWorkspaceData {
+  type = WorkspaceDataTypes.addTestGroup;
+
+  constructor(public data: ITestGroupConfWithChildren, api: ApiService, adminComponent: AdminComponent) {
+    super(data, api, adminComponent);
+  }
+
+  save() {
+    if(!this.data.name) {
+      alert("Введіть ім'я групи");
+      return;
+    }
+    let requestBody: ITestGroupConf = {
+      id: -1,
+      name: this.data.name,
+      parentGroupId: this.selectedParentGroupId === this.notSelectedParentGroupOption.id
+        ? undefined
+        : this.selectedParentGroupId
+    };
+    this.api.post(
+      "/test-groups", requestBody
+    ).subscribe({
+      next: (result: ITestGroupConf) => {
+        alert("Успішно збережено");
+        this.adminComponent.loadTestGroupConfs(() => {
+          this.adminComponent.loadTestGroupConfById(result.id)
+        });
+      },
+      error: err => {
+        this.errorMessage = err.toString();
+        alert(err)
+      }
+    })
+  }
+
+  parentGroupChanged(option: DropdownOption) {
+    this.selectedParentGroupId = option.id
   }
 }
 
@@ -313,33 +402,6 @@ class EditTestConfWorkspaceData extends WorkspaceData {
   }
 }
 
-class AddTestGroupWorkspaceData extends WorkspaceData {
-  type = WorkspaceDataTypes.addTestGroup;
-  constructor(public data: string, private api: ApiService, private adminComponent: AdminComponent) {
-    super();
-  }
-
-  save() {
-    if(!this.data) {
-      alert("Введіть ім'я групи");
-      return;
-    }
-    this.api.post(
-      "/test-groups", {id: -1, name: this.data}
-    ).subscribe({
-      next: (result: ITestGroupConf) => {
-        this.adminComponent.loadTestGroupConfs();
-        this.data = "";
-        alert("Успішно збережено");
-      },
-      error: err => {
-        this.errorMessage = err.toString();
-        alert(err)
-      }
-    })
-  }
-}
-
 class AddStudentGroupWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.addTestGroup;
   constructor(public data: string, private api: ApiService, private adminComponent: AdminComponent) {
@@ -367,13 +429,8 @@ class AddStudentGroupWorkspaceData extends WorkspaceData {
   }
 }
 
-interface ITestGroupConfWithTestConfs extends ITestGroupConf {
+interface ITestGroupConfWithTestConfs extends ITestGroupConfWithChildren {
   testConfs: ITestEditDto[]
-}
-
-interface ITestGroupConf {
-  id: number
-  name: string
 }
 
 @Component({
@@ -402,7 +459,8 @@ export class AdminComponent implements OnInit {
   examConfs: IExamConf[];
   problemConfs: IProblemConf[];
 
-  testsGroupConfs: ITestGroupConf[];
+  testsGroupConfs: ITestGroupConfWithChildren[];
+  testsGroupConfsFlat: ITestGroupConfWithChildren[];
 
   workspaceData: WorkspaceData;
 
@@ -563,10 +621,25 @@ export class AdminComponent implements OnInit {
     })
   }
 
-  loadTestGroupConfs() {
+  loadTestGroupConfs(cb?: () => void) {
     this.api.get("/test-groups").subscribe({
       next: (testGroupConfs: ITestGroupConf[]) => {
-        this.testsGroupConfs = testGroupConfs;
+        this.testsGroupConfs = [];
+        const groupsMap: Map<number, number> = new Map();
+        const groupsWithChildren: ITestGroupConfWithChildren[] = [];
+        testGroupConfs.forEach((g, i) => {
+          groupsMap.set(g.id, i);
+          groupsWithChildren.push(Object.assign({ childGroups: [] }, g));
+        });
+        groupsWithChildren.forEach(g => {
+          if (g.parentGroupId) {
+            groupsWithChildren[groupsMap.get(g.parentGroupId)].childGroups.push(g);
+          } else {
+            this.testsGroupConfs.push(g)
+          }
+        })
+        this.testsGroupConfsFlat = groupsWithChildren;
+        cb && cb()
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -576,16 +649,24 @@ export class AdminComponent implements OnInit {
   }
 
   addTestGroupConf() {
-    this.workspaceData = new AddTestGroupWorkspaceData("", this.api, this)
+    const empty = {
+      id: undefined,
+      name: "",
+      parentGroupId: undefined,
+      childGroups: []
+    };
+    this.workspaceData = new AddTestGroupWorkspaceData(empty, this.api, this)
   }
 
+  loadTestGroupConfById(testGroupConfId: number) {
+    this.loadTestGroupConf(this.testsGroupConfsFlat.find(g => g.id === testGroupConfId))
+  }
 
-  loadTestGroupConf(testGroupConf: ITestGroupConf) {
+  loadTestGroupConf(testGroupConf: ITestGroupConfWithChildren) {
     this.api.get("/test-groups/" + testGroupConf.id + "/tests").subscribe({
       next: (testGroupTestConfs: ITestEditDto[]) => {
-        let copy = Object.assign({}, testGroupConf) as ITestGroupConfWithTestConfs;
-        copy.testConfs = testGroupTestConfs;
-        this.workspaceData = new TestGroupWorkspaceData(copy, this.api, this)
+        let copy: ITestGroupConfWithTestConfs = Object.assign({ testConfs: testGroupTestConfs }, testGroupConf);
+        this.workspaceData = new EditTestGroupWorkspaceData(copy, this.api, this)
       },
       error: err => {
         this.errorMessage = err.toString();

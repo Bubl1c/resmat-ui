@@ -37,6 +37,7 @@ export class EditTestConfComponent implements OnInit {
   @Input() isSaving: boolean = false;
   @Input() testToUpdate: ITestEditDto;
   @Output() onSave = new EventEmitter<ITestEditDto>();
+  @Output() onBackToGroup = new EventEmitter<void>();
 
   updated: ITestEditDto;
   preview: Test;
@@ -153,6 +154,10 @@ export class EditTestConfComponent implements OnInit {
 
   backFromPreview() {
     this.preview = null;
+  }
+
+  backToTestGroup() {
+    this.onBackToGroup.emit()
   }
 
   previewStub() {

@@ -59,6 +59,7 @@ import { SmartInputComponent } from './components/smart-input/smart-input.compon
 import { RgbInputComponent } from './components/rgb-input/rgb-input.component';
 import { DynamicTableComponent } from './exam/components/dynamic-table/dynamic-table.component';
 import { SmartValueComponent } from './exam/components/smart-value/smart-value.component';
+import { TestGroupListComponent } from './admin/components/test-group-list/test-group-list.component';
 
 @NgModule({
   declarations: [
@@ -109,7 +110,8 @@ import { SmartValueComponent } from './exam/components/smart-value/smart-value.c
     SmartInputComponent,
     RgbInputComponent,
     DynamicTableComponent,
-    SmartValueComponent
+    SmartValueComponent,
+    TestGroupListComponent
   ],
   imports: [
     BrowserModule,
