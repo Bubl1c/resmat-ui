@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TestGroupListComponent } from './test-group-list.component';
+import { EditExamStepConfComponent } from './edit-exam-step-conf.component';
 
-describe('TestGroupListComponent', () => {
-  let component: TestGroupListComponent;
-  let fixture: ComponentFixture<TestGroupListComponent>;
+describe('EditExamStepConfComponent', () => {
+  let component: EditExamStepConfComponent;
+  let fixture: ComponentFixture<EditExamStepConfComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TestGroupListComponent ]
+      declarations: [ EditExamStepConfComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TestGroupListComponent);
+    fixture = TestBed.createComponent(EditExamStepConfComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -32,7 +32,7 @@ import { UserComponent } from "./admin/components/user/user.component";
 import { GroupStudentsComponent } from "./admin/components/group-students/group-students.component";
 import { MyExamsComponent } from './exam/components/my-exams/my-exams.component';
 import { MathJaxComponent } from './components/math-jax/math-jax.component';
-import { ExamConfComponent } from './admin/components/exam-conf/exam-conf.component';
+import { EditExamConfComponent } from './admin/components/edit-exam-conf/edit-exam-conf.component';
 import { ProblemConfComponent } from './admin/components/problem-conf/problem-conf.component';
 import { CustomModal } from './admin/components/custom-modal/custom-modal.component';
 import { CreateStudentComponent } from './admin/components/create-student/create-student.component';
@@ -60,6 +60,7 @@ import { RgbInputComponent } from './components/rgb-input/rgb-input.component';
 import { DynamicTableComponent } from './exam/components/dynamic-table/dynamic-table.component';
 import { SmartValueComponent } from './exam/components/smart-value/smart-value.component';
 import { TestGroupListComponent } from './admin/components/test-group-list/test-group-list.component';
+import { EditExamStepConfComponent } from './admin/components/edit-exam-conf/edit-exam-step-conf/edit-exam-step-conf.component';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,7 @@ import { TestGroupListComponent } from './admin/components/test-group-list/test-
     GroupStudentsComponent,
     MyExamsComponent,
     MathJaxComponent,
-    ExamConfComponent,
+    EditExamConfComponent,
     ProblemConfComponent,
     CustomModal,
     CreateStudentComponent,
@@ -111,7 +112,8 @@ import { TestGroupListComponent } from './admin/components/test-group-list/test-
     RgbInputComponent,
     DynamicTableComponent,
     SmartValueComponent,
-    TestGroupListComponent
+    TestGroupListComponent,
+    EditExamStepConfComponent
   ],
   imports: [
     BrowserModule,

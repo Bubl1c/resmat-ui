@@ -1,0 +1,27 @@
+<form #examConfForm="ngForm" (submit)="save()">
+  <legend [hidden]="!isCreateMode">Новий іспит</legend>
+  <fieldset [disabled]="isSaving" class="fieldset">
+    <div class="mui-textfield">
+      <input type="text" name="name" [(ngModel)]="data.examConf.name" required>
+      <label>Назва</label>
+    </div>
+    <div class="mui-textfield">
+      <textarea placeholder="Коротко опишіть суть" name="description" [(ngModel)]="data.examConf.description"></textarea>
+      <label>Опис</label>
+    </div>
+    <div class="mui-textfield">
+      <input type="number" name="maxScore" [(ngModel)]="data.examConf.maxScore" required>
+      <label>Максимальна оцінка</label>
+    </div>
+
+    <p>Кроки</p>
+    <div class="mui-panel" *ngFor="let step of data.stepConfs">
+      <edit-exam-step-conf [data]="step"></edit-exam-step-conf>
+    </div>
+
+    <button class="mui-btn mui-btn--primary"
+            type="submit" [disabled]="!examConfForm.form.valid">
+      {{ isSaving ? 'Збереження' : 'Зберегти' }}
+    </button>
+  </fieldset>
+</form>

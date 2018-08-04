@@ -112,8 +112,8 @@
         </div>
       </div>
 
-      <div *ngIf="workspaceData.type === 'exam'">
-        <exam-conf [data]="workspaceData.data"></exam-conf>
+      <div *ngIf="workspaceData.type === 'edit-exam'">
+        <edit-exam-conf [data]="workspaceData.data" [isSaving]="workspaceData.isSaving" (onSave)="workspaceData.save($event)"></edit-exam-conf>
       </div>
 
       <div *ngIf="workspaceData.type === 'problem'">

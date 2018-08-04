@@ -5,7 +5,6 @@ import {StudentGroup, UserData, UserType} from "../user/user.models";
 import {CurrentSession} from "../current-session";
 import {UserComponentConfig} from "./components/user/user.component";
 import {ExamResult} from "../exam/components/exam-results/exam-results.component";
-import {IExamConf, IExamConfWithSteps, IExamStepConf} from "./components/exam-conf/exam-conf.component";
 import {
   IProblemConf,
   IProblemConfWithVariants,
@@ -18,13 +17,14 @@ import {SelectableItem} from "../components/item-selector/item-selector.componen
 import {Observable} from "rxjs/Observable";
 import { DropdownOption } from "../components/dropdown/dropdown.component";
 import { ITestGroupConf, ITestGroupConfWithChildren } from "./components/test-group-list/test-group-list.component";
+import { IExamConf, IExamConfDto } from "../exam/data/exam.api-protocol";
 
 class WorkspaceDataTypes {
   static user = "user";
   static addStudent = "add-student";
   static groupStudents = "group-students";
   static examResults = "exam-results";
-  static exam = "exam";
+  static editExam = "edit-exam";
   static problem = "problem";
   static studentExams = "student_exams";
   static testGroup = "test_group";
@@ -220,9 +220,36 @@ class ExamResultWorkspaceData extends WorkspaceData {
 }
 
 class ExamWorkspaceData extends WorkspaceData {
-  type = WorkspaceDataTypes.exam;
-  constructor(public data: IExamConfWithSteps) {
+  type = WorkspaceDataTypes.editExam;
+  isSaving = false;
+
+  constructor(public data: IExamConfDto, private api: ApiService) {
     super();
+  }
+
+  save(data: IExamConfDto) {
+    this.isSaving = true;
+    if (data.examConf.id) {
+      this.api.put(`/exam-confs/${data.examConf.id}`, data).subscribe({
+        next: () => { this.requestComplete(); alert("Успішно збережено"); },
+        error: e => {
+          this.requestComplete();
+          alert("Не вдалося зберегти: " + JSON.stringify(e))
+        }
+      })
+    } else {
+      this.api.post(`/exam-confs`, data).subscribe({
+        next: () => { this.requestComplete(); alert("Успішно збережено") },
+        error: e => {
+          this.requestComplete();
+          alert("Не вдалося зберегти: " + JSON.stringify(e))
+        }
+      })
+    }
+  }
+
+  private requestComplete() {
+    this.isSaving = false
   }
 }
 
@@ -482,7 +509,9 @@ export class AdminComponent implements OnInit {
     if(this.userPermission >= UserType.instructor.rate) {
       this.loadTestGroupConfs();
     }
-    this.loadExamConfs();
+    this.loadExamConfs(() => {
+      this.loadExamConf(this.examConfs[0].id)
+    });
     this.loadGroups();
   }
 
@@ -555,10 +584,11 @@ export class AdminComponent implements OnInit {
     this.workspaceData = new AddStudentGroupWorkspaceData("", this.api, this);
   }
 
-  loadExamConfs() {
+  loadExamConfs(cb?: () => void) {
     this.api.get("/exam-confs").subscribe({
       next: (examConfs: IExamConf[]) => {
         this.examConfs = examConfs
+        cb && cb()
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -569,17 +599,8 @@ export class AdminComponent implements OnInit {
 
   loadExamConf(examConfId: number) {
     this.api.get("/exam-confs/" + examConfId + "/dto").subscribe({
-      next: (examConfDto: any) => {
-        let ec: IExamConf = examConfDto.examConf;
-        let stepConfs: IExamStepConf[] = examConfDto.stepConfs;
-        let ecWithSteps: IExamConfWithSteps = {
-          id: ec.id,
-          name: ec.name,
-          description: ec.description,
-          maxScore: ec.maxScore,
-          steps: stepConfs
-        };
-        this.workspaceData = new ExamWorkspaceData(ecWithSteps)
+      next: (examConfDto: IExamConfDto) => {
+        this.workspaceData = new ExamWorkspaceData(examConfDto, this.api)
       },
       error: err => {
         this.errorMessage = err.toString();

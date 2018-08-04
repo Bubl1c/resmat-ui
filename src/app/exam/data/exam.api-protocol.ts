@@ -41,6 +41,35 @@ export interface IExamStepPreview {
   description: string
 }
 
+export interface IExamConf {
+  id: number;
+  name: string;
+  description: string;
+  maxScore: number;
+}
+
+export interface IExamConfDto {
+  examConf: IExamConf
+  stepConfs: IExamStepConf[]
+}
+
+interface ExamStepTestSetDataSet {
+  ExamStepTestSetDataSet: {
+    testSetConfId: number
+  }
+}
+
+interface ExamStepResultsDataSet {
+  ExamStepResultsDataSet: {}
+}
+
+interface ExamStepTaskFlowDataSet {
+  ExamStepTaskFlowDataSet: {
+    taskFlowConfId: number
+    problemConfId: number
+  }
+}
+
 export interface IExamStepConf {
   id: number;
   examConfId: number;
@@ -48,7 +77,12 @@ export interface IExamStepConf {
   name: string;
   stepType: string;
   mistakesPerAttemptLimit: number;
-  attemptsLimit: number
+  mistakeValuePercents: number; //influence to result
+  attemptsLimit: number;
+  attemptValuePercents: number; //influence to result
+  maxScore: number; //should be within ExamConf.maxScore
+  dataSet: ExamStepTestSetDataSet | ExamStepResultsDataSet | ExamStepTaskFlowDataSet;
+  hasToBeSubmitted: boolean
 }
 
 export interface IExamStepAttempt {

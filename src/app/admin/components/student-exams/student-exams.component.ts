@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { IExamDto } from "../../../exam/data/exam.api-protocol";
 import { ExamService } from "../../../exam/data/exam-service.service";
 import { UserData } from "../../../user/user.models";
-import { IExamConf } from "../exam-conf/exam-conf.component";
+import { IExamConf } from "../edit-exam-conf/edit-exam-conf.component";
 
 @Component({
   selector: 'student-exams',
