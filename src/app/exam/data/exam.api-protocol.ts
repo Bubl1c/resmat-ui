@@ -1,9 +1,11 @@
+export type ExamStepType = 'test-set' | 'task-flow' | 'results'
+
 export class ExamStepTypes {
-  static TestSet = 'test-set';
-  static TaskFlow = 'task-flow';
-  static Results = 'results';
-  static sequence = [ExamStepTypes.TestSet, ExamStepTypes.TaskFlow, ExamStepTypes.Results];
-  static getNext(examStepType: string): string {
+  static TestSet: ExamStepType = 'test-set';
+  static TaskFlow: ExamStepType = 'task-flow';
+  static Results: ExamStepType = 'results';
+  static sequence: ExamStepType[] = [ExamStepTypes.TestSet, ExamStepTypes.TaskFlow, ExamStepTypes.Results];
+  static getNext(examStepType: ExamStepType): string {
     let index = this.sequence.indexOf(examStepType);
     let isLast = this.isLast(examStepType);
     if(index >= 0 && !isLast) {
@@ -14,7 +16,7 @@ export class ExamStepTypes {
       throw "Invalid ExamStepType passed: '" + examStepType + "'";
     }
   }
-  static isLast(examStepType: string): boolean {
+  static isLast(examStepType: ExamStepType): boolean {
     let index = this.sequence.indexOf(examStepType);
     return index === this.sequence.length - 1
   }
@@ -75,7 +77,7 @@ export interface IExamStepConf {
   examConfId: number;
   sequence: number;
   name: string;
-  stepType: string;
+  stepType: ExamStepType;
   mistakesPerAttemptLimit: number;
   mistakeValuePercents: number; //influence to result
   attemptsLimit: number;

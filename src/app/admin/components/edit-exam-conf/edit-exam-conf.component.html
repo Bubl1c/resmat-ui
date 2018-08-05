@@ -14,10 +14,10 @@
       <label>Максимальна оцінка</label>
     </div>
 
-    <p>Кроки</p>
-    <div class="mui-panel" *ngFor="let step of data.stepConfs">
-      <edit-exam-step-conf [data]="step"></edit-exam-step-conf>
+    <div class="mui-panel">
+      <exam-conf-steps-tabs [data]="data.stepConfs"></exam-conf-steps-tabs>
     </div>
+
 
     <button class="mui-btn mui-btn--primary"
             type="submit" [disabled]="!examConfForm.form.valid">

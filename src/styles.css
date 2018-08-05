@@ -6,6 +6,11 @@ body {
   padding-bottom: 90px;
 }
 
+.disabled {
+  color: grey !important;
+  cursor: default !important;
+}
+
 .text-ellipsis {
   white-space: nowrap; /* Запрещаем перенос строк */
   overflow: hidden; /* Обрезаем все, что не помещается в область */

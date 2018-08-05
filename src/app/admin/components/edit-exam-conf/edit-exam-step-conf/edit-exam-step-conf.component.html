@@ -1,4 +1,8 @@
 <div class="mui-textfield">
+  <dropdown [options]="sequenceDropdownOptions" [selectedOptionId]="data.sequence" (onSelected)="sequenceChanged($event)"></dropdown>
+  <label>Номер по порядку</label>
+</div>
+<div class="mui-textfield">
   <input type="text" name="name" [(ngModel)]="data.name" required>
   <label>Назва кроку</label>
 </div>
@@ -29,6 +33,9 @@
 </div>
 <div class="mui-textfield">
   <pre>{{ data.dataSet | json }}</pre>
+</div>
+<div class="mui-textfield">
+  <pre>{{ data | json }}</pre>
 </div>
 <div class="mui-checkbox">
   <label>

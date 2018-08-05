@@ -61,6 +61,7 @@ import { DynamicTableComponent } from './exam/components/dynamic-table/dynamic-t
 import { SmartValueComponent } from './exam/components/smart-value/smart-value.component';
 import { TestGroupListComponent } from './admin/components/test-group-list/test-group-list.component';
 import { EditExamStepConfComponent } from './admin/components/edit-exam-conf/edit-exam-step-conf/edit-exam-step-conf.component';
+import { ExamConfStepsTabsComponent } from './admin/components/edit-exam-conf/exam-conf-steps-tabs/exam-conf-steps-tabs.component';
 
 @NgModule({
   declarations: [
@@ -113,7 +114,8 @@ import { EditExamStepConfComponent } from './admin/components/edit-exam-conf/edi
     DynamicTableComponent,
     SmartValueComponent,
     TestGroupListComponent,
-    EditExamStepConfComponent
+    EditExamStepConfComponent,
+    ExamConfStepsTabsComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,7 @@
+.mui-tabs__bar>li>a {
+  cursor: pointer;
+}
+
+.mui-tabs__pane {
+  margin-top: 1em;
+}
