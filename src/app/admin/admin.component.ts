@@ -18,6 +18,10 @@ import {Observable} from "rxjs/Observable";
 import { DropdownOption } from "../components/dropdown/dropdown.component";
 import { ITestGroupConf, ITestGroupConfWithChildren } from "./components/test-group-list/test-group-list.component";
 import { IExamConf, IExamConfDto } from "../exam/data/exam.api-protocol";
+import {
+  defaultExamStepConfInstance, newExamConf,
+  resultsExamStepConfInstance
+} from "./components/edit-exam-conf/examConfConstants";
 
 class WorkspaceDataTypes {
   static user = "user";
@@ -607,6 +611,13 @@ export class AdminComponent implements OnInit {
         alert(err)
       }
     })
+  }
+
+  addExamConf() {
+    this.workspaceData = new ExamWorkspaceData({
+      examConf: newExamConf(),
+      stepConfs: [defaultExamStepConfInstance(1), resultsExamStepConfInstance(2)]
+    }, this.api)
   }
 
   loadProblemConfs() {

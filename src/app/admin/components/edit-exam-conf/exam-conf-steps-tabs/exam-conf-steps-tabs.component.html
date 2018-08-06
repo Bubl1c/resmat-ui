@@ -1,11 +1,14 @@
+<a (click)="addStep()">Додати крок</a>
 <ul class="mui-tabs__bar mui-tabs__bar--justified">
-  <li *ngFor="let step of data" [ngClass]="{ 'mui--is-active': step.id === activeStepId }">
-    <a [ngClass]="{ 'disabled': isReadonlyStep(step) }" (click)="activateStep(step)">{{ step.sequence }}. {{ step.name }}</a>
+  <li *ngFor="let step of data" [ngClass]="{ 'mui--is-active': step.sequence === activeStepSequence }">
+    <a (click)="activateStep(step)">{{ step.sequence }}. {{ step.name }}</a>
   </li>
 </ul>
 <div *ngFor="let step of data"
-     [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': step.id === activeStepId }">
+     [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': step.sequence === activeStepSequence }">
   <edit-exam-step-conf [data]="step"
                        [sequenceDropdownOptions]="sequenceDropdownOptions"
-                       (onSequenceChanged)="sequenceChanged(step, step.sequence, $event)"></edit-exam-step-conf>
+                       (onSequenceChanged)="sequenceChanged(step, step.sequence, $event)"
+                       [isReadonly]="isResultsStep(step)"
+                       (onDeleted)="removeStep(step)"></edit-exam-step-conf>
 </div>

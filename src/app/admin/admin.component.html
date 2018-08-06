@@ -32,7 +32,12 @@
         </ul>
       </li>
       <li *ngIf="userPermission >= permissions.Admin">
-        <strong>Іспити</strong>
+        <div class="side-menu-with-creator">
+          <strong>Іспити</strong>
+          <a class="side-menu-creator" (click)="addExamConf()">
+            <i class="material-icons header4">control_point</i>
+          </a>
+        </div>
         <ul>
           <li *ngFor="let ec of examConfs"><a (click)="loadExamConf(ec.id)">{{ ec.name }}</a></li>
         </ul>

@@ -1,45 +1,56 @@
-<div class="mui-textfield">
-  <dropdown [options]="sequenceDropdownOptions" [selectedOptionId]="data.sequence" (onSelected)="sequenceChanged($event)"></dropdown>
-  <label>Номер по порядку</label>
-</div>
-<div class="mui-textfield">
-  <input type="text" name="name" [(ngModel)]="data.name" required>
-  <label>Назва кроку</label>
-</div>
-<div class="mui-textfield">
-  <input type="number" name="attemptsLimit" [(ngModel)]="data.attemptsLimit" required>
-  <label>Максимальна кількість спроб</label>
-</div>
-<div class="mui-textfield">
-  <input type="number" name="attemptValuePercents" [(ngModel)]="data.attemptValuePercents" required>
-  <label>Вплив нової спроби на результат у відсотках</label>
-</div>
-<div class="mui-textfield">
-  <input type="number" name="mistakesPerAttemptLimit" [(ngModel)]="data.mistakesPerAttemptLimit" required>
-  <label>Максимально помилок за спробу</label>
-</div>
-<div class="mui-textfield">
-  <input type="number" name="mistakeValuePercents" [(ngModel)]="data.mistakeValuePercents" required>
-  <label>Вплив помилки на результат у відсотках</label>
-</div>
-<div class="mui-textfield">
-  <input type="number" name="maxScore" [(ngModel)]="data.maxScore" required>
-  <label>Максимальна оцінка</label>
-</div>
+<fieldset [disabled]="isReadonly" class="fieldset" [ngClass]="{ 'disabled': isReadonly }">
+  <div class="mui-textfield">
+    <dropdown [options]="sequenceDropdownOptions"
+              [selectedOptionId]="data.sequence"
+              (onSelected)="sequenceChanged($event)"
+              *ngIf="!isReadonly"></dropdown>
+    <p *ngIf="isReadonly">{{ data.sequence }}</p>
+    <label>Номер по порядку</label>
+  </div>
+  <div class="mui-textfield">
+    <input type="text" name="name" [(ngModel)]="data.name" required>
+    <label>Назва кроку</label>
+  </div>
+  <div class="flex-container">
+    <div class="flex-column flex-1">
+      <div class="mui-textfield">
+        <input type="number" name="attemptsLimit" [(ngModel)]="data.attemptsLimit" required>
+        <label>Максимальна кількість спроб</label>
+      </div>
+      <div class="mui-textfield">
+        <input type="number" name="attemptValuePercents" [(ngModel)]="data.attemptValuePercents" required>
+        <label>Вплив нової спроби на результат у відсотках</label>
+      </div>
+    </div>
+    <div class="flex-column flex-1">
+      <div class="mui-textfield">
+        <input type="number" name="mistakesPerAttemptLimit" [(ngModel)]="data.mistakesPerAttemptLimit" required>
+        <label>Максимально помилок за спробу</label>
+      </div>
+      <div class="mui-textfield">
+        <input type="number" name="mistakeValuePercents" [(ngModel)]="data.mistakeValuePercents" required>
+        <label>Вплив помилки на результат у відсотках</label>
+      </div>
+    </div>
+  </div>
+  <div class="mui-textfield">
+    <input type="number" name="maxScore" [(ngModel)]="data.maxScore" required>
+    <label>Максимальна оцінка</label>
+  </div>
 
-<div class="mui-textfield">
-  <p type="text">{{ data.stepType }}</p>
-  <label>Тип кроку</label>
-</div>
-<div class="mui-textfield">
-  <pre>{{ data.dataSet | json }}</pre>
-</div>
-<div class="mui-textfield">
-  <pre>{{ data | json }}</pre>
-</div>
-<div class="mui-checkbox">
-  <label>
-    <input type="checkbox" [checked]="!data.hasToBeSubmitted" disabled>
-    Інформаційний, не впливає на результат
-  </label>
-</div>
+  <div class="mui-textfield">
+    <p type="text">{{ data.stepType }}</p>
+    <label>Тип кроку</label>
+  </div>
+  <div class="mui-textfield">
+    <pre>{{ data.dataSet | json }}</pre>
+  </div>
+  <div class="mui-checkbox">
+    <label>
+      <input type="checkbox" [checked]="!data.hasToBeSubmitted" (change)="toggleHasToBeSubmitted()">
+      Інформаційний, не впливає на результат
+    </label>
+  </div>
+  <!--Has to be a div instead of button because button causes form submit-->
+  <div class="mui-btn mui-btn--flat mui-btn--danger" (click)="delete()" *ngIf="!isReadonly">Видалити цей крок</div>
+</fieldset>

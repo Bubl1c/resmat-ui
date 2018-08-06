@@ -1,6 +1,13 @@
-import { ExamStepTypes, IExamStepConf } from "../../../exam/data/exam.api-protocol";
+import { ExamStepTypes, IExamConf, IExamStepConf } from "../../../exam/data/exam.api-protocol";
 
-export const DefaultExamStepConfInstance = (sequence: number = 1): IExamStepConf => ({
+export const newExamConf = (): IExamConf => ({
+  id: undefined,
+  name: "",
+  description: "",
+  maxScore: 100
+});
+
+export const defaultExamStepConfInstance = (sequence: number = 1): IExamStepConf => ({
   id: undefined,
   examConfId: undefined,
   sequence: sequence,
@@ -19,7 +26,7 @@ export const DefaultExamStepConfInstance = (sequence: number = 1): IExamStepConf
   hasToBeSubmitted: true
 });
 
-export const ResultsExamStepConfInstance = (sequence: number = 2): IExamStepConf => ({
+export const resultsExamStepConfInstance = (sequence: number = 2): IExamStepConf => ({
   id: 3,
   examConfId: 1,
   sequence: sequence,

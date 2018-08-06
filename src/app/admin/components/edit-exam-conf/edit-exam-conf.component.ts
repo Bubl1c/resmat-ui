@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { IExamConfDto } from "../../../exam/data/exam.api-protocol";
+import { defaultExamStepConfInstance, resultsExamStepConfInstance } from "./examConfConstants";
 
 @Component({
   selector: 'edit-exam-conf',
@@ -18,7 +19,11 @@ export class EditExamConfComponent implements OnInit {
 
   ngOnInit() {
     if (!this.data.examConf.id) {
-      this.isCreateMode = true
+      this.isCreateMode = true;
+      this.data.stepConfs = [
+        defaultExamStepConfInstance(1),
+        resultsExamStepConfInstance(2)
+      ]
     }
   }
 

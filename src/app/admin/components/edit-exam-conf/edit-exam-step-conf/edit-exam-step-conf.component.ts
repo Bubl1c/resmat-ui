@@ -11,8 +11,10 @@ export class EditExamStepConfComponent implements OnInit {
 
   @Input() data: IExamStepConf;
   @Input() sequenceDropdownOptions: DropdownOption[];
+  @Input() isReadonly: Boolean = false;
 
   @Output() onSequenceChanged = new EventEmitter<number>();
+  @Output() onDeleted = new EventEmitter<void>();
 
   constructor() { }
 
@@ -21,6 +23,14 @@ export class EditExamStepConfComponent implements OnInit {
 
   sequenceChanged(newValue: DropdownOption) {
     this.onSequenceChanged.emit(newValue.id);
+  }
+
+  toggleHasToBeSubmitted() {
+    this.data.hasToBeSubmitted = !this.data.hasToBeSubmitted;
+  }
+
+  delete() {
+    this.onDeleted.emit()
   }
 
 }

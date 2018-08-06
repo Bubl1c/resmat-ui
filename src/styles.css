@@ -136,8 +136,19 @@ a {
 .flex-1 {
   flex: 1;
 }
+.flex-column {
+  flex-direction: column;
+}
 
 /* OVERRIDE MUI*/
 .material-icons {
   line-height: inherit;
 }
+
+.mui-textfield>input:disabled, .mui-textfield>input:read-only, .mui-textfield>textarea:disabled, .mui-textfield>textarea:read-only {
+  cursor: not-allowed;
+  background-color: transparent;
+  opacity: 1;
+  color: grey;
+}
+/* OVERRIDE MUI END*/
