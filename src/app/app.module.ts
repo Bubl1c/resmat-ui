@@ -62,6 +62,7 @@ import { SmartValueComponent } from './exam/components/smart-value/smart-value.c
 import { TestGroupListComponent } from './admin/components/test-group-list/test-group-list.component';
 import { EditExamStepConfComponent } from './admin/components/edit-exam-conf/edit-exam-step-conf/edit-exam-step-conf.component';
 import { ExamConfStepsTabsComponent } from './admin/components/edit-exam-conf/exam-conf-steps-tabs/exam-conf-steps-tabs.component';
+import { EditTestSetConfComponent } from './admin/components/edit-exam-conf/edit-exam-step-conf/edit-test-set-conf/edit-test-set-conf.component';
 
 @NgModule({
   declarations: [
@@ -115,7 +116,8 @@ import { ExamConfStepsTabsComponent } from './admin/components/edit-exam-conf/ex
     SmartValueComponent,
     TestGroupListComponent,
     EditExamStepConfComponent,
-    ExamConfStepsTabsComponent
+    ExamConfStepsTabsComponent,
+    EditTestSetConfComponent
   ],
   imports: [
     BrowserModule,

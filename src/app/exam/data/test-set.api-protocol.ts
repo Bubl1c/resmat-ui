@@ -52,3 +52,17 @@ export interface ITestSetDto {
   conf: ITestSetConf;
   tests: ITestDto[];
 }
+
+export interface ITestSetConfTestGroup {
+  id: number
+  testSetConfId: number
+  testGroupConfId: number
+  proportionPercents: number
+}
+
+export interface ITestSetConfDto {
+  id: number
+  name?: string
+  maxTestsAmount: number
+  testGroups: ITestSetConfTestGroup[]
+}

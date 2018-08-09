@@ -1,0 +1,36 @@
+<fieldset [disabled]="isSaving" class="fieldset" [ngClass]="{ 'disabled': isSaving }">
+  <div class="mui-textfield">
+    <input type="text" name="testSetName" [(ngModel)]="data.name">
+    <label>Назва набору тестів</label>
+  </div>
+  <div class="mui-textfield">
+    <input type="number" name="maxTestsAmount" [(ngModel)]="data.maxTestsAmount" required>
+    <label>Максимальна кількість тестів в наборі</label>
+  </div>
+
+  <div class="mui-textfield">
+    <label>Групи, які братимуть участь у формуванні набору</label>
+    <table class="mui-table mui-table--bordered">
+      <tbody>
+      <tr>
+        <th></th>
+        <th>Відсоток тестів у наборі</th>
+      </tr>
+      <tr *ngFor="let group of data.testGroups">
+        <td>
+          <dropdown [options]="testGroupConfDrowpdownOptions"
+                    [selectedOptionId]="group.testGroupConfId"
+                    (onSelected)="groupSelected($event, group)">
+          </dropdown>
+        </td>
+        <td>
+          <input type="number" name="proportionPercents" [(ngModel)]="group.proportionPercents" required>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!--Has to be a div instead of button because button causes form submit-->
+  <button class="mui-btn mui-btn--flat mui-btn--danger" (click)="save()" [disabled]="isSaving">Зберегти</button>
+</fieldset>

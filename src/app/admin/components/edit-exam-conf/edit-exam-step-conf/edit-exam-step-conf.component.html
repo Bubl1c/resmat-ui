@@ -42,8 +42,15 @@
     <p type="text">{{ data.stepType }}</p>
     <label>Тип кроку</label>
   </div>
-  <div class="mui-textfield">
-    <pre>{{ data.dataSet | json }}</pre>
+  <div class="mui-textfield flex-container">
+    <div [ngSwitch]="data.stepType" class="flex-1" *ngIf="!isStepDataLoading && stepData">
+      <edit-test-set-conf
+        *ngSwitchCase="'test-set'"
+        [data]="stepData"
+        [testGroupConfDrowpdownOptions]="[{ id: 1, text: 'text', selectedText: 'segerg' }]"
+        (onSave)="saveTestSetConf($event)"></edit-test-set-conf>
+      <div *ngSwitchDefault>No step data</div>
+    </div>
   </div>
   <div class="mui-checkbox">
     <label>

@@ -55,17 +55,17 @@ export interface IExamConfDto {
   stepConfs: IExamStepConf[]
 }
 
-interface ExamStepTestSetDataSet {
+export interface IExamStepTestSetDataSet {
   ExamStepTestSetDataSet: {
     testSetConfId: number
   }
 }
 
-interface ExamStepResultsDataSet {
+export interface IExamStepResultsDataSet {
   ExamStepResultsDataSet: {}
 }
 
-interface ExamStepTaskFlowDataSet {
+export interface IExamStepTaskFlowDataSet {
   ExamStepTaskFlowDataSet: {
     taskFlowConfId: number
     problemConfId: number
@@ -83,7 +83,7 @@ export interface IExamStepConf {
   attemptsLimit: number;
   attemptValuePercents: number; //influence to result
   maxScore: number; //should be within ExamConf.maxScore
-  dataSet: ExamStepTestSetDataSet | ExamStepResultsDataSet | ExamStepTaskFlowDataSet;
+  dataSet: IExamStepTestSetDataSet | IExamStepResultsDataSet | IExamStepTaskFlowDataSet;
   hasToBeSubmitted: boolean
 }
 
