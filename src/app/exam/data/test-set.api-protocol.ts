@@ -61,8 +61,6 @@ export interface ITestSetConfTestGroup {
 }
 
 export interface ITestSetConfDto {
-  id: number
-  name?: string
-  maxTestsAmount: number
+  testSetConf: ITestSetConf
   testGroups: ITestSetConfTestGroup[]
 }

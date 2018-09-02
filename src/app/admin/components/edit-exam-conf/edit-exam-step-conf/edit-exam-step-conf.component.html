@@ -1,60 +1,66 @@
 <fieldset [disabled]="isReadonly" class="fieldset" [ngClass]="{ 'disabled': isReadonly }">
   <div class="mui-textfield">
     <dropdown [options]="sequenceDropdownOptions"
-              [selectedOptionId]="data.sequence"
+              [selectedOptionId]="stepConf.sequence"
               (onSelected)="sequenceChanged($event)"
               *ngIf="!isReadonly"></dropdown>
-    <p *ngIf="isReadonly">{{ data.sequence }}</p>
+    <p *ngIf="isReadonly">{{ stepConf.sequence }}</p>
     <label>Номер по порядку</label>
   </div>
   <div class="mui-textfield">
-    <input type="text" name="name" [(ngModel)]="data.name" required>
+    <input type="text" name="name" [(ngModel)]="stepConf.name" required>
     <label>Назва кроку</label>
   </div>
   <div class="flex-container">
     <div class="flex-column flex-1">
       <div class="mui-textfield">
-        <input type="number" name="attemptsLimit" [(ngModel)]="data.attemptsLimit" required>
+        <input type="number" name="attemptsLimit" [(ngModel)]="stepConf.attemptsLimit" required>
         <label>Максимальна кількість спроб</label>
       </div>
       <div class="mui-textfield">
-        <input type="number" name="attemptValuePercents" [(ngModel)]="data.attemptValuePercents" required>
+        <input type="number" name="attemptValuePercents" [(ngModel)]="stepConf.attemptValuePercents" required>
         <label>Вплив нової спроби на результат у відсотках</label>
       </div>
     </div>
     <div class="flex-column flex-1">
       <div class="mui-textfield">
-        <input type="number" name="mistakesPerAttemptLimit" [(ngModel)]="data.mistakesPerAttemptLimit" required>
+        <input type="number" name="mistakesPerAttemptLimit" [(ngModel)]="stepConf.mistakesPerAttemptLimit" required>
         <label>Максимально помилок за спробу</label>
       </div>
       <div class="mui-textfield">
-        <input type="number" name="mistakeValuePercents" [(ngModel)]="data.mistakeValuePercents" required>
+        <input type="number" name="mistakeValuePercents" [(ngModel)]="stepConf.mistakeValuePercents" required>
         <label>Вплив помилки на результат у відсотках</label>
       </div>
     </div>
   </div>
   <div class="mui-textfield">
-    <input type="number" name="maxScore" [(ngModel)]="data.maxScore" required>
+    <input type="number" name="maxScore" [(ngModel)]="stepConf.maxScore" required>
     <label>Максимальна оцінка</label>
   </div>
 
   <div class="mui-textfield">
-    <p type="text">{{ data.stepType }}</p>
+    <p type="text">{{ stepConf.stepType }}</p>
     <label>Тип кроку</label>
   </div>
-  <div class="mui-textfield flex-container">
-    <div [ngSwitch]="data.stepType" class="flex-1" *ngIf="!isStepDataLoading && stepData">
+  <div class="flex-container">
+
+    <div [ngSwitch]="stepConf.stepType" class="flex-1" *ngIf="!workspace.isLoading && workspace.stepData">
       <edit-test-set-conf
         *ngSwitchCase="'test-set'"
-        [data]="stepData"
-        [testGroupConfDrowpdownOptions]="[{ id: 1, text: 'text', selectedText: 'segerg' }]"
-        (onSave)="saveTestSetConf($event)"></edit-test-set-conf>
+        [workspace]="workspace"></edit-test-set-conf>
+
+      <edit-task-flow-conf
+        *ngSwitchCase="'task-flow'"
+        [workspace]="workspace"></edit-task-flow-conf>
+
       <div *ngSwitchDefault>No step data</div>
     </div>
+
+    <div class="flex-1" [hidden]="!workspace.isLoading">Завантаження</div>
   </div>
-  <div class="mui-checkbox">
+  <div class="mui-checkbox disabled">
     <label>
-      <input type="checkbox" [checked]="!data.hasToBeSubmitted" (change)="toggleHasToBeSubmitted()">
+      <input type="checkbox" [checked]="!stepConf.hasToBeSubmitted" (change)="toggleHasToBeSubmitted()" disabled>
       Інформаційний, не впливає на результат
     </label>
   </div>

@@ -1,36 +1,49 @@
 <fieldset [disabled]="isSaving" class="fieldset" [ngClass]="{ 'disabled': isSaving }">
   <div class="mui-textfield">
-    <input type="text" name="testSetName" [(ngModel)]="data.name">
+    <input type="text" name="testSetName" [(ngModel)]="data.testSetConf.name">
     <label>Назва набору тестів</label>
   </div>
   <div class="mui-textfield">
-    <input type="number" name="maxTestsAmount" [(ngModel)]="data.maxTestsAmount" required>
+    <input type="number" name="maxTestsAmount" [(ngModel)]="data.testSetConf.maxTestsAmount" required>
     <label>Максимальна кількість тестів в наборі</label>
   </div>
 
-  <div class="mui-textfield">
-    <label>Групи, які братимуть участь у формуванні набору</label>
+  <div>
     <table class="mui-table mui-table--bordered">
       <tbody>
       <tr>
-        <th></th>
-        <th>Відсоток тестів у наборі</th>
+        <td class="resmat-label groups-table-cell" colspan="2">Групи, які братимуть участь у формуванні набору</td>
+        <td class="resmat-label groups-table-cell">Відсоток тестів у наборі</td>
+        <td></td>
       </tr>
-      <tr *ngFor="let group of data.testGroups">
+      <tr *ngFor="let group of data.testGroups; let i = index">
+        <td>{{ i + 1 }}.&nbsp;</td>
         <td>
-          <dropdown [options]="testGroupConfDrowpdownOptions"
-                    [selectedOptionId]="group.testGroupConfId"
-                    (onSelected)="groupSelected($event, group)">
-          </dropdown>
+          {{ getTestGroupNameById(group.testGroupConfId) }}
         </td>
         <td>
           <input type="number" name="proportionPercents" [(ngModel)]="group.proportionPercents" required>
+        </td>
+        <td>
+          <a (click)="deleteTestGroup(group)"><i class="material-icons">delete_forever</i></a>
+        </td>
+      </tr>
+      <tr *ngIf="newTestGroup" style="border: 0">
+        <td style="border: 0"></td>
+        <td style="border: 0">
+          <dropdown [options]="filteredTestGroupConfDrowpdownOptions"
+                    [selectedOptionId]="newTestGroup.testGroupConfId"
+                    (onSelected)="groupSelected($event, group)">
+          </dropdown>
+        </td>
+        <td style="border: 0">
+          <input type="number" name="newTestGroupproportionPercents" [(ngModel)]="newTestGroup.proportionPercents" required>
+        </td>
+        <td style="border: 0">
+          <a (click)="addTestGroup()"><i class="material-icons">playlist_add</i></a>
         </td>
       </tr>
       </tbody>
     </table>
   </div>
-
-  <!--Has to be a div instead of button because button causes form submit-->
-  <button class="mui-btn mui-btn--flat mui-btn--danger" (click)="save()" [disabled]="isSaving">Зберегти</button>
 </fieldset>

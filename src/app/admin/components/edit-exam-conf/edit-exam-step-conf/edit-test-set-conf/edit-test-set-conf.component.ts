@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DropdownOption } from "../../../../../components/dropdown/dropdown.component";
 import { ITestSetConfDto, ITestSetConfTestGroup } from "../../../../../exam/data/test-set.api-protocol";
+import { TestConfService } from "../../../../data/test-conf.service";
+import { TestSetConfStepWorkspace } from "../../edit-exam-conf.component";
 
 @Component({
   selector: 'edit-test-set-conf',
@@ -9,17 +11,18 @@ import { ITestSetConfDto, ITestSetConfTestGroup } from "../../../../../exam/data
 })
 export class EditTestSetConfComponent implements OnInit {
 
-  @Input() data: ITestSetConfDto;
-  @Input() testGroupConfDrowpdownOptions: DropdownOption[];
+  @Input() workspace: TestSetConfStepWorkspace;
   @Input() isSaving: Boolean = false;
 
-  @Output() onSave = new EventEmitter<ITestSetConfDto>();
+  data: ITestSetConfDto;
 
+  filteredTestGroupConfDrowpdownOptions: DropdownOption[];
   newTestGroup: ITestSetConfTestGroup;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
+    this.data = this.workspace.stepData;
     this.resetNewTestGroup();
   }
 
@@ -32,31 +35,36 @@ export class EditTestSetConfComponent implements OnInit {
     this.resetNewTestGroup();
   }
 
-  deleteTestGroup(testGroupConfId: number) {
-    let index = this.data.testGroups.findIndex(tg => tg.testGroupConfId === testGroupConfId)
-    if (index >= 0) {
-      this.data.testGroups.splice(index, 1)
+  deleteTestGroup(group: ITestSetConfTestGroup) {
+    if (window.confirm(`Ви дійсно хочете видалити групу "${this.getTestGroupNameById(group.testGroupConfId)}" з набору тестів?`)) {
+      let index = this.data.testGroups.findIndex(tg => tg.testGroupConfId === group.testGroupConfId);
+      if (index >= 0) {
+        this.data.testGroups.splice(index, 1)
+      }
+      this.resetNewTestGroup();
     }
   }
 
-  save() {
-    this.onSave.emit(this.data)
+  getTestGroupNameById(testGroupConfId: number): string {
+    return this.workspace.testGroupConfDropdownOptions.find(opt => opt.id === testGroupConfId).text
   }
 
   private resetNewTestGroup() {
-    if (this.testGroupConfDrowpdownOptions.length > 0) {
+    if (this.workspace.testGroupConfDropdownOptions.length > 0) {
       //filter out already added groups
-      this.testGroupConfDrowpdownOptions = this.testGroupConfDrowpdownOptions.filter(
+      this.filteredTestGroupConfDrowpdownOptions = this.workspace.testGroupConfDropdownOptions.filter(
         opt => !this.data.testGroups.find(tg => tg.testGroupConfId === opt.id)
       );
 
-      if (this.testGroupConfDrowpdownOptions.length > 0) {
+      if (this.filteredTestGroupConfDrowpdownOptions.length > 0) {
         this.newTestGroup = {
           id: -1,
-          testSetConfId: this.data.id,
-          testGroupConfId: this.testGroupConfDrowpdownOptions[0].id,
+          testSetConfId: this.data.testSetConf.id,
+          testGroupConfId: this.filteredTestGroupConfDrowpdownOptions[0].id,
           proportionPercents: 5
         }
+      } else {
+        this.newTestGroup = undefined
       }
     }
   }

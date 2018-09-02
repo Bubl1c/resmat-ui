@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Http } from "@angular/http";
 import { Observable } from "rxjs/Rx";
 import { IExamDto, IExamStepWithData } from "./exam.api-protocol";
-import { IExamTaskFlowStepData, ItaskFlowStepDto, IVerifiedTaskFlowStepAnswer } from "./task-flow.api-protocol";
+import { IExamTaskFlowStepData, ITaskFlowStepDto, IVerifiedTaskFlowStepAnswer } from "./task-flow.api-protocol";
 import { TestAnswer } from "../components/test/test.component";
 import { ExamResult } from "../components/exam-results/exam-results.component";
 import { HttpUtils } from "../../utils/HttpUtils";
@@ -108,7 +108,7 @@ export class ExamService {
       '/steps/' + examStepSequence +
       '/attempts/' + attemptId +
       '/task-flows/'+ taskFlowId + '/steps/current')
-      .map((r: ItaskFlowStepDto) => {
+      .map((r: ITaskFlowStepDto) => {
         let stepConf = r.taskFlowStepConf;
         let step = r.stepAttemptTaskFlowStep;
         return {

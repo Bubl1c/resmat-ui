@@ -15,7 +15,8 @@
     </div>
 
     <div class="mui-panel">
-      <exam-conf-steps-tabs [data]="data.stepConfs"></exam-conf-steps-tabs>
+      <exam-conf-steps-tabs [data]="stepConfWorkspaces"
+                            [createNewStepConfWorkspace]="createNewDefaultStepConfWorkspace"></exam-conf-steps-tabs>
     </div>
 
     <button class="mui-btn mui-btn--primary"

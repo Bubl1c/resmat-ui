@@ -78,6 +78,14 @@ body {
   color: red;
 }
 
+.resmat-label {
+  color: rgba(0,0,0,.54);
+  font-weight: 400;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media print
 {
   .no-print, .no-print *

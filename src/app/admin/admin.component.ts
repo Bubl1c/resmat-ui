@@ -22,6 +22,7 @@ import {
   defaultExamStepConfInstance, newExamConf,
   resultsExamStepConfInstance
 } from "./components/edit-exam-conf/examConfConstants";
+import { TestConfService } from "./data/test-conf.service";
 
 class WorkspaceDataTypes {
   static user = "user";
@@ -227,9 +228,13 @@ class ExamWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.editExam;
   isSaving = false;
 
-  constructor(public data: IExamConfDto, private api: ApiService) {
+  testGroupConfsDropdownOptions: DropdownOption[];
+
+  constructor(public data: IExamConfDto, testGroupConfsFlat: ITestGroupConf[], private api: ApiService) {
     super();
+    this.testGroupConfsDropdownOptions = testGroupConfsFlat.map(tgc => new DropdownOption(tgc.id, tgc.name));
   }
+
 
   save(data: IExamConfDto) {
     this.isSaving = true;
@@ -276,7 +281,7 @@ abstract class TestGroupWorkspaceData extends WorkspaceData {
   parentGroupOptions: DropdownOption[];
   notSelectedParentGroupOption = new DropdownOption(-1, "Не вибрано");
 
-  constructor(public data: ITestGroupConfWithChildren, protected api: ApiService, protected adminComponent: AdminComponent) {
+  constructor(public data: ITestGroupConfWithChildren, protected tcService: TestConfService, protected adminComponent: AdminComponent) {
     super();
     this.initialiseParentGroupOptions();
   }
@@ -301,8 +306,8 @@ abstract class TestGroupWorkspaceData extends WorkspaceData {
 class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
   type = WorkspaceDataTypes.testGroup;
 
-  constructor(public data: ITestGroupConfWithTestConfs, api: ApiService, adminComponent: AdminComponent) {
-    super(data, api, adminComponent);
+  constructor(public data: ITestGroupConfWithTestConfs, tcService: TestConfService, adminComponent: AdminComponent) {
+    super(data, tcService, adminComponent);
   }
 
   save(name: string, parentGroupId: number = this.selectedParentGroupId) {
@@ -311,7 +316,7 @@ class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
       name: name,
       parentGroupId: parentGroupId === this.notSelectedParentGroupOption.id ? undefined : parentGroupId
     };
-    this.api.put("/test-groups/" + this.data.id, requestBody).subscribe({
+    this.tcService.updateTestGroupConf(this.data.id, requestBody).subscribe({
       next: (updated: ITestGroupConf) => {
         this.adminComponent.loadTestGroupConfs();
         alert("Успішно збережено");
@@ -326,7 +331,7 @@ class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
   deleteTestConf(testConf: ITestEditDto) {
     if(window.confirm("Ви дійсно хочете видалити тест '" + testConf.question + "' ? " +
         "Це призведе до видалення тесту з усіх робіт де він використовувався.")) {
-      this.api.delete("/test-groups/" + this.data.id + "/tests/" + testConf.id).subscribe({
+      this.tcService.deleteTestConf(this.data.id, testConf.id).subscribe({
         next: () => {
           const idx = this.data.testConfs.indexOf(testConf);
           this.data.testConfs.splice(idx, 1);
@@ -359,8 +364,8 @@ class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
 class AddTestGroupWorkspaceData extends TestGroupWorkspaceData {
   type = WorkspaceDataTypes.addTestGroup;
 
-  constructor(public data: ITestGroupConfWithChildren, api: ApiService, adminComponent: AdminComponent) {
-    super(data, api, adminComponent);
+  constructor(public data: ITestGroupConfWithChildren, tcService: TestConfService, adminComponent: AdminComponent) {
+    super(data, tcService, adminComponent);
   }
 
   save() {
@@ -375,9 +380,7 @@ class AddTestGroupWorkspaceData extends TestGroupWorkspaceData {
         ? undefined
         : this.selectedParentGroupId
     };
-    this.api.post(
-      "/test-groups", requestBody
-    ).subscribe({
+    this.tcService.createTestGroupConf(requestBody).subscribe({
       next: (result: ITestGroupConf) => {
         alert("Успішно збережено");
         this.adminComponent.loadTestGroupConfs(() => {
@@ -400,7 +403,7 @@ class EditTestConfWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.editTestConf;
   isSaving = false;
 
-  constructor(public data: ITestEditDto, private api: ApiService) {
+  constructor(public data: ITestEditDto, private tcService: TestConfService) {
     super();
   }
 
@@ -422,12 +425,15 @@ class EditTestConfWorkspaceData extends WorkspaceData {
       }
     };
     if(updatedOrCreatedTest.id > 0) {
-      this.api.put(
-        "/test-groups/" + updatedOrCreatedTest.groupId + "/tests/" + updatedOrCreatedTest.id, updatedOrCreatedTest
+      this.tcService.updateTestConf(
+        updatedOrCreatedTest.groupId,
+        updatedOrCreatedTest.id,
+        updatedOrCreatedTest
       ).subscribe(subscribeCallback)
     } else {
-      this.api.post(
-        "/test-groups/" + updatedOrCreatedTest.groupId + "/tests", updatedOrCreatedTest
+      this.tcService.createTestConf(
+        updatedOrCreatedTest.groupId,
+        updatedOrCreatedTest
       ).subscribe(subscribeCallback)
     }
   }
@@ -495,7 +501,7 @@ export class AdminComponent implements OnInit {
 
   workspaceData: WorkspaceData;
 
-  constructor(private router: Router, private api: ApiService) { }
+  constructor(private router: Router, private api: ApiService, private tcService: TestConfService) { }
 
   ngOnInit() {
     this.currentUser = CurrentSession.user;
@@ -604,7 +610,7 @@ export class AdminComponent implements OnInit {
   loadExamConf(examConfId: number) {
     this.api.get("/exam-confs/" + examConfId + "/dto").subscribe({
       next: (examConfDto: IExamConfDto) => {
-        this.workspaceData = new ExamWorkspaceData(examConfDto, this.api)
+        this.workspaceData = new ExamWorkspaceData(examConfDto, this.testsGroupConfsFlat, this.api)
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -617,7 +623,7 @@ export class AdminComponent implements OnInit {
     this.workspaceData = new ExamWorkspaceData({
       examConf: newExamConf(),
       stepConfs: [defaultExamStepConfInstance(1), resultsExamStepConfInstance(2)]
-    }, this.api)
+    }, this.testsGroupConfsFlat, this.api)
   }
 
   loadProblemConfs() {
@@ -654,7 +660,7 @@ export class AdminComponent implements OnInit {
   }
 
   loadTestGroupConfs(cb?: () => void) {
-    this.api.get("/test-groups").subscribe({
+    this.tcService.getTestGroupConfs(true).subscribe({
       next: (testGroupConfs: ITestGroupConf[]) => {
         this.testsGroupConfs = [];
         const groupsMap: Map<number, number> = new Map();
@@ -687,7 +693,7 @@ export class AdminComponent implements OnInit {
       parentGroupId: undefined,
       childGroups: []
     };
-    this.workspaceData = new AddTestGroupWorkspaceData(empty, this.api, this)
+    this.workspaceData = new AddTestGroupWorkspaceData(empty, this.tcService, this)
   }
 
   loadTestGroupConfById(testGroupConfId: number) {
@@ -695,10 +701,10 @@ export class AdminComponent implements OnInit {
   }
 
   loadTestGroupConf(testGroupConf: ITestGroupConfWithChildren) {
-    this.api.get("/test-groups/" + testGroupConf.id + "/tests").subscribe({
+    this.tcService.getTestConfsByTestGroupConfId(testGroupConf.id).subscribe({
       next: (testGroupTestConfs: ITestEditDto[]) => {
         let copy: ITestGroupConfWithTestConfs = Object.assign({ testConfs: testGroupTestConfs }, testGroupConf);
-        this.workspaceData = new EditTestGroupWorkspaceData(copy, this.api, this)
+        this.workspaceData = new EditTestGroupWorkspaceData(copy, this.tcService, this)
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -712,7 +718,7 @@ export class AdminComponent implements OnInit {
       testConf = new TestEdit();
       testConf.groupId = groupId;
     }
-    this.workspaceData = new EditTestConfWorkspaceData(testConf, this.api)
+    this.workspaceData = new EditTestConfWorkspaceData(testConf, this.tcService)
   }
 
   addUserToCurrentGroup(group: StudentGroup) {

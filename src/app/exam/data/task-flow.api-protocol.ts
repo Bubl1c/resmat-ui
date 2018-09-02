@@ -34,6 +34,12 @@ export interface IUserExamStepAttemptTaskFlowStep {
   mistakes: number;
 }
 
+export interface ITaskFlowConf {
+  id: number
+  problemConfId: number
+  name: string
+}
+
 export interface ITaskFlowStepConf {
   id: number;
   taskFlowConfId: number;
@@ -44,6 +50,11 @@ export interface ITaskFlowStepConf {
   stepData: string
 }
 
+export interface ITaskFlowConfDto {
+  taskFlowConf: ITaskFlowConf
+  taskFlowSteps: ITaskFlowStepConf[]
+}
+
 export interface ITaskFlowHelpStepDto {
   name: string;
   id: number
@@ -51,7 +62,7 @@ export interface ITaskFlowHelpStepDto {
   data: any
 }
 
-export interface ItaskFlowStepDto {
+export interface ITaskFlowStepDto {
   taskFlowStepConf: ITaskFlowStepConf;
   stepAttemptTaskFlowStep: IUserExamStepAttemptTaskFlowStep;
   taskFlowStepData: any

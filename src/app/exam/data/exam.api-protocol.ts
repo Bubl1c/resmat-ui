@@ -1,3 +1,6 @@
+import { ITestSetConfDto } from "./test-set.api-protocol";
+import { ITaskFlowConfDto } from "./task-flow.api-protocol";
+
 export type ExamStepType = 'test-set' | 'task-flow' | 'results'
 
 export class ExamStepTypes {
@@ -55,6 +58,8 @@ export interface IExamConfDto {
   stepConfs: IExamStepConf[]
 }
 
+export type IExamStepConfDataSet = IExamStepTestSetDataSet | IExamStepResultsDataSet | IExamStepTaskFlowDataSet
+
 export interface IExamStepTestSetDataSet {
   ExamStepTestSetDataSet: {
     testSetConfId: number
@@ -83,9 +88,14 @@ export interface IExamStepConf {
   attemptsLimit: number;
   attemptValuePercents: number; //influence to result
   maxScore: number; //should be within ExamConf.maxScore
-  dataSet: IExamStepTestSetDataSet | IExamStepResultsDataSet | IExamStepTaskFlowDataSet;
+  dataSet: IExamStepConfDataSet;
   hasToBeSubmitted: boolean
 }
+
+export interface IResultsStepDataConf {
+}
+
+export type ExamStepDataConf = ITestSetConfDto | ITaskFlowConfDto | IResultsStepDataConf
 
 export interface IExamStepAttempt {
   id: number;
