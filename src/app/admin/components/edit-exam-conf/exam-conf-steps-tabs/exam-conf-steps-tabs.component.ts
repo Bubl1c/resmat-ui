@@ -14,7 +14,8 @@ export class ExamConfStepsTabsComponent implements OnInit {
   set data(d: IStepConfWorkspace[]) {
     this._data = d;
     this.orderStepsBySequence();
-    this.resetSequenceDropdownOptions()
+    this.resetSequenceDropdownOptions();
+    this.resetState()
   }
 
   get data(): IStepConfWorkspace[] {
@@ -30,11 +31,14 @@ export class ExamConfStepsTabsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.activateStep(this.data[0]);
+    this.resetState()
   }
 
   activateStep(w: IStepConfWorkspace) {
-    this.activeStepSequence = w.stepConf.sequence
+    this.activeStepSequence = w.stepConf.sequence;
+    if (!w.stepData) { // don't reload if already loaded
+      w.loadData()
+    }
   }
 
   isResultsStep(w: IStepConfWorkspace): boolean {
@@ -92,5 +96,10 @@ export class ExamConfStepsTabsComponent implements OnInit {
   private resetSequenceDropdownOptions() {
     this.sequenceDropdownOptions = this.filterEditableSteps(this._data)
       .map(s => new DropdownOption(s.stepConf.sequence, s.stepConf.sequence.toString()))
+  }
+
+  private resetState() {
+    this.activeStepSequence = undefined;
+    this.activateStep(this.data[0]);
   }
 }

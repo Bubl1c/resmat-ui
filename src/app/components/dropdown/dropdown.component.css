@@ -1,7 +1,7 @@
 .resmat-dropdown-button {
   padding: 0;
   display: flex;
-  justify-content: center;
+  /*justify-content: center; - not nice with long text*/
   align-items: center;
 }
 

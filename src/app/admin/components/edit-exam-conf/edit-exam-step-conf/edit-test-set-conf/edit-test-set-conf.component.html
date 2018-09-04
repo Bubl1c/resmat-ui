@@ -22,22 +22,31 @@
           {{ getTestGroupNameById(group.testGroupConfId) }}
         </td>
         <td>
-          <input type="number" name="proportionPercents" [(ngModel)]="group.proportionPercents" required>
+          <div class="mui-textfield proportion-percents-input-container">
+            <input type="number"
+                   name="proportionPercents-{{group.testGroupConfId}}"
+                   [(ngModel)]="group.proportionPercents"
+                   required>
+          </div>
         </td>
         <td>
           <a (click)="deleteTestGroup(group)"><i class="material-icons">delete_forever</i></a>
         </td>
       </tr>
       <tr *ngIf="newTestGroup" style="border: 0">
-        <td style="border: 0"></td>
-        <td style="border: 0">
+        <td style="border: 0" colspan="2">
           <dropdown [options]="filteredTestGroupConfDrowpdownOptions"
                     [selectedOptionId]="newTestGroup.testGroupConfId"
-                    (onSelected)="groupSelected($event, group)">
+                    (onSelected)="groupSelected($event, newTestGroup)">
           </dropdown>
         </td>
         <td style="border: 0">
-          <input type="number" name="newTestGroupproportionPercents" [(ngModel)]="newTestGroup.proportionPercents" required>
+          <div class="mui-textfield proportion-percents-input-container">
+            <input type="number"
+                   name="newTestGroupProportionPercents"
+                   [(ngModel)]="newTestGroup.proportionPercents"
+                   required>
+          </div>
         </td>
         <td style="border: 0">
           <a (click)="addTestGroup()"><i class="material-icons">playlist_add</i></a>

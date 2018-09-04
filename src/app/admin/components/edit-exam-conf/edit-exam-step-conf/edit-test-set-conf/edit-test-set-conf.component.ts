@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DropdownOption } from "../../../../../components/dropdown/dropdown.component";
 import { ITestSetConfDto, ITestSetConfTestGroup } from "../../../../../exam/data/test-set.api-protocol";
 import { TestConfService } from "../../../../data/test-conf.service";
@@ -9,7 +9,7 @@ import { TestSetConfStepWorkspace } from "../../edit-exam-conf.component";
   templateUrl: './edit-test-set-conf.component.html',
   styleUrls: ['./edit-test-set-conf.component.css']
 })
-export class EditTestSetConfComponent implements OnInit {
+export class EditTestSetConfComponent implements OnInit, OnChanges {
 
   @Input() workspace: TestSetConfStepWorkspace;
   @Input() isSaving: Boolean = false;
@@ -24,6 +24,12 @@ export class EditTestSetConfComponent implements OnInit {
   ngOnInit() {
     this.data = this.workspace.stepData;
     this.resetNewTestGroup();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['workspace']) {
+      this.ngOnInit()
+    }
   }
 
   groupSelected(opt: DropdownOption, group: ITestSetConfTestGroup) {

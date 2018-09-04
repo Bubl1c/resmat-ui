@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import {
   ExamStepDataConf,
   ExamStepTypes,
@@ -6,7 +6,7 @@ import {
   IExamStepConf, IExamStepConfDataSet, IExamStepResultsDataSet, IExamStepTaskFlowDataSet,
   IExamStepTestSetDataSet, IResultsStepDataConf
 } from "../../../exam/data/exam.api-protocol";
-import { defaultExamStepConfInstance, resultsExamStepConfInstance } from "./examConfConstants";
+import { defaultExamStepConfInstance, newTestSetConfDto, resultsExamStepConfInstance } from "./examConfConstants";
 import { DropdownOption } from "../../../components/dropdown/dropdown.component";
 import { ApiService } from "../../../api.service";
 import { ITestSetConfDto } from "../../../exam/data/test-set.api-protocol";
@@ -21,7 +21,8 @@ import { ITaskFlowConfDto, ITaskFlowStepConf } from "../../../exam/data/task-flo
   templateUrl: './edit-exam-conf.component.html',
   styleUrls: ['./edit-exam-conf.component.css']
 })
-export class EditExamConfComponent implements OnInit {
+export class EditExamConfComponent implements OnInit, OnChanges {
+
   @Input() data: IExamConfDto;
   @Input() isSaving: boolean = false;
 
@@ -35,14 +36,13 @@ export class EditExamConfComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (!this.data.examConf.id) {
-      this.isCreateMode = true;
-      this.data.stepConfs = [
-        defaultExamStepConfInstance(1),
-        resultsExamStepConfInstance(2)
-      ]
+    this.init()
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["data"]) {
+      this.init()
     }
-    this.initialiseStepConfWorkspaces();
   }
 
   save() {
@@ -72,6 +72,17 @@ export class EditExamConfComponent implements OnInit {
     }
   }
 
+  private init() {
+    if (!this.data.examConf.id) {
+      this.isCreateMode = true;
+      this.data.stepConfs = [
+        defaultExamStepConfInstance(1),
+        resultsExamStepConfInstance(2)
+      ]
+    }
+    this.initialiseStepConfWorkspaces();
+  }
+
 }
 
 export abstract class IStepConfWorkspace {
@@ -99,23 +110,30 @@ export class TestSetConfStepWorkspace extends IStepConfWorkspace {
   }
 
   loadData = (): void => {
-    this.isLoading = true;
-    Observable.forkJoin(
-      this.api.get(
-        `/test-set-confs/${this.dataSet.ExamStepTestSetDataSet.testSetConfId}`
-      ),
-      this.tcService.getTestGroupConfs()
-    ).subscribe(results => {
-      this.stepData = results[0] as ITestSetConfDto;
+    if (this.stepConf.id > 0) { // if it is not new step
+      this.isLoading = true;
+      Observable.forkJoin(
+        this.api.get(
+          `/test-set-confs/${this.dataSet.ExamStepTestSetDataSet.testSetConfId}`
+        ),
+        this.tcService.getTestGroupConfs()
+      ).subscribe(results => {
+        this.stepData = results[0] as ITestSetConfDto;
 
-      let testGroupConfs: ITestGroupConf[] = results[1];
-      this.testGroupConfDropdownOptions = testGroupConfs.map(tgc => new DropdownOption(tgc.id, tgc.name));
+        let testGroupConfs: ITestGroupConf[] = results[1];
+        this.testGroupConfDropdownOptions = testGroupConfs.map(tgc => new DropdownOption(tgc.id, tgc.name));
 
-      this.isLoading = false;
-    }, error => {
-      alert("Не вдалося завантажити дані для набору тестів: " + JSON.stringify(error));
-      this.isLoading = false;
-    });
+        this.isLoading = false;
+      }, error => {
+        alert("Не вдалося завантажити дані для набору тестів: " + JSON.stringify(error));
+        this.isLoading = false;
+      });
+    } else {
+      this.tcService.getTestGroupConfs().subscribe(testGroupConfs => {
+        this.testGroupConfDropdownOptions = testGroupConfs.map(tgc => new DropdownOption(tgc.id, tgc.name));
+        this.stepData = newTestSetConfDto()
+      })
+    }
   }
 
 }

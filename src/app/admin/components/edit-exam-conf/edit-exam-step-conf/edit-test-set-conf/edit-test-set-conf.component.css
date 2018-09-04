@@ -7,3 +7,9 @@
 .groups-table-cell {
   padding: 0
 }
+
+.proportion-percents-input-container {
+  padding: 0;
+  margin: 0;
+  height: unset;
+}

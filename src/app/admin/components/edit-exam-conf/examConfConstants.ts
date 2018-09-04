@@ -1,4 +1,5 @@
 import { ExamStepTypes, IExamConf, IExamStepConf } from "../../../exam/data/exam.api-protocol";
+import { ITestSetConf, ITestSetConfDto, ITestSetConfTestGroup } from "../../../exam/data/test-set.api-protocol";
 
 export const newExamConf = (): IExamConf => ({
   id: undefined,
@@ -41,4 +42,13 @@ export const resultsExamStepConfInstance = (sequence: number = 2): IExamStepConf
     ExamStepResultsDataSet: {}
   },
   hasToBeSubmitted: false
+});
+
+export const newTestSetConfDto = (): ITestSetConfDto => ({
+  testSetConf: {
+    id: -1,
+    name: "",
+    maxTestsAmount: 10
+  },
+  testGroups: []
 });
