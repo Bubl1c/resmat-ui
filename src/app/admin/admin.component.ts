@@ -17,10 +17,10 @@ import {SelectableItem} from "../components/item-selector/item-selector.componen
 import {Observable} from "rxjs/Observable";
 import { DropdownOption } from "../components/dropdown/dropdown.component";
 import { ITestGroupConf, ITestGroupConfWithChildren } from "./components/test-group-list/test-group-list.component";
-import { IExamConf, IExamConfDto } from "../exam/data/exam.api-protocol";
+import { IExamConf, IExamConfDto, IExamConfUpdateDto } from "../exam/data/exam.api-protocol";
 import {
-  defaultExamStepConfInstance, newExamConf,
-  resultsExamStepConfInstance
+  newDefaultExamStepConfInstance, newExamConf,
+  newResultsExamStepConfInstance
 } from "./components/edit-exam-conf/examConfConstants";
 import { TestConfService } from "./data/test-conf.service";
 
@@ -52,7 +52,7 @@ class UserWorkspaceData extends WorkspaceData {
   }
 
   save(user: UserData) {
-    if(user.id) {
+    if(user.id > 0) {
       const url = this.isEditStudent ? `/student-groups/${user.studentGroupId}/students/${user.id}` : `/api-users/${user.id}`;
       this.api.put(url, user).subscribe({
         next: savedUser => {
@@ -230,35 +230,14 @@ class ExamWorkspaceData extends WorkspaceData {
 
   testGroupConfsDropdownOptions: DropdownOption[];
 
-  constructor(public data: IExamConfDto, testGroupConfsFlat: ITestGroupConf[], private api: ApiService) {
+  constructor(public data: IExamConfDto, testGroupConfsFlat: ITestGroupConf[], protected adminComponent: AdminComponent) {
     super();
     this.testGroupConfsDropdownOptions = testGroupConfsFlat.map(tgc => new DropdownOption(tgc.id, tgc.name));
   }
 
-
-  save(data: IExamConfDto) {
-    this.isSaving = true;
-    if (data.examConf.id) {
-      this.api.put(`/exam-confs/${data.examConf.id}`, data).subscribe({
-        next: () => { this.requestComplete(); alert("Успішно збережено"); },
-        error: e => {
-          this.requestComplete();
-          alert("Не вдалося зберегти: " + JSON.stringify(e))
-        }
-      })
-    } else {
-      this.api.post(`/exam-confs`, data).subscribe({
-        next: () => { this.requestComplete(); alert("Успішно збережено") },
-        error: e => {
-          this.requestComplete();
-          alert("Не вдалося зберегти: " + JSON.stringify(e))
-        }
-      })
-    }
-  }
-
-  private requestComplete() {
-    this.isSaving = false
+  onSaved(saved: IExamConfDto) {
+    this.adminComponent.loadExamConfs();
+    this.data = saved;
   }
 }
 
@@ -610,7 +589,7 @@ export class AdminComponent implements OnInit {
   loadExamConf(examConfId: number) {
     this.api.get("/exam-confs/" + examConfId + "/dto").subscribe({
       next: (examConfDto: IExamConfDto) => {
-        this.workspaceData = new ExamWorkspaceData(examConfDto, this.testsGroupConfsFlat, this.api)
+        this.workspaceData = new ExamWorkspaceData(examConfDto, this.testsGroupConfsFlat, this)
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -622,8 +601,8 @@ export class AdminComponent implements OnInit {
   addExamConf() {
     this.workspaceData = new ExamWorkspaceData({
       examConf: newExamConf(),
-      stepConfs: [defaultExamStepConfInstance(1), resultsExamStepConfInstance(2)]
-    }, this.testsGroupConfsFlat, this.api)
+      stepConfs: [newDefaultExamStepConfInstance(1), newResultsExamStepConfInstance(2)]
+    }, this.testsGroupConfsFlat, this)
   }
 
   loadProblemConfs() {

@@ -68,7 +68,8 @@ export class ExamConfStepsTabsComponent implements OnInit {
   addStep() {
     let index = this._data.length - 1; // insert new step before results
     let sequence = index + 1;
-    this._data.splice(index, 0, this.createNewStepConfWorkspace(sequence));
+    let newStep = this.createNewStepConfWorkspace(sequence);
+    this._data.splice(index, 0, newStep);
     this.activeStepSequence = sequence;
     this.changeSequences(index + 1, (seq) => seq + 1);
     this.resetSequenceDropdownOptions();

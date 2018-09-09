@@ -1,12 +1,15 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import {
-  ExamStepDataConf,
-  ExamStepTypes,
-  IExamConfDto,
+  ExamStepDataConf, ExamStepDataConfResultsConf, ExamStepDataConfTaskFlowConfDto, ExamStepDataConfTestSetConfDto,
+  ExamStepTypes, IExamConfCreateDto,
+  IExamConfDto, IExamConfUpdateDto,
   IExamStepConf, IExamStepConfDataSet, IExamStepResultsDataSet, IExamStepTaskFlowDataSet,
   IExamStepTestSetDataSet, IResultsStepDataConf
 } from "../../../exam/data/exam.api-protocol";
-import { defaultExamStepConfInstance, newTestSetConfDto, resultsExamStepConfInstance } from "./examConfConstants";
+import {
+  newDefaultExamStepConfInstance, newTaskFlowConfDto, newTestSetConfDto,
+  newResultsExamStepConfInstance
+} from "./examConfConstants";
 import { DropdownOption } from "../../../components/dropdown/dropdown.component";
 import { ApiService } from "../../../api.service";
 import { ITestSetConfDto } from "../../../exam/data/test-set.api-protocol";
@@ -14,7 +17,7 @@ import { Observable } from "rxjs/Observable";
 import { TestConfService } from "../../data/test-conf.service";
 import { ITestGroupConf } from "../test-group-list/test-group-list.component";
 import { IProblemConf } from "../problem-conf/problem-conf.component";
-import { ITaskFlowConfDto, ITaskFlowStepConf } from "../../../exam/data/task-flow.api-protocol";
+import { ITaskFlowConfDto } from "../../../exam/data/task-flow.api-protocol";
 
 @Component({
   selector: 'edit-exam-conf',
@@ -46,12 +49,55 @@ export class EditExamConfComponent implements OnInit, OnChanges {
   }
 
   save() {
-    this.onSave.emit(this.data)
+    this.isSaving = true;
+    if (this.data.examConf.id > 0) {
+      let toSave: IExamConfUpdateDto = {
+        examConf: this.data.examConf,
+        stepConfs: this.stepConfWorkspaces.map(w => ({
+          examStepConf: w.stepConf,
+          stepDataConf: w.stepData || undefined
+        }))
+      };
+      this.api.put(`/exam-confs/${this.data.examConf.id}`, toSave).subscribe({
+        next: updated => {
+          this.requestComplete();
+          alert("Успішно збережено");
+          this.onSave.emit(updated);
+        },
+        error: e => {
+          this.requestComplete();
+          alert("Не вдалося зберегти: " + JSON.stringify(e))
+        }
+      })
+    } else {
+      let toSave: IExamConfCreateDto = {
+        examConf: this.data.examConf,
+        stepConfs: this.stepConfWorkspaces.map(w => ({
+          examStepConf: w.stepConf,
+          stepDataConf: w.stepData
+        }))
+      };
+      this.api.post(`/exam-confs`, toSave).subscribe({
+        next: created => {
+          this.requestComplete();
+          alert("Успішно збережено");
+          this.onSave.emit(created);
+        },
+        error: e => {
+          this.requestComplete();
+          alert("Не вдалося зберегти: " + JSON.stringify(e))
+        }
+      })
+    }
+  }
+
+  private requestComplete() {
+    this.isSaving = false
   }
 
   //has to be a lambda to pass it as a parameter
   createNewDefaultStepConfWorkspace = (sequence: number) => {
-    this.createStepConfWorkspace(defaultExamStepConfInstance(sequence))
+    return this.createStepConfWorkspace(newDefaultExamStepConfInstance(sequence))
   };
 
   private initialiseStepConfWorkspaces() {
@@ -59,26 +105,32 @@ export class EditExamConfComponent implements OnInit, OnChanges {
   }
 
   private createStepConfWorkspace(stepConf: IExamStepConf): IStepConfWorkspace {
+    let workspace: IStepConfWorkspace;
     switch (stepConf.stepType) {
       case ExamStepTypes.TestSet:
-        return new TestSetConfStepWorkspace(this.api, this.tcService, stepConf);
+        workspace = new TestSetConfStepWorkspace(this.api, this.tcService, stepConf);
+        break;
       case ExamStepTypes.TaskFlow:
-        return new TaskFlowConfStepWorkspace(this.api, stepConf);
+        workspace = new TaskFlowConfStepWorkspace(this.api, stepConf);
+        break;
       case ExamStepTypes.Results:
-        return new ResultsConfStepWorkspace(this.api, stepConf);
+        workspace = new ResultsConfStepWorkspace(this.api, stepConf);
+        break;
       default:
         alert("Невідомий крок: " + JSON.stringify(stepConf));
         throw new Error("Невідомий крок: " + JSON.stringify(stepConf));
     }
+    if (!stepConf.id || stepConf.id < 0) {
+      workspace.loadData(); // initialise stepData for the newly created workspace
+    }
+    return workspace
   }
 
   private init() {
-    if (!this.data.examConf.id) {
+    if (!this.data.examConf.id || this.data.examConf.id < 0) {
       this.isCreateMode = true;
-      this.data.stepConfs = [
-        defaultExamStepConfInstance(1),
-        resultsExamStepConfInstance(2)
-      ]
+    } else {
+      this.isCreateMode = false;
     }
     this.initialiseStepConfWorkspaces();
   }
@@ -102,7 +154,7 @@ export class TestSetConfStepWorkspace extends IStepConfWorkspace {
   dataSet: IExamStepTestSetDataSet;
 
   testGroupConfDropdownOptions: DropdownOption[];
-  stepData: ITestSetConfDto;
+  stepData: ExamStepDataConfTestSetConfDto;
 
   constructor(private api: ApiService, private tcService: TestConfService, public stepConf: IExamStepConf) {
     super(stepConf);
@@ -118,7 +170,9 @@ export class TestSetConfStepWorkspace extends IStepConfWorkspace {
         ),
         this.tcService.getTestGroupConfs()
       ).subscribe(results => {
-        this.stepData = results[0] as ITestSetConfDto;
+        this.stepData = {
+          TestSetConfDto: results[0] as ITestSetConfDto
+        };
 
         let testGroupConfs: ITestGroupConf[] = results[1];
         this.testGroupConfDropdownOptions = testGroupConfs.map(tgc => new DropdownOption(tgc.id, tgc.name));
@@ -131,7 +185,9 @@ export class TestSetConfStepWorkspace extends IStepConfWorkspace {
     } else {
       this.tcService.getTestGroupConfs().subscribe(testGroupConfs => {
         this.testGroupConfDropdownOptions = testGroupConfs.map(tgc => new DropdownOption(tgc.id, tgc.name));
-        this.stepData = newTestSetConfDto()
+        this.stepData = {
+          TestSetConfDto: newTestSetConfDto()
+        }
       })
     }
   }
@@ -141,7 +197,7 @@ export class TestSetConfStepWorkspace extends IStepConfWorkspace {
 export class TaskFlowConfStepWorkspace extends IStepConfWorkspace {
   dataSet: IExamStepTaskFlowDataSet;
 
-  stepData: ITaskFlowConfDto;
+  stepData: ExamStepDataConfTaskFlowConfDto;
   problemConf: IProblemConf;
 
   constructor(private api: ApiService, public stepConf: IExamStepConf) {
@@ -150,21 +206,29 @@ export class TaskFlowConfStepWorkspace extends IStepConfWorkspace {
   }
 
   loadData = (): void => {
-    Observable.forkJoin(
-      this.api.get(
-        `/task-flow-confs/${this.dataSet.ExamStepTaskFlowDataSet.taskFlowConfId}`
-      ),
-      this.api.get(
-        `/problem-confs/${this.dataSet.ExamStepTaskFlowDataSet.problemConfId}`
-      )
-    ).subscribe(results => {
-      this.stepData = results[0];
-      this.problemConf = results[1];
-      this.isLoading = false;
-    }, error => {
-      alert("Не вдалося завантажити дані для задачі: " + JSON.stringify(error));
-      this.isLoading = false;
-    })
+    if (this.stepConf.id > 0) { // if it is not new step
+      Observable.forkJoin(
+        this.api.get(
+          `/task-flow-confs/${this.dataSet.ExamStepTaskFlowDataSet.taskFlowConfId}`
+        ),
+        this.api.get(
+          `/problem-confs/${this.dataSet.ExamStepTaskFlowDataSet.problemConfId}`
+        )
+      ).subscribe(results => {
+        this.stepData = {
+          TaskFlowConfDto: results[0] as ITaskFlowConfDto
+        };
+        this.problemConf = results[1];
+        this.isLoading = false;
+      }, error => {
+        alert("Не вдалося завантажити дані для задачі: " + JSON.stringify(error));
+        this.isLoading = false;
+      })
+    } else {
+      this.stepData = {
+        TaskFlowConfDto: newTaskFlowConfDto()
+      }
+    }
   }
 
 }
@@ -172,7 +236,7 @@ export class TaskFlowConfStepWorkspace extends IStepConfWorkspace {
 export class ResultsConfStepWorkspace extends IStepConfWorkspace {
   dataSet: IExamStepResultsDataSet;
 
-  stepData: IResultsStepDataConf;
+  stepData: ExamStepDataConfResultsConf;
 
   constructor(private api: ApiService, public stepConf: IExamStepConf) {
     super(stepConf);
@@ -180,7 +244,9 @@ export class ResultsConfStepWorkspace extends IStepConfWorkspace {
   }
 
   loadData = (): void => {
-    this.stepData = {}
+    this.stepData = {
+      ResultsConf: {}
+    }
   }
 
 }

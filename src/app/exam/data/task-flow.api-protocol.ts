@@ -1,3 +1,5 @@
+import { ITestEditDto } from "./test-set.api-protocol";
+
 export interface ISchemaVar {
   name: string;
   value: string;
@@ -16,6 +18,54 @@ export class TaskFlowStepTypes {
   static Loading = 'loading';
 }
 
+//-------------------Task Flow Conf
+
+export interface ITaskFlowConf {
+  id: number
+  problemConfId: number
+  name: string
+}
+
+export interface ITaskFlowConfDto {
+  taskFlowConf: ITaskFlowConf
+  taskFlowSteps: ITaskFlowStepConf[]
+}
+
+//-------------------Step Conf
+
+export interface ITaskFlowStepConf {
+  id: number;
+  taskFlowConfId: number;
+  name: string;
+  sequence: number;
+  isHelpStep: boolean;
+  stepType: string;
+  stepData: string //TaskFlowStepData
+}
+
+export type TaskFlowStepData = ITaskFlowTestConf
+
+export interface ITaskFlowTestConf {
+  testConf: ITestEditDto,
+  correctOptionIdsMapping?: string
+}
+
+export interface ITaskFlowHelpStepDto {
+  name: string;
+  id: number
+  stepType: string
+  data: any
+}
+
+//-------------------Exam step
+
+export interface ITaskFlowStepDto {
+  taskFlowStepConf: ITaskFlowStepConf;
+  stepAttemptTaskFlowStep: IUserExamStepAttemptTaskFlowStep;
+  taskFlowStepData: any
+  helpSteps: ITaskFlowHelpStepDto[]
+}
+
 export interface IExamTaskFlowStepData {
   id: number;
   type: string;
@@ -32,41 +82,6 @@ export interface IUserExamStepAttemptTaskFlowStep {
   taskFlowStepConfId: number;
   done: boolean;
   mistakes: number;
-}
-
-export interface ITaskFlowConf {
-  id: number
-  problemConfId: number
-  name: string
-}
-
-export interface ITaskFlowStepConf {
-  id: number;
-  taskFlowConfId: number;
-  name: string;
-  sequence: number;
-  isHelpStep: boolean;
-  stepType: string;
-  stepData: string
-}
-
-export interface ITaskFlowConfDto {
-  taskFlowConf: ITaskFlowConf
-  taskFlowSteps: ITaskFlowStepConf[]
-}
-
-export interface ITaskFlowHelpStepDto {
-  name: string;
-  id: number
-  stepType: string
-  data: any
-}
-
-export interface ITaskFlowStepDto {
-  taskFlowStepConf: ITaskFlowStepConf;
-  stepAttemptTaskFlowStep: IUserExamStepAttemptTaskFlowStep;
-  taskFlowStepData: any
-  helpSteps: ITaskFlowHelpStepDto[]
 }
 
 export interface IVerifiedTaskFlowStepAnswer {

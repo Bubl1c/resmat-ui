@@ -58,6 +58,16 @@ export interface IExamConfDto {
   stepConfs: IExamStepConf[]
 }
 
+export interface IExamConfCreateDto {
+  examConf: IExamConf
+  stepConfs: IExamStepConfCreateDto[]
+}
+
+export interface IExamConfUpdateDto {
+  examConf: IExamConf
+  stepConfs: IExamStepConfUpdateDto[]
+}
+
 export type IExamStepConfDataSet = IExamStepTestSetDataSet | IExamStepResultsDataSet | IExamStepTaskFlowDataSet
 
 export interface IExamStepTestSetDataSet {
@@ -92,10 +102,32 @@ export interface IExamStepConf {
   hasToBeSubmitted: boolean
 }
 
+export type ExamStepDataConf =
+  ExamStepDataConfTestSetConfDto |
+  ExamStepDataConfTaskFlowConfDto |
+  ExamStepDataConfResultsConf
+
+export interface ExamStepDataConfTestSetConfDto {
+  TestSetConfDto: ITestSetConfDto
+}
+export interface ExamStepDataConfTaskFlowConfDto {
+  TaskFlowConfDto: ITaskFlowConfDto
+}
+export interface ExamStepDataConfResultsConf {
+  ResultsConf: IResultsStepDataConf
+}
 export interface IResultsStepDataConf {
 }
 
-export type ExamStepDataConf = ITestSetConfDto | ITaskFlowConfDto | IResultsStepDataConf
+export interface IExamStepConfCreateDto {
+  examStepConf: IExamStepConf
+  stepDataConf: ExamStepDataConf
+}
+
+export interface IExamStepConfUpdateDto {
+  examStepConf: IExamStepConf
+  stepDataConf?: ExamStepDataConf
+}
 
 export interface IExamStepAttempt {
   id: number;

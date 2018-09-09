@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { DropdownOption } from "../../../../components/dropdown/dropdown.component";
 import { ITestSetConfDto } from "../../../../exam/data/test-set.api-protocol";
 import { IStepConfWorkspace } from "../edit-exam-conf.component";
-import { IExamStepConf } from "../../../../exam/data/exam.api-protocol";
+import { ExamStepType, IExamStepConf } from "../../../../exam/data/exam.api-protocol";
 
 @Component({
   selector: 'edit-exam-step-conf',
@@ -19,22 +19,20 @@ export class EditExamStepConfComponent implements OnInit, OnChanges {
   @Output() onDeleted = new EventEmitter<void>();
 
   stepConf: IExamStepConf;
+  isTaskFlowStep: boolean;
 
   constructor() {
   }
 
   ngOnInit() {
     this.stepConf = this.workspace.stepConf;
+    this.isTaskFlowStep = this.workspace.stepConf.stepType === ('task-flow' as ExamStepType)
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['workspace']) {
       this.ngOnInit()
     }
-  }
-
-  saveTestSetConf(testSetConf: ITestSetConfDto) {
-    console.log("Saving test set conf", testSetConf)
   }
 
   sequenceChanged(newValue: DropdownOption) {

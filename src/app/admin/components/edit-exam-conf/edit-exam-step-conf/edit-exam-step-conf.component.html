@@ -1,4 +1,4 @@
-<fieldset [disabled]="isReadonly" class="fieldset" [ngClass]="{ 'disabled': isReadonly }">
+<fieldset [disabled]="isReadonly || isTaskFlowStep" class="fieldset" [ngClass]="{ 'disabled': isReadonly || isTaskFlowStep }">
   <div class="mui-textfield">
     <dropdown [options]="sequenceDropdownOptions"
               [selectedOptionId]="stepConf.sequence"
@@ -11,7 +11,7 @@
     <input type="text" name="name" [(ngModel)]="stepConf.name" required>
     <label>Назва кроку</label>
   </div>
-  <div class="flex-container">
+  <div class="flex-container" *ngIf="stepConf.hasToBeSubmitted">
     <div class="flex-column flex-1">
       <div class="mui-textfield">
         <input type="number" name="attemptsLimit" [(ngModel)]="stepConf.attemptsLimit" required>
@@ -33,7 +33,7 @@
       </div>
     </div>
   </div>
-  <div class="mui-textfield">
+  <div class="mui-textfield" *ngIf="stepConf.hasToBeSubmitted">
     <input type="number" name="maxScore" [(ngModel)]="stepConf.maxScore" required>
     <label>Максимальна оцінка</label>
   </div>
@@ -42,7 +42,7 @@
     <p type="text">{{ stepConf.stepType }}</p>
     <label>Тип кроку</label>
   </div>
-  <div class="flex-container">
+  <div class="flex-container" *ngIf="stepConf.hasToBeSubmitted">
 
     <div [ngSwitch]="stepConf.stepType" class="flex-1" *ngIf="!workspace.isLoading && workspace.stepData">
       <edit-test-set-conf

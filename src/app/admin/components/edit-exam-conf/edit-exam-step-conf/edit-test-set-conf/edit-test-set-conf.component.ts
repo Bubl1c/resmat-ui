@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { DropdownOption } from "../../../../../components/dropdown/dropdown.component";
 import { ITestSetConfDto, ITestSetConfTestGroup } from "../../../../../exam/data/test-set.api-protocol";
-import { TestConfService } from "../../../../data/test-conf.service";
 import { TestSetConfStepWorkspace } from "../../edit-exam-conf.component";
+import { ExamStepDataConfTestSetConfDto } from "../../../../../exam/data/exam.api-protocol";
 
 @Component({
   selector: 'edit-test-set-conf',
@@ -14,20 +14,18 @@ export class EditTestSetConfComponent implements OnInit, OnChanges {
   @Input() workspace: TestSetConfStepWorkspace;
   @Input() isSaving: Boolean = false;
 
-  data: ITestSetConfDto;
-
   filteredTestGroupConfDrowpdownOptions: DropdownOption[];
   newTestGroup: ITestSetConfTestGroup;
 
-  constructor() {}
+  constructor() {
+  }
 
   ngOnInit() {
-    this.data = this.workspace.stepData;
     this.resetNewTestGroup();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(changes['workspace']) {
+    if (changes['workspace']) {
       this.ngOnInit()
     }
   }
@@ -37,15 +35,16 @@ export class EditTestSetConfComponent implements OnInit, OnChanges {
   }
 
   addTestGroup() {
-    this.data.testGroups.push(this.newTestGroup);
+    this.workspace.stepData.TestSetConfDto.testGroups.push(this.newTestGroup);
     this.resetNewTestGroup();
   }
 
   deleteTestGroup(group: ITestSetConfTestGroup) {
+    let data = this.workspace.stepData.TestSetConfDto;
     if (window.confirm(`Ви дійсно хочете видалити групу "${this.getTestGroupNameById(group.testGroupConfId)}" з набору тестів?`)) {
-      let index = this.data.testGroups.findIndex(tg => tg.testGroupConfId === group.testGroupConfId);
+      let index = data.testGroups.findIndex(tg => tg.testGroupConfId === group.testGroupConfId);
       if (index >= 0) {
-        this.data.testGroups.splice(index, 1)
+        data.testGroups.splice(index, 1)
       }
       this.resetNewTestGroup();
     }
@@ -56,16 +55,17 @@ export class EditTestSetConfComponent implements OnInit, OnChanges {
   }
 
   private resetNewTestGroup() {
+    let data = this.workspace.stepData.TestSetConfDto;
     if (this.workspace.testGroupConfDropdownOptions.length > 0) {
       //filter out already added groups
       this.filteredTestGroupConfDrowpdownOptions = this.workspace.testGroupConfDropdownOptions.filter(
-        opt => !this.data.testGroups.find(tg => tg.testGroupConfId === opt.id)
+        opt => !data.testGroups.find(tg => tg.testGroupConfId === opt.id)
       );
 
       if (this.filteredTestGroupConfDrowpdownOptions.length > 0) {
         this.newTestGroup = {
           id: -1,
-          testSetConfId: this.data.testSetConf.id,
+          testSetConfId: data.testSetConf.id,
           testGroupConfId: this.filteredTestGroupConfDrowpdownOptions[0].id,
           proportionPercents: 5
         }

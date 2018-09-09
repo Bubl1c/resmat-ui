@@ -1,18 +1,19 @@
 import { ExamStepTypes, IExamConf, IExamStepConf } from "../../../exam/data/exam.api-protocol";
-import { ITestSetConf, ITestSetConfDto, ITestSetConfTestGroup } from "../../../exam/data/test-set.api-protocol";
+import { ITestSetConfDto } from "../../../exam/data/test-set.api-protocol";
+import { ITaskFlowConfDto, ITaskFlowTestConf, TaskFlowStepTypes } from "../../../exam/data/task-flow.api-protocol";
 
 export const newExamConf = (): IExamConf => ({
-  id: undefined,
+  id: -1,
   name: "",
   description: "",
   maxScore: 100
 });
 
-export const defaultExamStepConfInstance = (sequence: number = 1): IExamStepConf => ({
-  id: undefined,
-  examConfId: undefined,
+export const newDefaultExamStepConfInstance = (sequence: number): IExamStepConf => ({
+  id: -1,
+  examConfId: -1,
   sequence: sequence,
-  name: "Новий крок",
+  name: "Тестування",
   stepType: ExamStepTypes.TestSet,
   mistakesPerAttemptLimit: 5,
   mistakeValuePercents: 1,
@@ -21,14 +22,14 @@ export const defaultExamStepConfInstance = (sequence: number = 1): IExamStepConf
   maxScore: 25,
   dataSet: {
     ExamStepTestSetDataSet: {
-      testSetConfId: undefined
+      testSetConfId: -1
     }
   },
   hasToBeSubmitted: true
 });
 
-export const resultsExamStepConfInstance = (sequence: number = 2): IExamStepConf => ({
-  id: 3,
+export const newResultsExamStepConfInstance = (sequence: number): IExamStepConf => ({
+  id: -1,
   examConfId: 1,
   sequence: sequence,
   name: "Результати",
@@ -51,4 +52,37 @@ export const newTestSetConfDto = (): ITestSetConfDto => ({
     maxTestsAmount: 10
   },
   testGroups: []
+});
+
+export const newTaskFlowConfDto = (): ITaskFlowConfDto => ({
+  taskFlowConf: {
+    id: -1,
+    problemConfId: -1,
+    name: ""
+  },
+  taskFlowSteps: [{
+    id: -1,
+    taskFlowConfId: -1,
+    name: "",
+    sequence: 1,
+    isHelpStep: false,
+    stepType: TaskFlowStepTypes.Test,
+    stepData: JSON.stringify({
+      testConf: {
+        id: -1,
+        groupId: -1,
+        question: "",
+        imageUrl: "",
+        help: "",
+        testType: 'radio',
+        options: [{
+          id: -1,
+          value: "",
+          correct: true,
+          valueType: 'words'
+        }]
+      },
+      correctOptionIdsMapping: undefined
+    } as ITaskFlowTestConf)
+  }]
 });
