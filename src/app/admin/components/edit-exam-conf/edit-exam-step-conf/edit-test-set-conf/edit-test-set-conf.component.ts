@@ -35,8 +35,12 @@ export class EditTestSetConfComponent implements OnInit, OnChanges {
   }
 
   addTestGroup() {
-    this.workspace.stepData.TestSetConfDto.testGroups.push(this.newTestGroup);
-    this.resetNewTestGroup();
+    if (this.newTestGroup.proportionPercents > 0) {
+      this.workspace.stepData.TestSetConfDto.testGroups.push(this.newTestGroup);
+      this.resetNewTestGroup();
+    } else {
+      alert("Відсоток тестів у наборі має бути більше 0")
+    }
   }
 
   deleteTestGroup(group: ITestSetConfTestGroup) {

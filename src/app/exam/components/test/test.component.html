@@ -7,7 +7,7 @@
       <img class="test-img" src="{{ test.imageUrl }}">
     </div>
   </div>
-  <table class="test-questions">
+  <table class="test-options">
     <tr class="option" *ngFor="let option of test.options">
       <td class="result">
         <div *ngIf="option.checked && isVerified()">
@@ -15,15 +15,22 @@
           <span class="correct" *ngIf="option.correct">&#10003;</span>
         </div>
       </td>
-      <td class="radiobutton">
+      <td class="radiobutton" *ngIf="test.type !== testType.SingleInput">
         <input type="{{ test.type === testType.Checkbox ? 'checkbox' : 'radio'}}" name="radiogroup"
                [checked]="option.checked"
                [value]="option.id"
                (change)="onOptionChecked(option)">
       </td>
-      <td>
+      <td *ngIf="test.type !== testType.SingleInput">
         <mathjax class="option-value" *ngIf="option.valueType === 'words'" [data]="option.value"></mathjax>
         <img *ngIf="option.valueType === 'img'" class="option-img" src="{{ option.value }}">
+      </td>
+      <td *ngIf="test.type === testType.SingleInput">
+        <input [type]="option.valueType === optionValueType.Number ? 'number' : 'text'"
+               name="option_value_{{option.id}}"
+               [(ngModel)]="option.value"
+               (change)="onOptionChecked(option)"
+               required>
       </td>
     </tr>
   </table>

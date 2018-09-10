@@ -28,7 +28,7 @@
   <br>
   <p class="section-name">Варіанти відповіді:</p>
 
-  <div class="options-container">
+  <div class="options-container" *ngIf="updated.testType !== testType.SingleInput">
     <div class="option-container" *ngFor="let opt of updated.options">
       <div class="option-check">
         <input type="{{ updated.testType === testType.Checkbox ? 'checkbox' : 'radio'}}" name="radiogroup"
@@ -65,6 +65,31 @@
     </div>
     <div style="text-align: center; width: 100%;">
       <a (click)="addBlankOption()"><i class="material-icons">playlist_add</i></a>
+    </div>
+  </div>
+
+  <div class="options-container" *ngIf="updated.testType === testType.SingleInput">
+    <div class="option-container" *ngFor="let opt of updated.options">
+      <div class="option-value-container">
+        <div *ngIf="opt.valueType === optionValueType.Words" class="mui-textfield option-words-value">
+          <textarea autosize
+                    name="option-value-{{opt.id}}"
+                    [(ngModel)]="opt.value"
+                    placeholder="Введіть текст або формулу"
+                    class="option-words-value-textarea"></textarea>
+        </div>
+        <div *ngIf="opt.valueType === optionValueType.Number" class="mui-textfield">
+          <input type="number"
+                 step="0.01"
+                 name="option-value-{{opt.id}}"
+                 [(ngModel)]="opt.value"
+                 placeholder="Введіть число"/>
+        </div>
+      </div>
+      <dropdown [options]="dropdownOptionValueTypes"
+                [selectedOptionId]="opt.valueType"
+                selectedOptionPlaceholder="Виберіть тип"
+                (onSelected)="optionTypeSelected(opt, $event)" class="option-type-dropdown resmat-primary"></dropdown>
     </div>
   </div>
 

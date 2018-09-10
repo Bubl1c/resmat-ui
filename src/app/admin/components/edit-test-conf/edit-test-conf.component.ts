@@ -4,6 +4,7 @@ import {
 } from "../../../exam/data/test-set.api-protocol";
 import {DropdownOption} from "../../../components/dropdown/dropdown.component";
 import {Test} from "../../../exam/components/test/test.component";
+import { UserDefaults } from "../../userDefaults";
 
 export class TestEdit implements ITestEditDto {
   id: number = -1;
@@ -12,7 +13,7 @@ export class TestEdit implements ITestEditDto {
   imageUrl: string = null;
   options: ITestOptionWithCorrectDto[] = [];
   help: string = null;
-  testType: TestType = TestType.Radio;
+  testType: TestType = UserDefaults.EditTestConf.testType;
 
   constructor(other?: TestEdit) {
     if(other && Object.keys(other).length > 0) {
@@ -46,14 +47,20 @@ export class EditTestConfComponent implements OnInit {
   dropdownTestTypes: DropdownOption[] = [
     new DropdownOption(TestType.Radio, "Можна вибрати лише 1 варіант відповіді"),
     new DropdownOption(TestType.Checkbox, "Можна вибрати 1 і більше варіантів відповіді"),
+    new DropdownOption(TestType.SingleInput, "Потрібно ввести відповідь"),
   ];
   testTypeSelectedDropdownOption: DropdownOption;
 
   optionValueType = TestOptionValueType;
-  dropdownOptionValueTypes: DropdownOption[] = [
-    new DropdownOption("words", "Текст", "<i class=\"material-icons\">text_fields</i>"),
-    new DropdownOption("img", "Зображення", "<i class=\"material-icons\">photo</i>")
+  dropdownOptionTraditionalValueTypes: DropdownOption[] = [
+    new DropdownOption(TestOptionValueType.Words, "Текст", "<i class=\"material-icons\">text_fields</i>"),
+    new DropdownOption(TestOptionValueType.Img, "Зображення", "<i class=\"material-icons\">photo</i>")
   ];
+  dropdownOptionSingleInputValueTypes: DropdownOption[] = [
+    new DropdownOption(TestOptionValueType.Words, "Текст", "<i class=\"material-icons\">text_fields</i>"),
+    new DropdownOption(TestOptionValueType.Number, "Число", "<i class=\"material-icons\">filter_9</i>")
+  ];
+  dropdownOptionValueTypes: DropdownOption[] = this.dropdownOptionTraditionalValueTypes;
 
   uploadTempImgPath: string = "/upload-temp-file";
 
@@ -70,12 +77,37 @@ export class EditTestConfComponent implements OnInit {
     if(this.updated.options.length === 0) {
       this.addBlankOption(true);
     }
+    this.dropdownOptionValueTypes = this.updated.testType === TestType.SingleInput
+      ? this.dropdownOptionSingleInputValueTypes
+      : this.dropdownOptionTraditionalValueTypes;
     this.testTypeSelectedDropdownOption = this.dropdownTestTypes.find(o => o.id === this.updated.testType)
   }
 
   testTypeSelected(testTypeDropdownOption: DropdownOption) {
-    this.testTypeSelectedDropdownOption = testTypeDropdownOption;
-    this.updated.testType = testTypeDropdownOption.id;
+    let doSelect = () => {
+      this.testTypeSelectedDropdownOption = testTypeDropdownOption;
+      this.updated.testType = testTypeDropdownOption.id;
+      UserDefaults.EditTestConf.testType = this.updated.testType;
+    };
+    let resetUIToSingleInput = () => {
+      this.updated.options.splice(1);
+      this.dropdownOptionValueTypes = this.dropdownOptionSingleInputValueTypes;
+    };
+    if (testTypeDropdownOption.id === TestType.SingleInput) {
+      if (this.updated.options.length > 1) {
+        if (window.confirm(`Тип тесту "${testTypeDropdownOption.text}" потребує введення лише 1 відповіді на запитання,` +
+            `решта варіантів відповіді будуть видалені. Продовжити?`)) {
+          resetUIToSingleInput();
+          doSelect()
+        }
+      } else {
+        resetUIToSingleInput();
+        doSelect()
+      }
+    } else {
+      this.dropdownOptionValueTypes = this.dropdownOptionTraditionalValueTypes;
+      doSelect()
+    }
   }
 
   testImageUploaded(urlOrFailureReason: string, success: boolean) {
@@ -98,6 +130,7 @@ export class EditTestConfComponent implements OnInit {
   optionTypeSelected(option: ITestOptionWithCorrectDto, testTypeDropdownOption: DropdownOption) {
     option.valueType = testTypeDropdownOption.id;
     option.value = "";
+    UserDefaults.EditTestConf.testOptionType = option.valueType;
   }
 
   optionImageUploaded(option: ITestOptionWithCorrectDto, urlOrFailureReason: string, success: boolean) {
@@ -120,7 +153,7 @@ export class EditTestConfComponent implements OnInit {
 
   addBlankOption(correct: boolean = false) {
     let id = 1;
-    let valueType = TestOptionValueType.Words;
+    let valueType = UserDefaults.EditTestConf.testOptionType;
     if(this.updated.options.length > 0) {
       const lastOption = this.updated.options[this.updated.options.length - 1];
       id = lastOption.id + 1;
@@ -144,6 +177,12 @@ export class EditTestConfComponent implements OnInit {
 
   save() {
     if(this.validate()) {
+      this.updated.options.map(opt => { // Value should always be a string
+        if (opt.valueType === TestOptionValueType.Number) {
+          opt.value = opt.value.toString()
+        }
+        return opt
+      });
       this.onSave.emit(this.updated)
     }
   }

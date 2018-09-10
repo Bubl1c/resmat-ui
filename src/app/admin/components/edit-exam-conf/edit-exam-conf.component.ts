@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import {
   ExamStepDataConf, ExamStepDataConfResultsConf, ExamStepDataConfTaskFlowConfDto, ExamStepDataConfTestSetConfDto,
+  ExamStepType,
   ExamStepTypes, IExamConfCreateDto,
   IExamConfDto, IExamConfUpdateDto,
   IExamStepConf, IExamStepConfDataSet, IExamStepResultsDataSet, IExamStepTaskFlowDataSet,
@@ -12,7 +13,7 @@ import {
 } from "./examConfConstants";
 import { DropdownOption } from "../../../components/dropdown/dropdown.component";
 import { ApiService } from "../../../api.service";
-import { ITestSetConfDto } from "../../../exam/data/test-set.api-protocol";
+import { ITestSetConfDto, TestType } from "../../../exam/data/test-set.api-protocol";
 import { Observable } from "rxjs/Observable";
 import { TestConfService } from "../../data/test-conf.service";
 import { ITestGroupConf } from "../test-group-list/test-group-list.component";
@@ -49,6 +50,9 @@ export class EditExamConfComponent implements OnInit, OnChanges {
   }
 
   save() {
+    if (!this.isValid()) {
+      return;
+    }
     this.isSaving = true;
     if (this.data.examConf.id > 0) {
       let toSave: IExamConfUpdateDto = {
@@ -88,6 +92,58 @@ export class EditExamConfComponent implements OnInit, OnChanges {
           alert("Не вдалося зберегти: " + JSON.stringify(e))
         }
       })
+    }
+  }
+
+  private isValid(): boolean {
+    let errors: string[] = []
+    if (this.data.examConf.maxScore <= 0) {
+      errors.push("Максимальна оцінка має бути більше нуля")
+    }
+    if (!this.data.examConf.name) {
+      errors.push("Ім'я іспиту не може бути пустим")
+    }
+    this.stepConfWorkspaces.forEach(w => {
+      if (w.stepConf.stepType === ExamStepTypes.Results) {
+        return;
+      }
+      let e = (msg: string) => {
+        errors.push(`Крок ${w.stepConf.sequence}: ${msg}`)
+      };
+      if (!w.stepConf.name) {
+        e("Ім'я кроку не може бути пустим")
+      }
+      if (w.stepConf.maxScore <= 0) {
+        e("Максимальна оцінка кроку має бути більше нуля")
+      }
+      if (w.stepConf.attemptValuePercents < 0) {
+        e("Вплив нової спроби на помилку має бути >= нуля")
+      }
+      if (w.stepConf.mistakeValuePercents < 0) {
+        e("Вплив помилки на результат має бути >= нуля")
+      }
+      if (w.stepData) {
+        switch (w.stepConf.stepType) {
+          case ExamStepTypes.TestSet:
+            let stepData: ExamStepDataConfTestSetConfDto = w.stepData as ExamStepDataConfTestSetConfDto;
+            if (stepData.TestSetConfDto.testSetConf.maxTestsAmount <= 0) {
+              e("Максимальна кількість тестів в наборі має бути більше нуля")
+            }
+            if (stepData.TestSetConfDto.testGroups.length < 1) {
+              e("Набір тестів має формуватись хоча б з однієї групи")
+            }
+            stepData.TestSetConfDto.testGroups.forEach((g, index) => {
+              if (g.proportionPercents <= 0) {
+                e(`Група ${index}: Відсоток тестів у наборі має бути більше нуля`)
+              }
+            })
+        }
+      }
+    });
+    if (errors.length === 0) {
+      return true
+    } else {
+      alert("Виправте наступні помилки:\n" + errors.join("\n"))
     }
   }
 

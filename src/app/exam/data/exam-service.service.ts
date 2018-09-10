@@ -3,10 +3,11 @@ import { Http } from "@angular/http";
 import { Observable } from "rxjs/Rx";
 import { IExamDto, IExamStepWithData } from "./exam.api-protocol";
 import { IExamTaskFlowStepData, ITaskFlowStepDto, IVerifiedTaskFlowStepAnswer } from "./task-flow.api-protocol";
-import { TestAnswer } from "../components/test/test.component";
+import { TestAnswer, TestSingleInputAnswer } from "../components/test/test.component";
 import { ExamResult } from "../components/exam-results/exam-results.component";
 import { HttpUtils } from "../../utils/HttpUtils";
 import { ApiService } from "../../api.service";
+import { TestType } from "./test-set.api-protocol";
 
 export class VerifiedTestAnswer {
   constructor(public testId: number,
@@ -91,11 +92,28 @@ export class ExamService {
                    stepSequence: number,
                    attemptId: number,
                    testAnswer: TestAnswer): Observable<VerifiedTestAnswer> {
+    let data;
+    let url: string;
+    switch (testAnswer.testType) {
+      case TestType.SingleInput:
+        let toSendSI: TestSingleInputAnswer = new TestSingleInputAnswer(testAnswer.submittedOptions[0].value);
+        data = toSendSI;
+        url = 'verify-single-input';
+        break;
+      case TestType.Radio:
+      case TestType.Checkbox:
+        let toSendTraditional: number[] = testAnswer.submittedOptions.map(opt => opt.id);
+        data = toSendTraditional;
+        url = 'verify';
+        break;
+      default:
+        throw new Error(`Unsupported test answer test type ${testAnswer.testType}`)
+    }
     return this.api.post(
       '/user-exams/' + examId +
       '/steps/' + stepSequence +
       '/attempts/' + attemptId +
-      '/tests/'+ testAnswer.testId + '/verify', testAnswer.submittedOptions)
+      '/tests/'+ testAnswer.testId + '/' + url, data)
         .map(r => new VerifiedTestAnswer(r.testId, r.isCorrectAnswer, r.mistakesAmount, r.answer))
   }
 

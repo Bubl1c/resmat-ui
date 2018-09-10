@@ -21,7 +21,7 @@ export class Test {
   imageUrl: string;
   options: TestOption[];
   helpImg: string;
-  type: string;
+  type: TestType;
 
   sequence: number;
   status: number = TestStatus.Initial;
@@ -45,7 +45,10 @@ export const enum TestStatus {
 }
 
 export class TestAnswer {
-  constructor(public testId: number, public submittedOptions: number[]) {}
+  constructor(public testId: number, public testType: TestType, public submittedOptions: TestOption[]) {}
+}
+export class TestSingleInputAnswer {
+  constructor(public submittedAnswer: string) {}
 }
 
 @Component({
@@ -62,6 +65,7 @@ export class TestComponent implements OnInit {
   @Output() onContinue: EventEmitter<any>;
 
   testType = TestType;
+  optionValueType = TestOptionValueType;
 
   constructor() {
     this.onSubmitted = new EventEmitter<TestAnswer>();
@@ -86,7 +90,7 @@ export class TestComponent implements OnInit {
   submit() {
     this.test.status = TestStatus.Verifying;
     this.onSubmitted.emit(
-      new TestAnswer(this.test.id, this.test.options.filter(o => o.checked).map(o => o.id))
+      new TestAnswer(this.test.id, this.test.type, this.test.options.filter(o => o.checked))
     )
   }
 
@@ -125,6 +129,9 @@ export class TestComponent implements OnInit {
         }
         break;
       }
+      case TestType.SingleInput:
+        checkedOption.checked = true;
+        break;
       default: {
         console.error("Unknown test type: " + this.test.type);
       }
