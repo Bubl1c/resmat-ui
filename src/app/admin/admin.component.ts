@@ -498,9 +498,7 @@ export class AdminComponent implements OnInit {
     if(this.userPermission >= UserType.instructor.rate) {
       this.loadTestGroupConfs();
     }
-    this.loadExamConfs(() => {
-      this.loadExamConf(this.examConfs[0].id)
-    });
+    this.loadExamConfs();
     this.loadGroups();
   }
 
