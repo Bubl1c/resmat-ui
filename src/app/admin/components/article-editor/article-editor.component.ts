@@ -1,4 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
+import {
+  Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges,
+  ViewEncapsulation
+} from '@angular/core';
 
 export interface ArticleDto {
   id: number
@@ -50,7 +53,6 @@ export class ArticleEditorComponent implements OnInit {
   }
 
   save() {
-    console.log(JSON.stringify(this.updatedData));
     this.onSave.emit(this.updatedData)
   }
 

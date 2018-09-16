@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { LoginService } from "./login.service";
 import { UserData, UserType } from "../user/user.models";
+import { GoogleAnalyticsUtils } from "../utils/GoogleAnalyticsUtils";
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,7 @@ export class LoginComponent implements OnInit {
   login(login: string, password?: string) {
     this.loginService.login(login, password).subscribe((loggedUser: UserData) => {
       console.log('Logged user: ', loggedUser);
+      GoogleAnalyticsUtils.emitEvent("login", "success", `user-${loggedUser.id}`);
       switch(loggedUser.userType) {
         case UserType.student:
           this.router.navigate(['users/' + login + '/exams']);

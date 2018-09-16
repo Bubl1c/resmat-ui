@@ -8,6 +8,7 @@ import { ResultsExamStep } from "../steps/exam.results-step";
 import { ErrorResponse } from "../utils/HttpUtils";
 import { ActivatedRoute } from "@angular/router";
 import { CurrentSession } from "../current-session";
+import { GoogleAnalyticsUtils } from "../utils/GoogleAnalyticsUtils";
 
 class InitialExamStep extends ExamStep {
   loadInitialData(): void {}
@@ -40,6 +41,7 @@ export class ExamComponent implements OnInit {
     this.examService.startAndGetExam(examId).subscribe((exam: IExamDto) => {
       if(exam) {
         console.log("Exam loaded: ", exam);
+        GoogleAnalyticsUtils.emitEvent(`exam[${exam.id}:${exam.name}]`, "open", `user-${CurrentSession.user.id}`);
         this.exam = exam;
         this.isLoading = false;
         this.loadNextStep();
@@ -94,6 +96,7 @@ export class ExamComponent implements OnInit {
           break;
         case ExamStepTypes.Results:
           this.step = new ResultsExamStep(this.examService, stepWithData);
+          GoogleAnalyticsUtils.emitEvent(`exam[${this.exam.id}:${this.exam.name}]`, "complete", `user-${CurrentSession.user.id}`);
           break;
         default: throw "Invalid exam step: " + stepWithData.stepConf.stepType;
       }

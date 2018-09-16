@@ -51,6 +51,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   ngOnDestroy() {
+    this.editor.initialized = false;
     tinymce.remove(this.editor);
   }
 
