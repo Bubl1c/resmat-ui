@@ -35,6 +35,7 @@ interface ITestWithoutOptions {
   imageUrl: string;
   help: string;
   testType: TestType;
+  precision?: number;
 }
 
 export interface ITestDto extends ITestWithoutOptions {
@@ -61,6 +62,7 @@ export interface ITestSetConfTestGroup {
   testSetConfId: number
   testGroupConfId: number
   proportionPercents: number
+  mistakeValue?: number
 }
 
 export interface ITestSetConfDto {

@@ -54,6 +54,7 @@ export class EditExamConfComponent implements OnInit, OnChanges {
       return;
     }
     this.isSaving = true;
+    this.stepConfWorkspaces.forEach(w => w.normaliseData());
     if (this.data.examConf.id > 0) {
       let toSave: IExamConfUpdateDto = {
         examConf: this.data.examConf,
@@ -202,7 +203,9 @@ export abstract class IStepConfWorkspace {
   constructor(public stepConf: IExamStepConf) {
   }
 
-  loadData: () => void
+  loadData: () => void;
+
+  normaliseData: () => void = () => {}
 
 }
 
@@ -244,6 +247,14 @@ export class TestSetConfStepWorkspace extends IStepConfWorkspace {
         this.stepData = {
           TestSetConfDto: newTestSetConfDto()
         }
+      })
+    }
+  };
+
+  normaliseData = () => {
+    if (this.stepData) {
+      this.stepData.TestSetConfDto.testGroups.forEach(tg => {
+        tg.mistakeValue = tg.mistakeValue || undefined
       })
     }
   }

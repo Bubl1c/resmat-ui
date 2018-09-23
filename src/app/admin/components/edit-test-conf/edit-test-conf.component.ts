@@ -14,6 +14,7 @@ export class TestEdit implements ITestEditDto {
   options: ITestOptionWithCorrectDto[] = [];
   help: string = null;
   testType: TestType = UserDefaults.EditTestConf.testType;
+  precision?: number = UserDefaults.EditTestConf.precision;
 
   constructor(other?: TestEdit) {
     if(other && Object.keys(other).length > 0) {
@@ -24,6 +25,7 @@ export class TestEdit implements ITestEditDto {
       this.options = other.options;
       this.help = other.help;
       this.testType = other.testType;
+      this.precision = other.precision;
     }
   }
 }
@@ -209,6 +211,7 @@ export class EditTestConfComponent implements OnInit {
     if(!obj.question && !obj.imageUrl) {
       errors.push("В тесті має бути хоча б запитання або зображення або і те і інше.")
     }
+    errors.push(...this.validatePrecision());
     errors.push(...this.validateOptions());
 
     if(errors.length > 0) {
@@ -231,6 +234,17 @@ export class EditTestConfComponent implements OnInit {
     const emptyValues = opts.filter(opt => !opt.value);
     if(emptyValues.length > 0) {
       errors.push(`Варіанти відповіді ${emptyValues.map(opt => opt.id).join(", ")} пусті. Заповніть або видаліть їх.`)
+    }
+    return errors;
+  }
+
+  private validatePrecision(): string[] {
+    const errors: string[] = [];
+    if (
+      this.updated.precision
+      && (this.updated.precision <= 0 || this.updated.precision >= 1)
+    ) {
+      errors.push("Точність має бути дробовим числом від 0 до 1 виключно")
     }
     return errors;
   }

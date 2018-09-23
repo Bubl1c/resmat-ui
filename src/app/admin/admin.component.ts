@@ -23,10 +23,12 @@ import {
   newResultsExamStepConfInstance
 } from "./components/edit-exam-conf/examConfConstants";
 import { TestConfService } from "./data/test-conf.service";
+import { UserDefaults } from "./userDefaults";
 
 class WorkspaceDataTypes {
   static user = "user";
   static addStudent = "add-student";
+  static addStudentGroup = "add-student-group";
   static groupStudents = "group-students";
   static examResults = "exam-results";
   static editExam = "edit-exam";
@@ -410,6 +412,7 @@ class EditTestConfWorkspaceData extends WorkspaceData {
         updatedOrCreatedTest
       ).subscribe(subscribeCallback)
     } else {
+      UserDefaults.EditTestConf.precision = updatedOrCreatedTest.precision;
       this.tcService.createTestConf(
         updatedOrCreatedTest.groupId,
         updatedOrCreatedTest
@@ -419,7 +422,7 @@ class EditTestConfWorkspaceData extends WorkspaceData {
 }
 
 class AddStudentGroupWorkspaceData extends WorkspaceData {
-  type = WorkspaceDataTypes.addTestGroup;
+  type = WorkspaceDataTypes.addStudentGroup;
   constructor(public data: string, private api: ApiService, private adminComponent: AdminComponent) {
     super();
   }

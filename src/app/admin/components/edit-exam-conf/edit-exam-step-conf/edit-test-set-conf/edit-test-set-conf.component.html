@@ -14,6 +14,7 @@
       <tr>
         <td class="resmat-label groups-table-cell" colspan="2">Групи, які братимуть участь у формуванні набору</td>
         <td class="resmat-label groups-table-cell" style="width: 10%">Відсоток тестів у наборі</td>
+        <td class="resmat-label groups-table-cell" style="width: 10%">Вплив помилки на результат</td>
         <td></td>
       </tr>
       <tr *ngFor="let group of workspace.stepData.TestSetConfDto.testGroups; let i = index">
@@ -22,11 +23,18 @@
           {{ getTestGroupNameById(group.testGroupConfId) }}
         </td>
         <td>
-          <div class="mui-textfield proportion-percents-input-container">
+          <div class="mui-textfield input-container">
             <input type="number"
                    name="proportionPercents-{{group.testGroupConfId}}"
                    [(ngModel)]="group.proportionPercents"
                    required>
+          </div>
+        </td>
+        <td>
+          <div class="mui-textfield input-container">
+            <input type="number"
+                   name="mistakeValue-{{group.testGroupConfId}}"
+                   [(ngModel)]="group.mistakeValue">
           </div>
         </td>
         <td>
@@ -41,11 +49,18 @@
           </dropdown>
         </td>
         <td style="border: 0">
-          <div class="mui-textfield proportion-percents-input-container">
+          <div class="mui-textfield input-container">
             <input type="number"
                    name="newTestGroupProportionPercents"
                    [(ngModel)]="newTestGroup.proportionPercents"
                    required>
+          </div>
+        </td>
+        <td style="border: 0">
+          <div class="mui-textfield input-container">
+            <input type="number"
+                   name="newTestGroupMistakeValue"
+                   [(ngModel)]="newTestGroup.mistakeValue">
           </div>
         </td>
         <td style="border: 0">

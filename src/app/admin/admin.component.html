@@ -110,6 +110,13 @@
                       [group]="workspaceData.data"
                       (onSaved)="addStudent($event)"></create-student>
 
+      <div *ngIf="workspaceData.type === 'add-student-group'">
+        <div class="mui-textfield editor-input">
+          <input [(ngModel)]="workspaceData.data" placeholder="Введіть ім'я групи">
+        </div>
+        <button class="mui-btn mui-btn--primary" (click)="workspaceData.save()">Зберегти</button>
+      </div>
+
       <div *ngIf="workspaceData.type === 'exam-results'">
         <div *ngFor="let result of workspaceData.data" class="exam-result">
           <exam-results [data]="result"></exam-results>

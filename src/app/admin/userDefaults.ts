@@ -7,6 +7,8 @@ export namespace UserDefaults {
     export let testType: TestType = TestType.Radio;
     export let testOptionType: TestOptionValueType = TestOptionValueType.Words;
 
+    export let precision: number;
+
   }
 
 }

@@ -61,12 +61,17 @@ export class ExamResult {
       const objectType = Object.keys(data)[0];
       if(typeof objectType !== 'string') throw new Error(`Failed to parse exam result step generic info ${data}`);
       const infoDto = data[objectType];
-      return {
-        type: objectType,
-        data: {
-          data: infoDto.data,
-          variant: ExamResult.toTaskDataDto(infoDto.variant)
-        }
+      switch (objectType) {
+        case InfoTypes.taskFlow:
+          return {
+            type: objectType,
+            data: {
+              data: infoDto.data,
+              variant: ExamResult.toTaskDataDto(infoDto.variant)
+            }
+          };
+        default:
+          return null;
       }
     };
     return new ExamResult(

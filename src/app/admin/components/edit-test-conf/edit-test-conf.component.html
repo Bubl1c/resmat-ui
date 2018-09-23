@@ -16,6 +16,15 @@
     <label>Запитання</label>
   </div>
 
+  <div class="mui-textfield" *ngIf="updated.testType === testType.SingleInput">
+    <input type="number"
+           step="0.00000001"
+           placeholder="Введіть точність (опціонально, 0.01 за замовчування)"
+           name="precision"
+           [(ngModel)]="updated.precision"/>
+    <label>Точність</label>
+  </div>
+
   <div class="test-image-container">
     <img [src]="updated.imageUrl" *ngIf="updated.imageUrl" class="test-image">
     <upload [path]="uploadTempImgPath" [auto]="true"

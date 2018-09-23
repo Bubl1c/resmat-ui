@@ -5,10 +5,10 @@
 }
 
 .groups-table-cell {
-  padding: 0
+  padding: 0 5px
 }
 
-.proportion-percents-input-container {
+.input-container {
   padding: 0;
   margin: 0;
   height: unset;

@@ -1,4 +1,4 @@
-declare let ga: Function;
+declare let gtag: Function;
 
 export class GoogleAnalyticsUtils {
 
@@ -6,11 +6,10 @@ export class GoogleAnalyticsUtils {
                           eventAction: string,
                           eventLabel: string = null,
                           eventValue: number = null) {
-    ga('send', 'event', {
-      eventCategory: eventCategory,
-      eventLabel: eventLabel,
-      eventAction: eventAction,
-      eventValue: eventValue
+    gtag('event', eventAction, {
+      event_category: eventCategory,
+      event_label: eventLabel,
+      value: eventValue
     });
   }
 
