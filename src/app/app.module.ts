@@ -65,6 +65,7 @@ import { ExamConfStepsTabsComponent } from './admin/components/edit-exam-conf/ex
 import { EditTestSetConfComponent } from './admin/components/edit-exam-conf/edit-exam-step-conf/edit-test-set-conf/edit-test-set-conf.component';
 import { TestConfService } from "./admin/data/test-conf.service";
 import { EditTaskFlowConfComponent } from './admin/components/edit-exam-conf/edit-exam-step-conf/edit-task-flow-conf/edit-task-flow-conf.component';
+import { TestHelpMaterialsComponent } from './components/test-help-materials/test-help-materials.component';
 
 @NgModule({
   declarations: [
@@ -120,7 +121,8 @@ import { EditTaskFlowConfComponent } from './admin/components/edit-exam-conf/edi
     EditExamStepConfComponent,
     ExamConfStepsTabsComponent,
     EditTestSetConfComponent,
-    EditTaskFlowConfComponent
+    EditTaskFlowConfComponent,
+    TestHelpMaterialsComponent
   ],
   imports: [
     BrowserModule,

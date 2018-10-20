@@ -1,0 +1,55 @@
+<!--As help-materials has ABSOLUTE position, make sure that PARENT block has RELATIVE position -->
+
+<div class="preview-container" *ngIf="previewImageUrl">
+  <div class="preview mui-panel">
+    <div class="controls-container">
+      <div class="left-controls-container">
+        <a [href]="previewImageUrl" title="Завантажити" target="_blank">
+          <i class="material-icons">cloud_download</i>
+        </a>
+      </div>
+      <div class="right-controls-container">
+        <a (click)="hidePreview()" title="Закрити">
+          <i class="material-icons">clear</i>
+        </a>
+      </div>
+    </div>
+    <div class="image-container">
+      <img class="image" [src]="previewImageUrl" alt="Допомыжний матеріал">
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isOnly1Material"
+     class="border-sticky-item"
+     [ngClass]="[positionH, positionV]">
+  <a [hidden]="!parsedMaterials[0].isImage"
+     title="{{ altText ? altText : 'Допоміжний матеріал' }}"
+     (click)="showPreview(parsedMaterials[0].url)">
+    <i *ngIf="!title" class="material-icons">library_books</i>
+    <span *ngIf="title">{{ title }}</span>
+  </a>
+  <a [hidden]="parsedMaterials[0].isImage"
+     title="{{ altText ? altText : 'Допоміжний матеріал' }}"
+     [href]="parsedMaterials[0].url"
+     target="_blank">
+    <i *ngIf="!title" class="material-icons">library_books</i>
+    <span *ngIf="title">{{ title }}</span>
+  </a>
+</div>
+
+<div *ngIf="!isOnly1Material"
+     class="mui-dropdown border-sticky-item"
+     [ngClass]="[positionH, positionV]">
+  <a title="{{ altText ? altText : 'Допоміжні матеріали' }}"
+     data-mui-toggle="dropdown">
+    <i *ngIf="!title" class="material-icons">library_books</i>
+    <span *ngIf="title">{{ title }}</span>
+  </a>
+  <ul class="mui-dropdown__menu">
+    <li *ngFor="let material of parsedMaterials">
+      <a *ngIf="material.isImage" (click)="showPreview(material.url)">{{ material.name }}</a>
+      <a *ngIf="!material.isImage" [href]="material.url" target="_blank">{{ material.name }}</a>
+    </li>
+  </ul>
+</div>

@@ -65,7 +65,9 @@ export class ExamComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     RMU.safe(() => {
-      GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/exams/${this.exam.id}`, `Іспит ${this.exam.name}`)
+      if (CurrentSession.user) {
+        GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/exams/${this.exam.id}`, `Іспит ${this.exam.name}`)
+      }
     });
   }
 

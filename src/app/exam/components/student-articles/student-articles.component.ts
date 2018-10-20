@@ -44,7 +44,9 @@ export class StudentArticlesComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     RMU.safe(() => {
-      GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/study`, "Навчальні матеріали користувача")
+      if (CurrentSession.user) {
+        GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/study`, "Навчальні матеріали користувача")
+      }
     });
   }
 
