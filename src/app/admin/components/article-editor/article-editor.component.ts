@@ -1,7 +1,10 @@
 import {
+  AfterViewInit,
   Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
+import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
+import { RMU } from "../../../utils/utils";
 
 export interface ArticleDto {
   id: number
@@ -20,7 +23,7 @@ export interface ArticleDto {
   styleUrls: ['./article-editor.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class ArticleEditorComponent implements OnInit {
+export class ArticleEditorComponent implements OnInit, AfterViewInit {
 
   @Input() data: ArticleDto;
   @Output() onSave = new EventEmitter<ArticleDto>();
@@ -42,6 +45,12 @@ export class ArticleEditorComponent implements OnInit {
     } else {
       throw new Error("article data must be defined");
     }
+  }
+
+  ngAfterViewInit(): void {
+    RMU.safe(() => {
+      GoogleAnalyticsUtils.pageView("/blog", "Блог")
+    });
   }
 
   onPreviewChanged(newValue: string) {

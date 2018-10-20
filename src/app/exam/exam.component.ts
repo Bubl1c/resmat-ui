@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { AfterViewInit, Component, OnInit } from "@angular/core";
 import { ExamService } from "./data/exam-service.service";
 import { IExamDto, ExamStepTypes, IExamStepWithData } from "./data/exam.api-protocol";
 import { TestSetExamStep } from "../steps/exam.test-set-step";
@@ -9,6 +9,7 @@ import { ErrorResponse } from "../utils/HttpUtils";
 import { ActivatedRoute } from "@angular/router";
 import { CurrentSession } from "../current-session";
 import { GoogleAnalyticsUtils } from "../utils/GoogleAnalyticsUtils";
+import { RMU } from "../utils/utils";
 
 class InitialExamStep extends ExamStep {
   loadInitialData(): void {}
@@ -24,7 +25,7 @@ class InitialExamStep extends ExamStep {
   styleUrls: ['./exam.component.css'],
   providers: [ExamService]
 })
-export class ExamComponent implements OnInit {
+export class ExamComponent implements OnInit, AfterViewInit {
   exam: IExamDto;
   step: ExamStep;
 
@@ -41,7 +42,6 @@ export class ExamComponent implements OnInit {
     this.examService.startAndGetExam(examId).subscribe((exam: IExamDto) => {
       if(exam) {
         console.log("Exam loaded: ", exam);
-        GoogleAnalyticsUtils.emitEvent(`exam[${exam.id}:${exam.name}]`, "open", `user-${CurrentSession.user.id}`);
         this.exam = exam;
         this.isLoading = false;
         this.loadNextStep();
@@ -63,7 +63,16 @@ export class ExamComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    RMU.safe(() => {
+      GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/exams/${this.exam.id}`, `Іспит ${this.exam.name}`)
+    });
+  }
+
   submitCurrentStep() {
+    RMU.safe(() => {
+      GoogleAnalyticsUtils.event(`Exam:${this.exam.id}`, `Submitted step ${this.exam.currentStep.sequence}`, "SubmitExamStep", this.exam.currentStep.sequence);
+    });
     this.examService.submitExamStep(this.exam.id, this.exam.currentStep.sequence).subscribe(response => {
       this.loadNextStep()
     }, (error: ErrorResponse) => {
@@ -82,6 +91,9 @@ export class ExamComponent implements OnInit {
   private loadNextStep() {
     this.examService.getCurrentExamStep(this.exam.id).subscribe((stepWithData: IExamStepWithData) => {
       console.log("Current step loaded: ", stepWithData);
+      RMU.safe(() => {
+        GoogleAnalyticsUtils.event(`Exam:${this.exam.id}`, `Loaded step ${stepWithData.stepConf.sequence}`, "LoadStep", stepWithData.stepConf.sequence);
+      });
 
       this.exam.currentStep.sequence = stepWithData.stepConf.sequence;
       this.exam.currentStep.type = stepWithData.stepConf.stepType;
@@ -96,7 +108,9 @@ export class ExamComponent implements OnInit {
           break;
         case ExamStepTypes.Results:
           this.step = new ResultsExamStep(this.examService, stepWithData);
-          GoogleAnalyticsUtils.emitEvent(`exam[${this.exam.id}:${this.exam.name}]`, "complete", `user-${CurrentSession.user.id}`);
+          RMU.safe(() => {
+            GoogleAnalyticsUtils.event(`Exam:${this.exam.id}`, "complete");
+          });
           break;
         default: throw "Invalid exam step: " + stepWithData.stepConf.stepType;
       }

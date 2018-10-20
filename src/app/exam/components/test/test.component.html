@@ -26,11 +26,14 @@
         <img *ngIf="option.valueType === 'img'" class="option-img" src="{{ option.value }}">
       </td>
       <td *ngIf="test.type === testType.SingleInput">
-        <input [type]="option.valueType === optionValueType.Number ? 'number' : 'text'"
-               name="option_value_{{option.id}}"
-               [(ngModel)]="option.value"
-               (change)="onOptionChecked(option)"
-               required>
+        <div class="mui-textfield">
+          <input [type]="option.valueType === optionValueType.Number ? 'number' : 'text'"
+                 [step]="option.valueType === optionValueType.Number ? '0.00000000001' : null"
+                 name="option_value_{{option.id}}"
+                 [(ngModel)]="option.value"
+                 (change)="onOptionChecked(option)"
+                 required>
+        </div>
       </td>
     </tr>
   </table>

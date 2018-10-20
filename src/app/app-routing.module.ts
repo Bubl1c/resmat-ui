@@ -9,6 +9,7 @@ import {ArticleListComponent} from "./components/article-list/article-list.compo
 import {ArticleWrapperComponent} from "./components/article-wrapper/article-wrapper.component";
 import {StudentArticlesComponent} from "./exam/components/student-articles/student-articles.component";
 
+//Keep in mind that GoogleAnalytics is bound to these routes
 const appRoutes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },

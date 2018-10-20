@@ -26,6 +26,8 @@ import {
 import { EquationSet } from "../equation-set/equation-set.component";
 import { NumberUtils } from "../../../utils/numberUtils";
 import { TaskVariantData } from "../task/task.component";
+import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
+import { RMU } from "../../../utils/utils";
 
 @Component({
   selector: 'task-flow',
@@ -77,6 +79,9 @@ export class TaskFlowComponent implements OnInit {
     let that = this;
     this.examService.getCurrentTaskFlowStep(this.task.examId, this.task.examStepSequence, this.task.examStepAttemptId, this.task.taskFlowId)
       .subscribe((step: IExamTaskFlowStepData) => {
+          RMU.safe(() => {
+            GoogleAnalyticsUtils.event(`Exam:${this.task.examId}:step:${this.task.examStepSequence}-task-flow`, `Task flow step ${step.sequence} loaded`, "LoadTaskFlowStep", step.sequence);
+          });
           console.log("Task flow step " + step.sequence + " loaded: ", step);
           that.helpDataItems.push(...that.prepareHelpSteps(that.helpDataItems, step.helpSteps));
           step.sequence = step.sequence - that.helpDataItems.length;
@@ -178,7 +183,10 @@ class EquationSetTaskFlowStep extends TaskFlowStep {
       submittedData.inputAnswers.forEach(va => {
         va.correct = verifiedIputSet[va.id] || false;
       });
-      this.data.status = verified.isCorrectAnswer ? InputSetStatus.Correct : InputSetStatus.Incorrect
+      this.data.status = verified.isCorrectAnswer ? InputSetStatus.Correct : InputSetStatus.Incorrect;
+      RMU.safe(() => {
+        GoogleAnalyticsUtils.event(`Exam:${this.taskData.examId}:step:${this.taskData.examStepSequence}-task-flow`, `Task flow step ${this.sequence} verified ${verified.isCorrectAnswer ? "correct" : "wrong"}`, `TaskFlowStepVerified${verified.isCorrectAnswer ? "Correct" : "Wrong"}`, this.sequence);
+      });
     }, e => alert(JSON.stringify(e)));
   }
 
@@ -252,6 +260,9 @@ class InputSetTaskFlowStep extends TaskFlowStep {
         v.correct = verifiedIputSet[v.id] || false;
       });
       that.data.status = verified.isCorrectAnswer ? InputSetStatus.Correct : InputSetStatus.Incorrect
+      RMU.safe(() => {
+        GoogleAnalyticsUtils.event(`Exam:${this.taskData.examId}:step:${this.taskData.examStepSequence}-task-flow`, `Task flow step ${this.sequence} verified ${verified.isCorrectAnswer ? "correct" : "wrong"}`, `TaskFlowStepVerified${verified.isCorrectAnswer ? "Correct" : "Wrong"}`, this.sequence);
+      });
     });
   }
 
@@ -290,6 +301,9 @@ class TestTaskFlowStep extends TaskFlowStep {
             testOption.correct = result;
           }
         });
+      RMU.safe(() => {
+        GoogleAnalyticsUtils.event(`Exam:${this.taskData.examId}:step:${this.taskData.examStepSequence}-task-flow`, `Task flow step ${this.sequence} verified ${verified.isCorrectAnswer ? "correct" : "wrong"}`, `TaskFlowStepVerified${verified.isCorrectAnswer ? "Correct" : "Wrong"}`, this.sequence);
+      });
     });
   }
 

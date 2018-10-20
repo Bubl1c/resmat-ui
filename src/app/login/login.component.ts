@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { LoginService } from "./login.service";
 import { UserData, UserType } from "../user/user.models";
 import { GoogleAnalyticsUtils } from "../utils/GoogleAnalyticsUtils";
+import { RMU } from "../utils/utils";
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,10 @@ export class LoginComponent implements OnInit {
   login(login: string, password?: string) {
     this.loginService.login(login, password).subscribe((loggedUser: UserData) => {
       console.log('Logged user: ', loggedUser);
-      GoogleAnalyticsUtils.emitEvent("login", "success", `user-${loggedUser.id}`);
+      RMU.safe(() => {
+        GoogleAnalyticsUtils.setUserId(loggedUser.id);
+        GoogleAnalyticsUtils.event("login", `Success user ${loggedUser.id}`, `LoginSuccess`, loggedUser.id);
+      });
       switch(loggedUser.userType) {
         case UserType.student:
           this.router.navigate(['users/' + login + '/exams']);
@@ -38,7 +42,10 @@ export class LoginComponent implements OnInit {
         default:
           throw "Invalid user type: " + loggedUser.userType
       }
-    }, error => this.errorMessage = "Логін або пароль не вірні");
+    }, error => {
+      GoogleAnalyticsUtils.event("login", `failed`, `LoginFailed`);
+      this.errorMessage = "Логін або пароль не вірні"
+    });
   }
 
 }

@@ -3,6 +3,9 @@ import { ExamService } from "../../data/exam-service.service";
 import { IExamDto } from "../../data/exam.api-protocol";
 import { Router, ActivatedRoute } from "@angular/router";
 import { CurrentSession } from "../../../current-session";
+import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
+import { AfterViewInit } from "@angular/core/src/metadata/lifecycle_hooks";
+import { RMU } from "../../../utils/utils";
 
 @Component({
   selector: 'my-exams',
@@ -10,7 +13,7 @@ import { CurrentSession } from "../../../current-session";
   styleUrls: ['./my-exams.component.css'],
   providers: [ExamService]
 })
-export class MyExamsComponent implements OnInit {
+export class MyExamsComponent implements OnInit, AfterViewInit {
   exams: IExamDto[];
   loading = true;
 
@@ -20,6 +23,12 @@ export class MyExamsComponent implements OnInit {
     this.examService.getAvailableExamsForUser().subscribe(fetchedExams => {
       this.exams = fetchedExams;
       this.loading = false;
+    });
+  }
+
+  ngAfterViewInit(): void {
+    RMU.safe(() => {
+      GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/exams`, "Іспити користувача")
     });
   }
 

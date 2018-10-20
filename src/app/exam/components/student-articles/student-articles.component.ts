@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import {ApiService} from "../../../api.service";
 import {ArticleDto} from "../../../admin/components/article-editor/article-editor.component";
 import {CurrentSession} from "../../../current-session";
 import {Router} from "@angular/router";
+import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
+import { RMU } from "../../../utils/utils";
 
 @Component({
   selector: 'student-articles',
   templateUrl: './student-articles.component.html',
   styleUrls: ['./student-articles.component.css']
 })
-export class StudentArticlesComponent implements OnInit {
+export class StudentArticlesComponent implements OnInit, AfterViewInit {
 
   isLoading: boolean = true;
   availableArticles: ArticleDto[] = [];
@@ -38,6 +40,12 @@ export class StudentArticlesComponent implements OnInit {
       error: e => alert("Не вдалося завантажити навчальні матеріали: " + JSON.stringify(e)),
       complete: () => this.isLoading = false,
     })
+  }
+
+  ngAfterViewInit(): void {
+    RMU.safe(() => {
+      GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/study`, "Навчальні матеріали користувача")
+    });
   }
 
   viewDetails(article: ArticleDto) {

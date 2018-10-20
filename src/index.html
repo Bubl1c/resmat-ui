@@ -30,20 +30,21 @@
   </script>
   <script type="text/javascript" src="../lib/mathjax/MathJax.js"></script>
 
-  <script src="../config/api_config.js"></script>
+  <script src="../config/app_config.js"></script>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125813714-1"></script>
   <script>
     //disable analytics for development
-    if (window.location.href.indexOf("sopromat-knuba.com") === -1) {
-      window['ga-disable-UA-125813714-1'] = true;
+    if (window.location.href.indexOf(APPConfig.productionHostname) === -1) {
+      var gaDisableWindowProperty = 'ga-disable-' + GoogleAnalyticsConfig.trackingId;
+      window[gaDisableWindowProperty] = true;
     }
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'UA-125813714-1');
+    gtag('config', GoogleAnalyticsConfig.trackingId);
   </script>
 
 </head>

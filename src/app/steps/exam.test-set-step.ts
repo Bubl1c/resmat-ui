@@ -3,6 +3,8 @@ import { ExamService, VerifiedTestAnswer } from "../exam/data/exam-service.servi
 import { ExamStepTypes, IExamStepWithData } from "../exam/data/exam.api-protocol";
 import { ExamStep } from "./exam.step";
 import { ITestDto, ITestSetDto } from "../exam/data/test-set.api-protocol";
+import { GoogleAnalyticsUtils } from "../utils/GoogleAnalyticsUtils";
+import { RMU } from "../utils/utils";
 
 export class TestSetExamStep extends ExamStep {
   data: Test[] = [];
@@ -26,6 +28,9 @@ export class TestSetExamStep extends ExamStep {
   }
 
   verify(answer: TestAnswer) {
+    RMU.safe(() => {
+      GoogleAnalyticsUtils.event(`Exam:${this.examId}:step:${this.stepWithData.stepConf.sequence}-test-set`, `TestSetTest ${answer.testId} submitted`, "SubmitTestSetTest", answer.testId);
+    });
     let test = this.data.find(t => t.id == answer.testId);
     if(!test) {
       console.error("Submitted test is not found: " + answer);
@@ -33,6 +38,13 @@ export class TestSetExamStep extends ExamStep {
     }
     this.examService.verifyTestAnswer(this.examId, this.stepWithData.stepConf.sequence, this.stepWithData.attempt.id, answer).subscribe({
       next: (verifiedAnswer: VerifiedTestAnswer) => {
+        RMU.safe(() => {
+          if (verifiedAnswer.isCorrectAnswer) {
+            GoogleAnalyticsUtils.event(`Exam:${this.examId}:step:${this.stepWithData.stepConf.sequence}-test-set`, `TestSetTest ${answer.testId} verified correct`, "TestSetTestVerifiedCorrect", answer.testId);
+          } else {
+            GoogleAnalyticsUtils.event(`Exam:${this.examId}:step:${this.stepWithData.stepConf.sequence}-test-set`, `TestSetTest ${answer.testId} verified wrong`, "TestSetTestVerifiedWrong", answer.testId);
+          }
+        });
         test.status = verifiedAnswer.isCorrectAnswer ? TestStatus.Correct : TestStatus.Incorrect;
         this.mistakes = this.mistakes + verifiedAnswer.mistakesAmount;
         test.options.forEach(testOption => {

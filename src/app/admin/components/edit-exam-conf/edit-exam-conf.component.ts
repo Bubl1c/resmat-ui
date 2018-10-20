@@ -19,6 +19,8 @@ import { TestConfService } from "../../data/test-conf.service";
 import { ITestGroupConf } from "../test-group-list/test-group-list.component";
 import { IProblemConf } from "../problem-conf/problem-conf.component";
 import { ITaskFlowConfDto } from "../../../exam/data/task-flow.api-protocol";
+import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
+import { RMU } from "../../../utils/utils";
 
 @Component({
   selector: 'edit-exam-conf',
@@ -66,6 +68,9 @@ export class EditExamConfComponent implements OnInit, OnChanges {
       this.api.put(`/exam-confs/${this.data.examConf.id}`, toSave).subscribe({
         next: updated => {
           this.requestComplete();
+          RMU.safe(() => {
+            GoogleAnalyticsUtils.event("Admin", `Edited exam ${updated.id}`, "EditExamConf", updated.id);
+          });
           alert("Успішно збережено");
           this.onSave.emit(updated);
         },
@@ -85,6 +90,9 @@ export class EditExamConfComponent implements OnInit, OnChanges {
       this.api.post(`/exam-confs`, toSave).subscribe({
         next: created => {
           this.requestComplete();
+          RMU.safe(() => {
+            GoogleAnalyticsUtils.event("Admin", `Created exam ${created.examConf.id} "${created.examConf.name}"`, "CreateExamConf", created.examConf.id);
+          });
           alert("Успішно збережено");
           this.onSave.emit(created);
         },

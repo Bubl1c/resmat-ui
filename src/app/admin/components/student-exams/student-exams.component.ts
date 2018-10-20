@@ -2,6 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import { IExamConf, IExamDto } from "../../../exam/data/exam.api-protocol";
 import { ExamService } from "../../../exam/data/exam-service.service";
 import { UserData } from "../../../user/user.models";
+import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
+import { RMU } from "../../../utils/utils";
 
 @Component({
   selector: 'student-exams',
@@ -30,6 +32,9 @@ export class StudentExamsComponent implements OnInit {
     if(window.confirm("Ви дійсно хочете створити роботу " + ec.name + "?")) {
       this.examService.createExamForStudent(ec.id, this.student.id).subscribe(created => {
         this.exams.unshift(created);
+        RMU.safe(() => {
+          GoogleAnalyticsUtils.event("Admin", `Added exam ${ec.id} for student ${this.student.id}`, "AddExamForStudent", ec.id);
+        });
         alert("Успішно створена")
       }, error => alert(error))
     }
@@ -42,6 +47,9 @@ export class StudentExamsComponent implements OnInit {
         if (index > -1) {
           this.exams.splice(index, 1);
         }
+        RMU.safe(() => {
+          GoogleAnalyticsUtils.event("Admin", `Deleted exam ${ec.id} for student ${this.student.id}`, "DeleteExamForStudent", ec.id);
+        });
         alert("Успішно видалено")
       }, error => alert(error))
     }
@@ -60,6 +68,9 @@ export class StudentExamsComponent implements OnInit {
       this.examService.unlockExam(ec.id).subscribe(updated => {
         let index = this.exams.findIndex(e => e.id == updated.id);
         this.exams[index] = updated;
+        RMU.safe(() => {
+          GoogleAnalyticsUtils.event("Admin", `Unlocked exam ${ec.id} for student ${this.student.id}`, "UnlockExamForStudent", ec.id);
+        });
         alert("Успішно розблоковано")
       }, error => alert(error))
     }
@@ -75,6 +86,9 @@ export class StudentExamsComponent implements OnInit {
       this.examService.lockExam(ec.id, hoursToLock).subscribe(updated => {
         let index = this.exams.findIndex(e => e.id == updated.id);
         this.exams[index] = updated;
+        RMU.safe(() => {
+          GoogleAnalyticsUtils.event("Admin", `Locked exam ${ec.id} for student ${this.student.id}`, "LockExamForStudent", ec.id);
+        });
         alert("Успішно заблоковано")
       }, error => alert(error))
     }
