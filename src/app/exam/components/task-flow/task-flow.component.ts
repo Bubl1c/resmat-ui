@@ -10,12 +10,12 @@ import { IExamTaskFlowTaskData } from "../../data/i-exam-task-flow-task-data";
 import {
   InputSetAnswer, InputSetData, InputSetStatus, InputVariable, VarirableAnswer
 } from "../input-set/input-set.component";
-import { Test, TestAnswer, TestStatus } from "../test/test.component";
+import { Test, TestAnswer, TestSingleInputSubmittedAnswerDto, TestStatus, TestSubmittedAnswerDto } from "../test/test.component";
 import { ChartSet } from "../chart-set/chart-set.component";
 import { PageScrollInstance, PageScrollService } from "ng2-page-scroll";
 import { DOCUMENT } from "@angular/platform-browser";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
-import { ITestDto } from "../../data/test-set.api-protocol";
+import { ITestDto, TestType } from "../../data/test-set.api-protocol";
 import {
   Equation,
   EquationDto, EquationItemValue, EquationItemValueDto, EquationItemValueType, EquationSystemDto,
@@ -284,13 +284,25 @@ class TestTaskFlowStep extends TaskFlowStep {
   onSubmitted(submittedData: TestAnswer): void {
     console.log("Verify test answer: ", submittedData);
     let that = this;
+    let toSendToApi;
+    switch (this.data.type) {
+      case TestType.SingleInput:
+        toSendToApi = new TestSingleInputSubmittedAnswerDto(submittedData.submittedOptions[0].value);
+        break;
+      case TestType.Radio:
+      case TestType.Checkbox:
+        toSendToApi = new TestSubmittedAnswerDto(this.data.id, submittedData.submittedOptions.map(opt => opt.id));
+        break;
+      default:
+        throw new Error(`Unsupported test answer test type ${submittedData.testType}`)
+    }
     this.examService.verifyTaskFlowStepAnswer(
       this.taskData.examId,
       this.taskData.examStepSequence,
       this.taskData.examStepAttemptId,
       this.taskData.taskFlowId,
       this.id,
-      JSON.stringify(submittedData)
+      JSON.stringify(toSendToApi)
     ).subscribe((verified: IVerifiedTaskFlowStepAnswer) => {
         let verifiedAnswer: {[key: number]:boolean} = JSON.parse(verified.answer);
         that.data.status = verified.isCorrectAnswer ? TestStatus.Correct : TestStatus.Incorrect;

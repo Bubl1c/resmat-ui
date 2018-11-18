@@ -3,11 +3,12 @@ import { Http } from "@angular/http";
 import { Observable } from "rxjs/Rx";
 import { IExamDto, IExamStepWithData } from "./exam.api-protocol";
 import { IExamTaskFlowStepData, ITaskFlowStepDto, IVerifiedTaskFlowStepAnswer } from "./task-flow.api-protocol";
-import { TestAnswer, TestSingleInputAnswer } from "../components/test/test.component";
+import { TestAnswer, TestSingleInputSubmittedAnswerDto } from "../components/test/test.component";
 import { ExamResult } from "../components/exam-results/exam-results.component";
 import { HttpUtils } from "../../utils/HttpUtils";
 import { ApiService } from "../../api.service";
 import { TestType } from "./test-set.api-protocol";
+import { Error } from "tslint/lib/error";
 
 export class VerifiedTestAnswer {
   constructor(public testId: number,
@@ -96,7 +97,7 @@ export class ExamService {
     let url: string;
     switch (testAnswer.testType) {
       case TestType.SingleInput:
-        let toSendSI: TestSingleInputAnswer = new TestSingleInputAnswer(testAnswer.submittedOptions[0].value);
+        let toSendSI: TestSingleInputSubmittedAnswerDto = new TestSingleInputSubmittedAnswerDto(testAnswer.submittedOptions[0].value);
         data = toSendSI;
         url = 'verify-single-input';
         break;

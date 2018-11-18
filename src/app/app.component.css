@@ -31,10 +31,3 @@
 .logout-container .logout {
   color: white;
 }
-
-.analytics-warning {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-}

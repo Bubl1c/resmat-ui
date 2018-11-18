@@ -47,8 +47,11 @@ export const enum TestStatus {
 export class TestAnswer {
   constructor(public testId: number, public testType: TestType, public submittedOptions: TestOption[]) {}
 }
-export class TestSingleInputAnswer {
+export class TestSingleInputSubmittedAnswerDto {
   constructor(public submittedAnswer: string) {}
+}
+export class TestSubmittedAnswerDto {
+  constructor(public testConfId: number, public submittedOptions: number[]) {}
 }
 
 @Component({
