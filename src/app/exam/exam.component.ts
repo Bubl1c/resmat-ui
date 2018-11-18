@@ -25,7 +25,7 @@ class InitialExamStep extends ExamStep {
   styleUrls: ['./exam.component.css'],
   providers: [ExamService]
 })
-export class ExamComponent implements OnInit, AfterViewInit {
+export class ExamComponent implements OnInit {
   exam: IExamDto;
   step: ExamStep;
 
@@ -42,6 +42,9 @@ export class ExamComponent implements OnInit, AfterViewInit {
     this.examService.startAndGetExam(examId).subscribe((exam: IExamDto) => {
       if(exam) {
         console.log("Exam loaded: ", exam);
+        RMU.safe(() => {
+          GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/exams/${exam.id}`, `Іспит ${exam.name}`);
+        });
         this.exam = exam;
         this.isLoading = false;
         this.loadNextStep();
@@ -60,14 +63,6 @@ export class ExamComponent implements OnInit, AfterViewInit {
         this.errorMessage = "Не вдалося завантажити";
       }
       this.isLoading = false;
-    });
-  }
-
-  ngAfterViewInit(): void {
-    RMU.safe(() => {
-      if (CurrentSession.user) {
-        GoogleAnalyticsUtils.pageView(`users/${CurrentSession.user.id}/exams/${this.exam.id}`, `Іспит ${this.exam.name}`)
-      }
     });
   }
 

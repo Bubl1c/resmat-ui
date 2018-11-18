@@ -10,10 +10,10 @@
 
 .preview {
   position: fixed;
-  width: 90%;
-  height: 90%;
-  top: 5%;
-  left: 5%;
+  width: 93%;
+  height: 93%;
+  top: 3%;
+  left: 3%;
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -22,6 +22,7 @@
 .controls-container {
   display: flex;
   justify-content: space-between;
+  min-height: 15px;
 }
 
 .left-controls-container {
@@ -34,9 +35,10 @@
 
 .image-container {
   flex: 1;
-  margin-top: 1em;
   text-align: center;
   vertical-align: middle;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 .image {

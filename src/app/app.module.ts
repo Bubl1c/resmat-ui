@@ -1,5 +1,5 @@
 import { BrowserModule } from "@angular/platform-browser";
-import { NgModule } from "@angular/core";
+import { ErrorHandler, NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { HttpModule } from "@angular/http";
 import { ChartsModule } from "ng2-charts/ng2-charts";
@@ -66,6 +66,7 @@ import { EditTestSetConfComponent } from './admin/components/edit-exam-conf/edit
 import { TestConfService } from "./admin/data/test-conf.service";
 import { EditTaskFlowConfComponent } from './admin/components/edit-exam-conf/edit-exam-step-conf/edit-task-flow-conf/edit-task-flow-conf.component';
 import { TestHelpMaterialsComponent } from './components/test-help-materials/test-help-materials.component';
+import { GlobalErrorHandler } from "./global-error-handler";
 
 @NgModule({
   declarations: [
@@ -136,7 +137,10 @@ import { TestHelpMaterialsComponent } from './components/test-help-materials/tes
     BootstrapModalModule,
     FileUploadModule
   ],
-  providers: [ApiService, TestConfService],
+  providers: [ApiService, TestConfService, {
+    provide: ErrorHandler,
+    useClass: GlobalErrorHandler
+  }],
   bootstrap: [AppComponent],
   entryComponents: [ CustomModal ]
 })
