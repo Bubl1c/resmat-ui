@@ -67,6 +67,8 @@ import { TestConfService } from "./admin/data/test-conf.service";
 import { EditTaskFlowConfComponent } from './admin/components/edit-exam-conf/edit-exam-step-conf/edit-task-flow-conf/edit-task-flow-conf.component';
 import { TestHelpMaterialsComponent } from './components/test-help-materials/test-help-materials.component';
 import { GlobalErrorHandler } from "./global-error-handler";
+import { GeogebraComponent } from './components/geogebra/geogebra.component';
+import { DummyForTestingComponent } from './components/dummy-for-testing/dummy-for-testing.component';
 
 @NgModule({
   declarations: [
@@ -123,7 +125,9 @@ import { GlobalErrorHandler } from "./global-error-handler";
     ExamConfStepsTabsComponent,
     EditTestSetConfComponent,
     EditTaskFlowConfComponent,
-    TestHelpMaterialsComponent
+    TestHelpMaterialsComponent,
+    GeogebraComponent,
+    DummyForTestingComponent
   ],
   imports: [
     BrowserModule,

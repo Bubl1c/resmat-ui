@@ -1,0 +1,16 @@
+.dummy-components-container-parent {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  height: 100%;
+  padding-top: 3rem;
+}
+
+.dummy-components-container {
+  width: 100%;
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}

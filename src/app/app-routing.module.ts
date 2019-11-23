@@ -8,6 +8,7 @@ import {ArticleEditorComponent} from "./admin/components/article-editor/article-
 import {ArticleListComponent} from "./components/article-list/article-list.component";
 import {ArticleWrapperComponent} from "./components/article-wrapper/article-wrapper.component";
 import {StudentArticlesComponent} from "./exam/components/student-articles/student-articles.component";
+import { DummyForTestingComponent } from "./components/dummy-for-testing/dummy-for-testing.component";
 
 //Keep in mind that GoogleAnalytics is bound to these routes
 const appRoutes: Routes = [
@@ -20,7 +21,8 @@ const appRoutes: Routes = [
   { path: 'admin', component: AdminComponent },
   { path: 'blog', component: ArticleEditorComponent },
   { path: 'articles', component: ArticleListComponent },
-  { path: 'articles/:articleId', component: ArticleWrapperComponent }
+  { path: 'articles/:articleId', component: ArticleWrapperComponent },
+  { path: 'components', component: DummyForTestingComponent },
 ];
 
 @NgModule({

@@ -35,3 +35,6 @@ testem.log
 #System Files
 .DS_Store
 Thumbs.db
+
+# Mathjax fonts
+/lib/mathjax/fonts/HTML-CSS/TeX/
