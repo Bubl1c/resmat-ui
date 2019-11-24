@@ -1,6 +1,13 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
+import XY = CoordsUtils.XY;
 
 declare const GGBApplet: any;
+
+export namespace CoordsUtils {
+  export function XY(x: number, y: number): XYCoords {
+    return new XYCoords(x, y)
+  }
+}
 
 export class XYCoords {
   constructor(public x: number, public y: number) {}
@@ -73,7 +80,12 @@ export class CustomAxisGGO implements GeogebraObject<CustomAxisGGO> {
   private rotationAngle: Angle;
   private rotationPoint: XYCoords;
 
-  constructor(public centerCoords: XYCoords, public xAxisName: string = "X", public yAxisName: string = "Y") {
+  constructor(
+    public centerCoords: XYCoords,
+    public xAxisName: string = "X",
+    public yAxisName: string = "Y",
+    public size: number = 5
+  ) {
     this.rotationAngle = new Angle(0);
     this.rotationPoint = centerCoords;
   }
@@ -85,25 +97,92 @@ export class CustomAxisGGO implements GeogebraObject<CustomAxisGGO> {
   }
 
   getCommands(name: string): string[] {
-    let axisCommands = (axisName: string, xChange: number, yChange: number) => {
+    let axisCommands = (axisName: string, xSize: number, ySize: number) => {
       const withAxisName = (elementName: string) => `${name}${axisName}${elementName}`;
       const startPointName = withAxisName("startPoint");
       const endPointName = withAxisName("endPoint");
       const axisVectorName = withAxisName("axisVector");
       const textPointName = withAxisName("textPoint");
       return [
-        ...new PointGGO(this.centerCoords.x - xChange, this.centerCoords.y - yChange).rotated(this.rotationAngle, this.rotationPoint).getCommands(startPointName),
-        ...new PointGGO(this.centerCoords.x + xChange, this.centerCoords.y + yChange).rotated(this.rotationAngle, this.rotationPoint).getCommands(endPointName),
+        ...new PointGGO(this.centerCoords.x - xSize, this.centerCoords.y - ySize).rotated(this.rotationAngle, this.rotationPoint).getCommands(startPointName),
+        ...new PointGGO(this.centerCoords.x + xSize, this.centerCoords.y + ySize).rotated(this.rotationAngle, this.rotationPoint).getCommands(endPointName),
         ...new VectorGGO(startPointName, endPointName).getCommands(axisVectorName),
-        ...new PointGGO(this.centerCoords.x + xChange, this.centerCoords.y + yChange).rotated(this.rotationAngle, this.rotationPoint).getCommands(textPointName),
+        ...new PointGGO(this.centerCoords.x + xSize, this.centerCoords.y + ySize).rotated(this.rotationAngle, this.rotationPoint).getCommands(textPointName),
         `Text("${axisName}", ${textPointName}, false, true)`
       ]
     };
     return [
       ...new PointGGO(this.centerCoords.x, this.centerCoords.y).rotated(this.rotationAngle, this.rotationPoint).getCommands(`${name}_center`),
-      ...axisCommands(this.xAxisName, 5, 0),
-      ...axisCommands(this.yAxisName, 0, 5)
+      ...axisCommands(this.xAxisName, this.size, 0),
+      ...axisCommands(this.yAxisName, 0, this.size)
     ]
+  }
+}
+
+export class EllipseGGO implements GeogebraObject<EllipseGGO> {
+
+  constructor(
+    public f1Coords: XYCoords,
+    public f2Coords: XYCoords,
+    public pointCoords: XYCoords
+  ) {}
+
+  rotated(angle: Angle, point?: XYCoords): EllipseGGO {
+    console.log("Rotation is not supported for Ellipse yet");
+    return this
+  }
+
+  getCommands(name: string): string[] {
+    const withName = (elementName: string) => `${name}${elementName}`;
+    const f1PointName = withName("F1Point");
+    const f2PointName = withName("F2Point");
+    const elipsePointName = withName("EllipsePoint");
+    return [
+      ...new PointGGO(this.f1Coords.x, this.f1Coords.y).getCommands(f1PointName),
+      ...new PointGGO(this.f2Coords.x, this.f2Coords.y).getCommands(f2PointName),
+      ...new PointGGO(this.pointCoords.x, this.pointCoords.y).getCommands(elipsePointName),
+      `${name}: Ellipse(${f1PointName},${f2PointName},${elipsePointName})`,
+      `ShowLabel(${name},false)`
+    ]
+  }
+}
+
+/**
+ * O      b      A
+ *  -------------
+ *  | ----------- A1
+ *  | |C1
+ * b| |   .C
+ *  |_|
+ *  B t B1
+ */
+export class EqualSideAngleGGO implements GeogebraObject<EqualSideAngleGGO> {
+  private A: XYCoords;
+  private A1: XYCoords;
+  private B: XYCoords;
+  private B1: XYCoords;
+  private C: XYCoords;
+  private C1: XYCoords;
+
+  constructor(
+    public O: XYCoords,
+    public b: number,
+    public t: number
+  ) {
+    this.A = XY(O.x + b, O.y);
+    this.A1 = XY(this.A.x, this.A.y - t);
+    this.B = XY(O.x, O.y - b);
+    this.B1 = XY(this.B.x + t, this.B.y);
+    this.C1 = XY(O.x + t, O.y - t);
+  }
+
+  rotated(angle: Angle, point?: XYCoords): EqualSideAngleGGO {
+    console.log("Rotation is not supported for EqualSideAngle yet");
+    return this
+  }
+
+  getCommands(name: string): string[] {
+    return []
   }
 }
 
@@ -218,7 +297,10 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
       // api.evalCommand("ShowAxes(false)");
       // api.evalCommand("SetVisibleInView(VectorEndPoint,1,false)");
       // api.evalCommand("ShowLabel(vector1,false)");
-      const cmds = new CustomAxisGGO(new XYCoords(2, 2)).rotated(new Angle(10)).getCommands("CustomAxis");
+      const cmds = [
+        ...new CustomAxisGGO(new XYCoords(0, 0)).rotated(new Angle(45)).getCommands("CustomAxis"),
+        ...new EllipseGGO(new XYCoords(2, 2), new XYCoords(-2, -2), new XYCoords(2, -2)).getCommands("Ellipse1")
+      ];
       cmds.forEach(cmd => api.evalCommand(cmd))
     };
     return parameters
