@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { Sortament } from "../../utils/sortament";
+import { GeometryUtils } from "../../utils/GeometryUtils";
 
 declare const GGBApplet: any;
 
@@ -10,7 +11,7 @@ export namespace CoordsUtils {
 }
 
 import XY = CoordsUtils.XY;
-import { GeometryUtils } from "../../utils/GeometryUtils";
+import { NumberUtils } from "../../utils/NumberUtils";
 
 export class XYCoords {
   constructor(public x: number, public y: number) {}
@@ -19,15 +20,17 @@ export class XYCoords {
   }
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): XYCoords {
-    //Move to a new coordinate system with center at point
-    let x = this.x - point.x;
-    let y = this.y - point.y;
-    //Rotate
-    const rotatedX = x * Math.cos(-angle.radians) - y * Math.sin(-angle.radians);
-    const rotatedY = x * Math.sin(-angle.radians) + y * Math.cos(-angle.radians);
+    //Translate to a new coordinate system with center at point
+    let translatedX = this.x - point.x;
+    let translatedY = this.y - point.y;
+    //Rotate clockwise
+    const cos = Math.cos(angle.radians);
+    const sin = Math.sin(angle.radians);
+    const rotatedX = translatedX * cos + translatedY * sin;
+    const rotatedY = - translatedX * sin + translatedY * cos;
     //Go back to the original coordinate system
-    this.x = rotatedX + point.x;
-    this.y = rotatedY + point.y;
+    this.x = NumberUtils.accurateRound(rotatedX + point.x, 2);
+    this.y = NumberUtils.accurateRound(rotatedY + point.y, 2);
     return this
   }
 
@@ -90,12 +93,20 @@ export class TextGGO implements GeogebraObject<TextGGO> {
   }
 }
 
+enum GGLabelMode {
+  Name,
+  NameValue,
+  Value,
+  Caption,
+  CaptionValue
+}
+
 export class PointGGO implements GeogebraObject<PointGGO> {
-  static xy(x: number, y: number, name: string, isVisible: boolean = false): PointGGO {
+  static xy(x: number, y: number, name: string, isVisible: boolean = false, labelMode: GGLabelMode = GGLabelMode.Name): PointGGO {
     return new PointGGO(XY(x, y), name, isVisible)
   }
 
-  constructor(public root: XYCoords, public name: string, public isVisible: boolean = false) {}
+  constructor(public root: XYCoords, public name: string, public isVisible: boolean = false, public labelMode: GGLabelMode = GGLabelMode.Name) {}
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): PointGGO {
     this.root.rotate(angle, point);
@@ -108,30 +119,11 @@ export class PointGGO implements GeogebraObject<PointGGO> {
 
   getCommands(): string[] {
     const pointCmd = `${this.name}=${this.root.getCommand()}`;
-    return this.isVisible
-      ? [pointCmd]
-      : [pointCmd, `SetVisibleInView(${this.name},1,false)`];
-  }
-}
-
-export class VectorWithExistingPointsGGO implements GeogebraObject<VectorWithExistingPointsGGO> {
-  root: XYCoords = null;
-
-  constructor(public startPointName: string, public endPointName: string, public name: string, public isLabelVisible: boolean = false) {}
-
-  getCommands(): string[] {
-    const vectorCmd = `${this.name}=Vector(${this.startPointName},${this.endPointName})`;
-    return this.isLabelVisible
-      ? [vectorCmd]
-      : [vectorCmd, `ShowLabel(${this.name},false)`];
-  }
-
-  copy(): VectorWithExistingPointsGGO {
-    return new VectorWithExistingPointsGGO(this.startPointName, this.endPointName, this.name, this.isLabelVisible);
-  }
-
-  rotate(angle: Angle, point: XYCoords): VectorWithExistingPointsGGO {
-    throw new Error("VectorWithExistingPoints does not support rotation. Please rotate underlying points instead.")
+    return [
+      pointCmd,
+      `SetLabelMode(${this.name},${this.labelMode})`,
+      `SetVisibleInView(${this.name},1,${this.isVisible})`
+    ]
   }
 }
 
@@ -142,8 +134,8 @@ export class VectorGGO implements GeogebraObject<VectorGGO> {
 
   constructor(public root: XYCoords, public end: XYCoords, public name: string, public isLabelVisible: boolean = false) {
     const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.rootPoint = new PointGGO(this.root, withName("Root"));
-    this.endPoint = new PointGGO(this.end, withName("End"));
+    this.rootPoint = new PointGGO(this.root.copy(), withName("Root"));
+    this.endPoint = new PointGGO(this.end.copy(), withName("End"));
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): VectorGGO {
@@ -180,8 +172,8 @@ export class SegmentGGO implements GeogebraObject<SegmentGGO> {
 
   constructor(public root: XYCoords, public end: XYCoords, public name: string, public isLabelVisible: boolean = false) {
     const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.rootPoint = new PointGGO(this.root, withName("Root"));
-    this.endPoint = new PointGGO(this.end, withName("End"));
+    this.rootPoint = new PointGGO(this.root.copy(), withName("Root"), true, GGLabelMode.Value);
+    this.endPoint = new PointGGO(this.end.copy(), withName("End"));
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): SegmentGGO {
@@ -261,9 +253,9 @@ export class EllipseGGO implements GeogebraObject<EllipseGGO> {
     const withName = (elementName: string) => `${name}${elementName}`;
     const center = GeometryUtils.evalSegmentCenter(f1.x, f1.y, f2.x, f2.y);
     this.root = XY(center.x, center.y);
-    this.f1Point = new PointGGO(f1, withName("F1Point"));
-    this.f2Point = new PointGGO(f2, withName("F2Point"));
-    this.ellipsePoint = new PointGGO(ellipsePoint, withName("EllipsePoint"));
+    this.f1Point = new PointGGO(f1.copy(), withName("F1Point"), true);
+    this.f2Point = new PointGGO(f2.copy(), withName("F2Point"), true);
+    this.ellipsePoint = new PointGGO(ellipsePoint.copy(), withName("EllipsePoint"), true);
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): EllipseGGO {
@@ -290,7 +282,7 @@ export class EllipseGGO implements GeogebraObject<EllipseGGO> {
 }
 
 /**
- * O        b    A
+ * Root     b    A
  *  -------------
  *  | ----------- A1
  *  | |C1
@@ -341,7 +333,7 @@ export class KutykGGO implements GeogebraObject<KutykGGO> {
     this.segments = [this.Root_A, this.A_A1, this.Root_B, this.B_B1, this.C1_A1, this.C1_B1]
   }
 
-  rotate(angle: Angle, point: XYCoords = this.root): KutykGGO {
+  rotate(angle: Angle, point: XYCoords = this.root.copy()): KutykGGO {
     this.C.rotate(angle, point);
     this.segments.forEach(s => {
       s.rotate(angle, point)
@@ -372,44 +364,45 @@ export class KutykGGO implements GeogebraObject<KutykGGO> {
 }
 
 /**
- * B            C
+ * B            C1
  *  -----------
  *  |          |
- *  |    .root | h
+ *  |    .C    | h
  *  |          |
  *  |_________ |
- * A     b      D
+ * Root  b      D
  */
 export class PlateGGO implements GeogebraObject<PlateGGO> {
   private segments: SegmentGGO[];
 
-  A_B: SegmentGGO;
-  B_C: SegmentGGO;
-  C_D: SegmentGGO;
-  D_A: SegmentGGO;
+  Root_B: SegmentGGO;
+  B_C1: SegmentGGO;
+  C1_D: SegmentGGO;
+  D_Root: SegmentGGO;
 
   constructor(
     public name: string,
     public root: XYCoords,
     public b: number,
-    public h: number
+    public h: number,
+    public isLabelVisible: Boolean = false
   ) {
     const withName = (elementName: string) => `${name}${elementName}`;
 
-    const A = this.root.copy();
-    const B = XY(A.x, A.y +h);
-    const C = XY(A.x + b, A.y + h);
-    const D = XY(A.x + b, A.y);
+    const Root = this.root.copy();
+    const B = XY(Root.x, Root.y +h);
+    const C1 = XY(Root.x + b, Root.y + h);
+    const D = XY(Root.x + b, Root.y);
 
-    this.A_B = new SegmentGGO(A, B, withName("A_B"));
-    this.B_C = new SegmentGGO(B, C, withName("B_C"));
-    this.C_D = new SegmentGGO(C, D, withName("C_D"));
-    this.D_A = new SegmentGGO(D, A, withName("B_B1"));
+    this.Root_B = new SegmentGGO(Root, B, withName("Root_B"));
+    this.B_C1 = new SegmentGGO(B, C1, withName("B_C1"));
+    this.C1_D = new SegmentGGO(C1, D, withName("C1_D"));
+    this.D_Root = new SegmentGGO(D, Root, withName("D_Root"));
 
-    this.segments = [this.A_B, this.B_C, this.C_D, this.D_A]
+    this.segments = [this.Root_B, this.B_C1, this.C1_D, this.D_Root]
   }
 
-  rotate(angle: Angle, point: XYCoords = this.root): PlateGGO {
+  rotate(angle: Angle, point: XYCoords = this.root.copy()): PlateGGO {
     this.root.rotate(angle, point);
     this.segments.forEach(s => {
       s.rotate(angle, point)
@@ -418,15 +411,105 @@ export class PlateGGO implements GeogebraObject<PlateGGO> {
   }
 
   copy(): PlateGGO {
-    return new PlateGGO(this.name, this.root.copy(), this.b, this.h)
+    return new PlateGGO(this.name, this.root.copy(), this.b, this.h, this.isLabelVisible)
   }
 
   getCommands(): string[] {
     const polygonVertices = [
-      this.A_B.rootPoint.name,
-      this.B_C.rootPoint.name,
-      this.C_D.rootPoint.name,
-      this.D_A.rootPoint.name
+      this.Root_B.rootPoint.name,
+      this.B_C1.rootPoint.name,
+      this.C1_D.rootPoint.name,
+      this.D_Root.rootPoint.name
+    ];
+    return [
+      ...this.segments.map(s => s.getCommands()).reduce((prev, cur) => prev.concat(cur)),
+      `${this.name}=Polygon(${Array.from(polygonVertices).join(",")})`,
+      `SetLineThickness(${this.name},0)`,
+      `ShowLabel(${this.name},${this.isLabelVisible})`
+    ]
+  }
+}
+
+/**
+ *
+ * B1_______ B2
+ *  | _______| t
+ *  | |C1   D1
+ * h|d| .C
+ *  | |C2___D2
+ *  |________| t
+ * Root  b   B3
+ */
+export class ShvellerGGO implements GeogebraObject<ShvellerGGO> {
+  private segments: SegmentGGO[];
+
+  Root_B1: SegmentGGO;
+  B1_B2: SegmentGGO;
+  B2_D1: SegmentGGO;
+  D1_C1: SegmentGGO;
+  C1_C2: SegmentGGO;
+  C2_D2: SegmentGGO;
+  D2_B3: SegmentGGO;
+  B3_Root: SegmentGGO;
+
+  constructor(
+    public name: string,
+    public root: XYCoords,
+    public n: number
+  ) {
+    const withName = (elementName: string) => `${name}${elementName}`;
+
+    const sortament = Sortament.Shveller[n + ""];
+    if (!sortament) {
+      throw new Error(`Shveller with number = ${n} has not been found in sortament!`)
+    }
+    const h = sortament.h;
+    const b = sortament.b;
+    const d = sortament.d;
+    const t = sortament.t;
+
+    const B1 = XY(root.x, root.y + h);
+    const B2 = XY(B1.x + b, B1.y);
+    const D1 = XY(B2.x, B2.y - t);
+    const C1 = XY(D1.x - b + d, D1.y);
+    const C2 = XY(C1.x, C1.y - h + t*2);
+    const B3 = XY(root.x + b, root.y);
+    const D2 = XY(B3.x, B3.y + t);
+
+    this.Root_B1 = new SegmentGGO(root, B1, withName("Root_B1"));
+    this.B1_B2 = new SegmentGGO(B1, B2, withName("B1_B2"));
+    this.B2_D1 = new SegmentGGO(B2, D1, withName("B2_D1"));
+    this.D1_C1 = new SegmentGGO(D1, C1, withName("D1_C1"));
+    this.C1_C2 = new SegmentGGO(C1, C2, withName("C1_C2"));
+    this.C2_D2 = new SegmentGGO(C2, D2, withName("C2_D2"));
+    this.D2_B3 = new SegmentGGO(D2, B3, withName("D2_B3"));
+    this.B3_Root = new SegmentGGO(B3, root, withName("B3_Root"));
+
+    this.segments = [this.Root_B1, this.B1_B2, this.B2_D1, this.D1_C1, this.C1_C2, this.C2_D2, this.D2_B3, this.B3_Root]
+  }
+
+  rotate(angle: Angle, point: XYCoords = this.root.copy()): ShvellerGGO {
+    this.root.rotate(angle, point);
+    this.segments.forEach(s => {
+      s.rotate(angle, point)
+    });
+    return this
+  }
+
+  copy(): ShvellerGGO {
+    return new ShvellerGGO(this.name, this.root.copy(), this.n)
+  }
+
+  getCommands(): string[] {
+    const polygonVertices = [
+      this.Root_B1.rootPoint.name,
+      this.Root_B1.endPoint.name,
+      this.B1_B2.endPoint.name,
+      this.B2_D1.endPoint.name,
+      this.D1_C1.endPoint.name,
+      this.C1_C2.endPoint.name,
+      this.C2_D2.endPoint.name,
+      this.D2_B3.endPoint.name
     ];
     return [
       ...this.segments.map(s => s.getCommands()).reduce((prev, cur) => prev.concat(cur)),
@@ -435,8 +518,6 @@ export class PlateGGO implements GeogebraObject<PlateGGO> {
     ]
   }
 }
-
-
 
 @Component({
   selector: 'geogebra',
@@ -548,11 +629,14 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
       // api.evalCommand("SetVisibleInView(VectorEndPoint,1,false)");
       // api.evalCommand("ShowLabel(vector1,false)");
       const cmds = [
-        ...new CustomAxisGGO(XY(0, 0), "CustomAxis", 20).rotate(new Angle(45)).getCommands(),
-        ...new EllipseGGO("Ellipse1", XY(10, 10), XY(-10, -10), XY(15, -15)).rotate(new Angle(45), XY(0, 0)).getCommands(),
-        ...new KutykGGO("Kutyk0", XY(2, 2), 20, 3).rotate(new Angle(0)).getCommands(),
-        ...new PlateGGO("Plate", XY(-5, 2), 2, 5).getCommands(),
-        `ZoomOut(5)`
+        // ...new CustomAxisGGO(XY(0, 0), "CustomAxis", 20).rotate(new Angle(45)).rotate(new Angle(45)).getCommands(),
+        // ...new EllipseGGO("Ellipse1", XY(10, 10), XY(-10, -10), XY(15, -15)).rotate(new Angle(45), XY(0, 0)).getCommands(),
+        // ...new KutykGGO("Kutyk0", XY(2, 2), 20, 3).rotate(new Angle(45)).getCommands(),
+        // ...new PlateGGO("P0", XY(-5, 2), 2, 5, true).getCommands(),
+        ...new ShvellerGGO("Shveller0", XY(50, 50), 5).getCommands(),
+        ...new ShvellerGGO("Shveller45", XY(50, 50), 5).rotate(new Angle(45)).getCommands(),
+        ...new ShvellerGGO("Shveller90", XY(50, 50), 5).rotate(new Angle(90)).getCommands(),
+        `ZoomOut(10)`
       ];
       cmds.forEach(cmd => api.evalCommand(cmd))
     };
