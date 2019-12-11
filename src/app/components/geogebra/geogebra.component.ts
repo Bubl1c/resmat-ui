@@ -172,7 +172,7 @@ export class SegmentGGO implements GeogebraObject<SegmentGGO> {
 
   constructor(public root: XYCoords, public end: XYCoords, public name: string, public isLabelVisible: boolean = false) {
     const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.rootPoint = new PointGGO(this.root.copy(), withName("Root"), true, GGLabelMode.Value);
+    this.rootPoint = new PointGGO(this.root.copy(), withName("Root"));
     this.endPoint = new PointGGO(this.end.copy(), withName("End"));
   }
 
@@ -519,6 +519,117 @@ export class ShvellerGGO implements GeogebraObject<ShvellerGGO> {
   }
 }
 
+/**
+ *
+ *  B2___________B3
+ *  t|____   ____|  |
+ *  B1  C2|s|C3  B4 |
+ *        |.|C      | h
+ *  A2__C1| |C4__A3 |
+ *  t|___________|  |
+ * Root    b     A4
+ */
+export class DvotavrGGO implements GeogebraObject<DvotavrGGO> {
+  private segments: SegmentGGO[];
+
+  Root_A2: SegmentGGO;
+  A2_C1: SegmentGGO;
+  C1_C2: SegmentGGO;
+  C2_B1: SegmentGGO;
+  B1_B2: SegmentGGO;
+  B2_B3: SegmentGGO;
+  B3_B4: SegmentGGO;
+  B4_C3: SegmentGGO;
+  C3_C4: SegmentGGO;
+  C4_A3: SegmentGGO;
+  A3_A4: SegmentGGO;
+  A4_Root: SegmentGGO;
+
+  constructor(
+    public name: string,
+    public root: XYCoords,
+    public n: number
+  ) {
+    const withName = (elementName: string) => `${name}${elementName}`;
+
+    const sortament = Sortament.Dvotavr[n + ""];
+    if (!sortament) {
+      throw new Error(`Dvotavr with number = ${n} has not been found in sortament!`)
+    }
+    const h = sortament.h;
+    const b = sortament.b;
+    const s = sortament.s;
+    const t = sortament.t;
+
+    const innerSide = b/2 - s/2;
+    const leg = h - t*2;
+    const A2 = XY(root.x, root.y + t);
+    const A4 = XY(root.x + b, root.y);
+    const A3 = XY(A4.x, A4.y + t);
+    const C1 = XY(A2.x + innerSide, A2.y);
+    const C2 = XY(C1.x, C1.y + leg);
+    const C3 = XY(C2.x + s, C2.y);
+    const C4 = XY(C1.x + s, C1.y);
+    const B1 = XY(C2.x - innerSide, C2.y);
+    const B2 = XY(B1.x, B1.y + t);
+    const B3 = XY(B2.x + b, B2.y);
+    const B4 = XY(B3.x, B3.y - t);
+
+    this.Root_A2 = new SegmentGGO(root, A2, withName("Root_A2"));
+    this.A2_C1 = new SegmentGGO(A2, C1, withName("A2_C1"));
+    this.C1_C2 = new SegmentGGO(C1, C2, withName("C1_C2"));
+    this.C2_B1 = new SegmentGGO(C2, B1, withName("C2_B1"));
+    this.B1_B2 = new SegmentGGO(B1, B2, withName("B1_B2"));
+    this.B2_B3 = new SegmentGGO(B2, B3, withName("B2_B3"));
+    this.B3_B4 = new SegmentGGO(B3, B4, withName("B3_B4"));
+    this.B4_C3 = new SegmentGGO(B4, C3, withName("B4_C3"));
+    this.C3_C4 = new SegmentGGO(C3, C4, withName("C3_C4"));
+    this.C4_A3 = new SegmentGGO(C4, A3, withName("C4_A3"));
+    this.A3_A4 = new SegmentGGO(A3, A4, withName("A3_A4"));
+    this.A4_Root = new SegmentGGO(A4, root, withName("A4_Root"));
+
+    this.segments = [
+      this.Root_A2, this.A2_C1, this.C1_C2, this.C2_B1, this.B1_B2, this.B2_B3, this.B3_B4,
+      this.B4_C3, this.C3_C4, this.C4_A3, this.A3_A4, this.A4_Root
+    ]
+  }
+
+  rotate(angle: Angle, point: XYCoords = this.root.copy()): DvotavrGGO {
+    this.root.rotate(angle, point);
+    this.segments.forEach(s => {
+      s.rotate(angle, point)
+    });
+    return this
+  }
+
+  copy(): DvotavrGGO {
+    return new DvotavrGGO(this.name, this.root.copy(), this.n)
+  }
+
+  getCommands(): string[] {
+    const polygonVertices = [
+      this.Root_A2.rootPoint.name,
+      this.Root_A2.endPoint.name,
+      this.A2_C1.endPoint.name,
+      this.C1_C2.endPoint.name,
+      this.C2_B1.endPoint.name,
+      this.B1_B2.endPoint.name,
+      this.B2_B3.endPoint.name,
+      this.B3_B4.endPoint.name,
+      this.B4_C3.endPoint.name,
+      this.C3_C4.endPoint.name,
+      this.C4_A3.endPoint.name,
+      this.A3_A4.endPoint.name,
+      this.A4_Root.endPoint.name
+    ];
+    return [
+      ...this.segments.map(s => s.getCommands()).reduce((prev, cur) => prev.concat(cur)),
+      `${this.name}=Polygon(${Array.from(polygonVertices).join(",")})`,
+      `SetLineThickness(${this.name},0)`
+    ]
+  }
+}
+
 @Component({
   selector: 'geogebra',
   templateUrl: './geogebra.component.html',
@@ -633,9 +744,9 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
         // ...new EllipseGGO("Ellipse1", XY(10, 10), XY(-10, -10), XY(15, -15)).rotate(new Angle(45), XY(0, 0)).getCommands(),
         // ...new KutykGGO("Kutyk0", XY(2, 2), 20, 3).rotate(new Angle(45)).getCommands(),
         // ...new PlateGGO("P0", XY(-5, 2), 2, 5, true).getCommands(),
-        ...new ShvellerGGO("Shveller0", XY(50, 50), 5).getCommands(),
-        ...new ShvellerGGO("Shveller45", XY(50, 50), 5).rotate(new Angle(45)).getCommands(),
-        ...new ShvellerGGO("Shveller90", XY(50, 50), 5).rotate(new Angle(90)).getCommands(),
+        ...new DvotavrGGO("Dvotavr0", XY(0, 0), 10).getCommands(),
+        ...new DvotavrGGO("Dvotavr45", XY(0, 0), 10).rotate(new Angle(45)).getCommands(),
+        ...new DvotavrGGO("Dvotavr90", XY(0, 0), 10).rotate(new Angle(90)).getCommands(),
         `ZoomOut(10)`
       ];
       cmds.forEach(cmd => api.evalCommand(cmd))
