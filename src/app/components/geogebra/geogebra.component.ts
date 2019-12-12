@@ -13,7 +13,16 @@ export namespace CoordsUtils {
 import XY = CoordsUtils.XY;
 import { NumberUtils } from "../../utils/NumberUtils";
 
-export class XYCoords {
+interface XYCoordsJson {
+  x: number
+  y: number
+}
+
+export class XYCoords implements XYCoordsJson {
+  static fromJson(json: XYCoordsJson): XYCoords {
+    return new XYCoords(json.x, json.y)
+  }
+
   constructor(public x: number, public y: number) {}
   copy(): XYCoords {
     return new XYCoords(this.x, this.y)
@@ -36,6 +45,13 @@ export class XYCoords {
 
   getCommand(): string {
     return `(${this.x},${this.y})`
+  }
+
+  toJson(): XYCoordsJson {
+    return {
+      x: this.x,
+      y: this.y
+    }
   }
 }
 
@@ -63,19 +79,61 @@ export class Angle {
   }
 }
 
-export interface GeogebraObject<T> {
-  root: XYCoords
+export type GGOKind = "text" | "point" | "vector" | "segment" | "custom_axes" | "ellipse" | "kutyk" | "plate" | "shveller" | "dvotavr";
+
+export interface GeogebraObjectJson {
+  kind: GGOKind
+  root: XYCoordsJson
   name: string
+}
+
+export interface GeogebraObject<T> extends GeogebraObjectJson {
   rotate(angle: Angle, point: XYCoords): T
   copy(): T
   getCommands(): string[]
+  toJson(): GeogebraObjectJson
 }
 
+export namespace GeogebraObject {
+  export function fromJson(json: GeogebraObjectJson): GeogebraObject<any> {
+    switch (json.kind) {
+      case "text" :
+        return TextGGO.fromJson(json);
+      case "point" :
+        return PointGGO.fromJson(json);
+      case "vector" :
+        return VectorGGO.fromJson(json);
+      case "segment" :
+        return SegmentGGO.fromJson(json);
+      case "custom_axes" :
+        return CustomAxesGGO.fromJson(json);
+      case "ellipse" :
+        return EllipseGGO.fromJson(json);
+      case "kutyk" :
+        return KutykGGO.fromJson(json);
+      case "plate" :
+        return PlateGGO.fromJson(json);
+      case "shveller" :
+        return ShvellerGGO.fromJson(json);
+      case "dvotavr":
+        return DvotavrGGO.fromJson(json);
+      default:
+        throw new Error(`Unhandled GeogebraObject kind ${json.kind} in json ${json}`)
+    }
+  }
+}
+
+export interface TextGGOJSON extends GeogebraObjectJson {
+  substituteVariables: boolean
+  laTeXFormula: boolean
+}
 /**
  * https://wiki.geogebra.org/en/Text_Command
  */
 export class TextGGO implements GeogebraObject<TextGGO> {
-  constructor(public root: XYCoords, public name: string, public substituteVariables: boolean = false, public laTeXFormula: boolean = false) {}
+  kind: GGOKind = "text";
+
+  constructor(public name: string, public root: XYCoords, public substituteVariables: boolean = false, public laTeXFormula: boolean = false) {}
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): TextGGO {
     this.root.rotate(angle, point);
@@ -83,13 +141,22 @@ export class TextGGO implements GeogebraObject<TextGGO> {
   }
 
   copy(): TextGGO {
-    return new TextGGO(this.root.copy(), this.name, this.substituteVariables, this.laTeXFormula);
+    return new TextGGO(this.name, this.root.copy(), this.substituteVariables, this.laTeXFormula);
   }
 
   getCommands(): string[] {
     return [
       `Text("${this.name}", (${this.root.x}, ${this.root.y}), ${this.substituteVariables}, ${this.laTeXFormula})`
     ]
+  }
+
+  toJson(): TextGGOJSON {
+    return this.copy()
+  }
+
+  static fromJson(json: GeogebraObjectJson): TextGGO {
+    const j = json as TextGGOJSON;
+    return new TextGGO(j.name, XYCoords.fromJson(j.root), j.substituteVariables, j.laTeXFormula)
   }
 }
 
@@ -101,12 +168,14 @@ enum GGLabelMode {
   CaptionValue
 }
 
+export interface PointGGOJSON extends GeogebraObjectJson {
+  isVisible: boolean
+  labelMode: GGLabelMode
+}
 export class PointGGO implements GeogebraObject<PointGGO> {
-  static xy(x: number, y: number, name: string, isVisible: boolean = false, labelMode: GGLabelMode = GGLabelMode.Name): PointGGO {
-    return new PointGGO(XY(x, y), name, isVisible)
-  }
+  kind: GGOKind = "point";
 
-  constructor(public root: XYCoords, public name: string, public isVisible: boolean = false, public labelMode: GGLabelMode = GGLabelMode.Name) {}
+  constructor(public name: string, public root: XYCoords, public isVisible: boolean = false, public labelMode: GGLabelMode = GGLabelMode.Name) {}
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): PointGGO {
     this.root.rotate(angle, point);
@@ -114,7 +183,7 @@ export class PointGGO implements GeogebraObject<PointGGO> {
   }
 
   copy(): PointGGO {
-    return new PointGGO(this.root.copy(), this.name, this.isVisible);
+    return new PointGGO(this.name, this.root.copy(), this.isVisible);
   }
 
   getCommands(): string[] {
@@ -125,17 +194,32 @@ export class PointGGO implements GeogebraObject<PointGGO> {
       `SetVisibleInView(${this.name},1,${this.isVisible})`
     ]
   }
+
+  toJson(): PointGGOJSON {
+    return this.copy()
+  }
+
+  static fromJson(json: GeogebraObjectJson): PointGGO {
+    const j = json as PointGGOJSON;
+    return new PointGGO(j.name, XYCoords.fromJson(j.root), j.isVisible, j.labelMode)
+  }
 }
 
+export interface VectorGGOJSON extends GeogebraObjectJson {
+  end: XYCoordsJson
+  isLabelVisible: boolean
+}
 export class VectorGGO implements GeogebraObject<VectorGGO> {
+  kind: GGOKind = "vector";
+
   rootPoint: PointGGO;
   endPoint: PointGGO;
   customLabel?: TextGGO;
 
-  constructor(public root: XYCoords, public end: XYCoords, public name: string, public isLabelVisible: boolean = false) {
+  constructor(public name: string, public root: XYCoords, public end: XYCoords, public isLabelVisible: boolean = false) {
     const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.rootPoint = new PointGGO(this.root.copy(), withName("Root"));
-    this.endPoint = new PointGGO(this.end.copy(), withName("End"));
+    this.rootPoint = new PointGGO(withName("Root"), this.root.copy());
+    this.endPoint = new PointGGO(withName("End"), this.end.copy());
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): VectorGGO {
@@ -146,7 +230,7 @@ export class VectorGGO implements GeogebraObject<VectorGGO> {
   }
 
   copy(): VectorGGO {
-    return new VectorGGO(this.root.copy(), this.end.copy(), this.name, this.isLabelVisible);
+    return new VectorGGO(this.name, this.root.copy(), this.end.copy(), this.isLabelVisible);
   }
 
   setCustomLabel(label: TextGGO): VectorGGO {
@@ -163,17 +247,38 @@ export class VectorGGO implements GeogebraObject<VectorGGO> {
       ...(this.customLabel ? this.customLabel.getCommands() : [])
     ]
   }
+
+  toJson(): VectorGGOJSON {
+    return {
+      kind: this.kind,
+      root: this.root.toJson(),
+      end: this.end.toJson(),
+      name: this.name,
+      isLabelVisible: this.isLabelVisible
+    }
+  }
+
+  static fromJson(json: GeogebraObjectJson): VectorGGO {
+    const j = json as VectorGGOJSON;
+    return new VectorGGO(j.name, XYCoords.fromJson(j.root), XYCoords.fromJson(j.end), j.isLabelVisible)
+  }
 }
 
+export interface SegmentGGOJSON extends GeogebraObjectJson {
+  end: XYCoordsJson
+  isLabelVisible: boolean
+}
 export class SegmentGGO implements GeogebraObject<SegmentGGO> {
+  kind: GGOKind = "segment";
+
   rootPoint: PointGGO;
   endPoint: PointGGO;
   parentName?: string;
 
-  constructor(public root: XYCoords, public end: XYCoords, public name: string, public isLabelVisible: boolean = false) {
+  constructor(public name: string, public root: XYCoords, public end: XYCoords, public isLabelVisible: boolean = false) {
     const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.rootPoint = new PointGGO(this.root.copy(), withName("Root"));
-    this.endPoint = new PointGGO(this.end.copy(), withName("End"));
+    this.rootPoint = new PointGGO(withName("Root"), this.root.copy());
+    this.endPoint = new PointGGO(withName("End"), this.end.copy());
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): SegmentGGO {
@@ -183,12 +288,7 @@ export class SegmentGGO implements GeogebraObject<SegmentGGO> {
   }
 
   copy(): SegmentGGO {
-    return new SegmentGGO(this.root.copy(), this.end.copy(), this.name, this.isLabelVisible);
-  }
-
-  setParent(parentName: string): SegmentGGO {
-    this.parentName = parentName;
-    return this;
+    return new SegmentGGO(this.name, this.root.copy(), this.end.copy(), this.isLabelVisible);
   }
 
   getCommands(): string[] {
@@ -200,34 +300,62 @@ export class SegmentGGO implements GeogebraObject<SegmentGGO> {
       `ShowLabel(${this.name},${this.isLabelVisible})`
     ]
   }
+
+  toJson(): SegmentGGOJSON {
+    return {
+      kind: this.kind,
+      root: this.root.toJson(),
+      end: this.end.toJson(),
+      name: this.name,
+      isLabelVisible: this.isLabelVisible
+    }
+  }
+
+  static fromJson(json: GeogebraObjectJson): SegmentGGO {
+    const j = json as SegmentGGOJSON;
+    return new SegmentGGO(j.name, XYCoords.fromJson(j.root), XYCoords.fromJson(j.end), j.isLabelVisible)
+  }
 }
 
-export class CustomAxisGGO implements GeogebraObject<CustomAxisGGO> {
+export interface CustomAxesGGOJSON extends GeogebraObjectJson {
+  size: number,
+  axes: {
+    x: {
+      name: string
+    },
+    y: {
+      name: string
+    }
+  }
+}
+export class CustomAxesGGO implements GeogebraObject<CustomAxesGGO> {
+  kind: GGOKind = "custom_axes";
+
   xAxis: VectorGGO;
   yAxis: VectorGGO;
 
   constructor(
-    public root: XYCoords,
     public name: string,
+    public root: XYCoords,
     public size: number = 5,
     public xAxisName: string = "X",
     public yAxisName: string = "Y"
   ) {
     const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.xAxis = new VectorGGO(XY(root.x - size, root.y), XY(root.x + size, root.y), withName(xAxisName));
-    this.xAxis.setCustomLabel(new TextGGO(this.xAxis.endPoint.root, xAxisName));
-    this.yAxis = new VectorGGO(XY(root.x, root.y - size), XY(root.x, root.y + size), withName(yAxisName));
-    this.yAxis.setCustomLabel(new TextGGO(this.yAxis.endPoint.root, yAxisName));
+    this.xAxis = new VectorGGO(withName(xAxisName), XY(root.x - size, root.y), XY(root.x + size, root.y));
+    this.xAxis.setCustomLabel(new TextGGO(xAxisName, this.xAxis.endPoint.root));
+    this.yAxis = new VectorGGO(withName(yAxisName), XY(root.x, root.y - size), XY(root.x, root.y + size));
+    this.yAxis.setCustomLabel(new TextGGO(yAxisName, this.yAxis.endPoint.root));
   }
 
-  rotate(angle: Angle, point: XYCoords = this.root): CustomAxisGGO {
+  rotate(angle: Angle, point: XYCoords = this.root): CustomAxesGGO {
     this.xAxis.rotate(angle, point);
     this.yAxis.rotate(angle, point);
     return this;
   }
 
-  copy(): CustomAxisGGO {
-    return new CustomAxisGGO(this.root.copy(), this.name, this.size, this.xAxisName, this.yAxisName);
+  copy(): CustomAxesGGO {
+    return new CustomAxesGGO(this.name, this.root.copy(), this.size, this.xAxisName, this.yAxisName);
   }
 
   getCommands(): string[] {
@@ -236,9 +364,38 @@ export class CustomAxisGGO implements GeogebraObject<CustomAxisGGO> {
       ...this.yAxis.getCommands()
     ];
   }
+
+  toJson(): CustomAxesGGOJSON {
+    return {
+      kind: this.kind,
+      root: this.root.toJson(),
+      name: this.name,
+      size: this.size,
+      axes: {
+        x: {
+          name: this.xAxisName
+        },
+        y: {
+          name: this.yAxisName
+        }
+      }
+    }
+  }
+
+  static fromJson(json: GeogebraObjectJson): CustomAxesGGO {
+    const j = json as CustomAxesGGOJSON;
+    return new CustomAxesGGO(j.name, XYCoords.fromJson(j.root), j.size, j.axes.x.name, j.axes.y.name)
+  }
 }
 
+export interface EllipseGGOJSON extends GeogebraObjectJson {
+  f1: XYCoordsJson,
+  f2: XYCoordsJson,
+  ellipsePoint: XYCoordsJson
+}
 export class EllipseGGO implements GeogebraObject<EllipseGGO> {
+  kind: GGOKind = "ellipse";
+
   root: XYCoords;
   f1Point: PointGGO;
   f2Point: PointGGO;
@@ -253,9 +410,9 @@ export class EllipseGGO implements GeogebraObject<EllipseGGO> {
     const withName = (elementName: string) => `${name}${elementName}`;
     const center = GeometryUtils.evalSegmentCenter(f1.x, f1.y, f2.x, f2.y);
     this.root = XY(center.x, center.y);
-    this.f1Point = new PointGGO(f1.copy(), withName("F1Point"), true);
-    this.f2Point = new PointGGO(f2.copy(), withName("F2Point"), true);
-    this.ellipsePoint = new PointGGO(ellipsePoint.copy(), withName("EllipsePoint"), true);
+    this.f1Point = new PointGGO(withName("F1Point"), f1.copy(),true);
+    this.f2Point = new PointGGO(withName("F2Point"), f2.copy(), true);
+    this.ellipsePoint = new PointGGO(withName("EllipsePoint"), ellipsePoint.copy(), true);
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): EllipseGGO {
@@ -279,8 +436,28 @@ export class EllipseGGO implements GeogebraObject<EllipseGGO> {
       `ShowLabel(${this.name},false)`
     ]
   }
+
+  toJson(): EllipseGGOJSON {
+    return {
+      kind: this.kind,
+      root: this.root.toJson(),
+      name: this.name,
+      f1: this.f1Point.root.toJson(),
+      f2: this.f2Point.root.toJson(),
+      ellipsePoint: this.ellipsePoint.root.toJson()
+    }
+  }
+
+  static fromJson(json: GeogebraObjectJson): CustomAxesGGO {
+    const j = json as CustomAxesGGOJSON;
+    return new CustomAxesGGO(j.name, XYCoords.fromJson(j.root), j.size, j.axes.x.name, j.axes.y.name)
+  }
 }
 
+export interface KutykGGOJSON extends GeogebraObjectJson {
+  b: number
+  t: number
+}
 /**
  * Root     b    A
  *  -------------
@@ -291,6 +468,8 @@ export class EllipseGGO implements GeogebraObject<EllipseGGO> {
  *  B t B1
  */
 export class KutykGGO implements GeogebraObject<KutykGGO> {
+  kind: GGOKind = "kutyk";
+
   private segments: SegmentGGO[];
   C: PointGGO;
 
@@ -321,14 +500,14 @@ export class KutykGGO implements GeogebraObject<KutykGGO> {
     const C1 = XY(root.x + t, root.y - t);
     const C = XY(root.x + sortament.z_0, root.y - sortament.z_0);
 
-    this.C = new PointGGO(C, withName("C"), true);
+    this.C = new PointGGO(withName("C"), C, true);
 
-    this.Root_A = new SegmentGGO(root, A, withName("Root_A"));
-    this.A_A1 = new SegmentGGO(A, A1, withName("A_A1"));
-    this.Root_B = new SegmentGGO(root, B, withName("Root_B"));
-    this.B_B1 = new SegmentGGO(B, B1, withName("B_B1"));
-    this.C1_A1 = new SegmentGGO(C1, A1, withName("C1_A1"));
-    this.C1_B1 = new SegmentGGO(C1, B1, withName("C1_B1"));
+    this.Root_A = new SegmentGGO(withName("RootA"), root, A);
+    this.A_A1 = new SegmentGGO(withName("AA1"), A, A1);
+    this.Root_B = new SegmentGGO(withName("RootB"), root, B);
+    this.B_B1 = new SegmentGGO(withName("BB1"), B, B1);
+    this.C1_A1 = new SegmentGGO(withName("C1A1"), C1, A1);
+    this.C1_B1 = new SegmentGGO(withName("C1B1"), C1, B1);
 
     this.segments = [this.Root_A, this.A_A1, this.Root_B, this.B_B1, this.C1_A1, this.C1_B1]
   }
@@ -361,8 +540,28 @@ export class KutykGGO implements GeogebraObject<KutykGGO> {
       `SetLineThickness(${this.name},0)`
     ]
   }
+
+  toJson(): KutykGGOJSON {
+    return {
+      kind: this.kind,
+      root: this.root.toJson(),
+      name: this.name,
+      b: this.b,
+      t: this.t
+    }
+  }
+
+  static fromJson(json: GeogebraObjectJson): KutykGGO {
+    const j = json as KutykGGOJSON;
+    return new KutykGGO(j.name, XYCoords.fromJson(j.root), j.b, j.t)
+  }
 }
 
+export interface PlateGGOJSON extends GeogebraObjectJson {
+  b: number
+  h: number
+  isLabelVisible: Boolean
+}
 /**
  * B            C1
  *  -----------
@@ -373,6 +572,8 @@ export class KutykGGO implements GeogebraObject<KutykGGO> {
  * Root  b      D
  */
 export class PlateGGO implements GeogebraObject<PlateGGO> {
+  kind: GGOKind = "plate";
+
   private segments: SegmentGGO[];
 
   Root_B: SegmentGGO;
@@ -394,10 +595,10 @@ export class PlateGGO implements GeogebraObject<PlateGGO> {
     const C1 = XY(Root.x + b, Root.y + h);
     const D = XY(Root.x + b, Root.y);
 
-    this.Root_B = new SegmentGGO(Root, B, withName("Root_B"));
-    this.B_C1 = new SegmentGGO(B, C1, withName("B_C1"));
-    this.C1_D = new SegmentGGO(C1, D, withName("C1_D"));
-    this.D_Root = new SegmentGGO(D, Root, withName("D_Root"));
+    this.Root_B = new SegmentGGO(withName("RootB"), Root, B);
+    this.B_C1 = new SegmentGGO(withName("BC1"), B, C1);
+    this.C1_D = new SegmentGGO(withName("C1D"), C1, D);
+    this.D_Root = new SegmentGGO(withName("DRoot"), D, Root);
 
     this.segments = [this.Root_B, this.B_C1, this.C1_D, this.D_Root]
   }
@@ -428,8 +629,27 @@ export class PlateGGO implements GeogebraObject<PlateGGO> {
       `ShowLabel(${this.name},${this.isLabelVisible})`
     ]
   }
+
+  toJson(): PlateGGOJSON {
+    return {
+      kind: this.kind,
+      root: this.root.toJson(),
+      name: this.name,
+      b: this.b,
+      h: this.h,
+      isLabelVisible: this.isLabelVisible
+    }
+  }
+
+  static fromJson(json: GeogebraObjectJson): PlateGGO {
+    const j = json as PlateGGOJSON;
+    return new PlateGGO(j.name, XYCoords.fromJson(j.root), j.b, j.h, j.isLabelVisible)
+  }
 }
 
+export interface ShvellerGGOJSON extends GeogebraObjectJson {
+  n: number
+}
 /**
  *
  * B1_______ B2
@@ -441,6 +661,8 @@ export class PlateGGO implements GeogebraObject<PlateGGO> {
  * Root  b   B3
  */
 export class ShvellerGGO implements GeogebraObject<ShvellerGGO> {
+  kind: GGOKind = "shveller";
+
   private segments: SegmentGGO[];
 
   Root_B1: SegmentGGO;
@@ -476,14 +698,14 @@ export class ShvellerGGO implements GeogebraObject<ShvellerGGO> {
     const B3 = XY(root.x + b, root.y);
     const D2 = XY(B3.x, B3.y + t);
 
-    this.Root_B1 = new SegmentGGO(root, B1, withName("Root_B1"));
-    this.B1_B2 = new SegmentGGO(B1, B2, withName("B1_B2"));
-    this.B2_D1 = new SegmentGGO(B2, D1, withName("B2_D1"));
-    this.D1_C1 = new SegmentGGO(D1, C1, withName("D1_C1"));
-    this.C1_C2 = new SegmentGGO(C1, C2, withName("C1_C2"));
-    this.C2_D2 = new SegmentGGO(C2, D2, withName("C2_D2"));
-    this.D2_B3 = new SegmentGGO(D2, B3, withName("D2_B3"));
-    this.B3_Root = new SegmentGGO(B3, root, withName("B3_Root"));
+    this.Root_B1 = new SegmentGGO(withName("RootB1"), root, B1);
+    this.B1_B2 = new SegmentGGO(withName("B1B2"), B1, B2);
+    this.B2_D1 = new SegmentGGO(withName("B2D1"), B2, D1);
+    this.D1_C1 = new SegmentGGO(withName("D1C1"), D1, C1);
+    this.C1_C2 = new SegmentGGO(withName("C1C2"), C1, C2);
+    this.C2_D2 = new SegmentGGO(withName("C2D2"), C2, D2);
+    this.D2_B3 = new SegmentGGO(withName("D2B3"), D2, B3);
+    this.B3_Root = new SegmentGGO(withName("B3Root"), B3, root);
 
     this.segments = [this.Root_B1, this.B1_B2, this.B2_D1, this.D1_C1, this.C1_C2, this.C2_D2, this.D2_B3, this.B3_Root]
   }
@@ -517,8 +739,25 @@ export class ShvellerGGO implements GeogebraObject<ShvellerGGO> {
       `SetLineThickness(${this.name},0)`
     ]
   }
+
+  toJson(): ShvellerGGOJSON {
+    return {
+      kind: this.kind,
+      root: this.root.toJson(),
+      name: this.name,
+      n: this.n
+    }
+  }
+
+  static fromJson(json: GeogebraObjectJson): ShvellerGGO {
+    const j = json as ShvellerGGOJSON;
+    return new ShvellerGGO(j.name, XYCoords.fromJson(j.root), j.n)
+  }
 }
 
+export interface DvotavrGGOJSON extends GeogebraObjectJson {
+  n: number
+}
 /**
  *
  *  B2___________B3
@@ -530,6 +769,8 @@ export class ShvellerGGO implements GeogebraObject<ShvellerGGO> {
  * Root    b     A4
  */
 export class DvotavrGGO implements GeogebraObject<DvotavrGGO> {
+  kind: GGOKind = "dvotavr";
+
   private segments: SegmentGGO[];
 
   Root_A2: SegmentGGO;
@@ -575,18 +816,18 @@ export class DvotavrGGO implements GeogebraObject<DvotavrGGO> {
     const B3 = XY(B2.x + b, B2.y);
     const B4 = XY(B3.x, B3.y - t);
 
-    this.Root_A2 = new SegmentGGO(root, A2, withName("Root_A2"));
-    this.A2_C1 = new SegmentGGO(A2, C1, withName("A2_C1"));
-    this.C1_C2 = new SegmentGGO(C1, C2, withName("C1_C2"));
-    this.C2_B1 = new SegmentGGO(C2, B1, withName("C2_B1"));
-    this.B1_B2 = new SegmentGGO(B1, B2, withName("B1_B2"));
-    this.B2_B3 = new SegmentGGO(B2, B3, withName("B2_B3"));
-    this.B3_B4 = new SegmentGGO(B3, B4, withName("B3_B4"));
-    this.B4_C3 = new SegmentGGO(B4, C3, withName("B4_C3"));
-    this.C3_C4 = new SegmentGGO(C3, C4, withName("C3_C4"));
-    this.C4_A3 = new SegmentGGO(C4, A3, withName("C4_A3"));
-    this.A3_A4 = new SegmentGGO(A3, A4, withName("A3_A4"));
-    this.A4_Root = new SegmentGGO(A4, root, withName("A4_Root"));
+    this.Root_A2 = new SegmentGGO(withName("RootA2"), root, A2);
+    this.A2_C1 = new SegmentGGO(withName("A2C1"), A2, C1);
+    this.C1_C2 = new SegmentGGO(withName("C1C2"), C1, C2);
+    this.C2_B1 = new SegmentGGO(withName("C2B1"), C2, B1);
+    this.B1_B2 = new SegmentGGO(withName("B1B2"), B1, B2);
+    this.B2_B3 = new SegmentGGO(withName("B2B3"), B2, B3);
+    this.B3_B4 = new SegmentGGO(withName("B3B4"), B3, B4);
+    this.B4_C3 = new SegmentGGO(withName("B4C3"), B4, C3);
+    this.C3_C4 = new SegmentGGO(withName("C3C4"), C3, C4);
+    this.C4_A3 = new SegmentGGO(withName("C4A3"), C4, A3);
+    this.A3_A4 = new SegmentGGO(withName("A3A4"), A3, A4);
+    this.A4_Root = new SegmentGGO(withName("A4Root"), A4, root);
 
     this.segments = [
       this.Root_A2, this.A2_C1, this.C1_C2, this.C2_B1, this.B1_B2, this.B2_B3, this.B3_B4,
@@ -628,6 +869,20 @@ export class DvotavrGGO implements GeogebraObject<DvotavrGGO> {
       `SetLineThickness(${this.name},0)`
     ]
   }
+
+  toJson(): DvotavrGGOJSON {
+    return {
+      kind: this.kind,
+      root: this.root.toJson(),
+      name: this.name,
+      n: this.n
+    }
+  }
+
+  static fromJson(json: GeogebraObjectJson): DvotavrGGO {
+    const j = json as DvotavrGGOJSON;
+    return new DvotavrGGO(j.name, XYCoords.fromJson(j.root), j.n)
+  }
 }
 
 @Component({
@@ -642,6 +897,8 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
   editor;
   editorId: string;
   api;
+  xml;
+  updated: boolean;
 
   ngOnInit() {
     this.editorId = `geogebra-component-identifier-${Math.random().toString(36).substring(7)}`;
@@ -650,34 +907,68 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.editor.inject(this.editorId);
-    this.editor.eva
+    const that = this;
+    // setInterval(() => {
+    //   if(that.updated) {
+    //     // if (this.editor.getAppletObject().getXML() !== that.xml) {
+    //     //   console.log("Setting Xml");
+    //     //   this.editor.getAppletObject().setXML(this.xml);
+    //     // }
+    //     console.log("Undoing");
+    //     this.editor.getAppletObject().setXML(this.xml);
+    //     that.updated = false;
+    //   }
+    // }, 10000)
   }
 
   getXml() {
     let that = this;
-    console.log(that.editor.getXml())
+    console.log(that.editor.getAppletObject().getXml())
   }
 
   makeParams() {
     let componentThis = this;
     let parameters = {
-      "prerelease": false,
-      "width": 1000,
-      "height": 600,
-      "showToolBar": true,
-      "borderColor": null,
-      "showMenuBar": false,
-      "showAlgebraInput": false,
-      "showResetIcon": true,
-      "enableLabelDrags": false,
-      "enableShiftDragZoom": true,
-      "enableRightClick": true,
-      "capturingThreshold": null,
-      "showToolBarHelp": false,
-      "errorDialogsActive": true,
-      "useBrowserForJS": true,
-      "showLogging": "false",
-      "appletOnLoad": null
+      // "id": componentThis.editorId,
+      // "prerelease": false,
+      // "width": 1000,
+      // "height": 600,
+      // "borderColor": null,
+      // "showToolBar": false,
+      // "showMenuBar": false,
+      // "showAlgebraInput": false,
+      // "allowStyleBar": false,
+      // "showResetIcon": false,
+      // "enableLabelDrags": false,
+      // "enableShiftDragZoom": false,
+      // "enableRightClick": false,
+      // "capturingThreshold": null,
+      // "showToolBarHelp": false,
+      // "errorDialogsActive": true,
+      // "useBrowserForJS": false,
+      // "showLogging": "false",
+      // "appletOnLoad": null,
+      // "enableCAS": false,
+      "appName":"classic",
+      "width":800,
+      "height":600,
+      "showToolBar":true,
+      "borderColor":null,
+      "showMenuBar":false,
+      "allowStyleBar":false,
+      "showAlgebraInput":true,
+      "customToolbar":"0|41|42|",
+      "enableLabelDrags":false,
+      "enableShiftDragZoom":true,
+      "enableRightClick":false,
+      "capturingThreshold":null,
+      "showToolBarHelp":false,
+      "errorDialogsActive":true,
+      "showTutorialLink":true,
+      "showLogging":true,
+      "useBrowserForJS":false,
+      "appletOnLoad": null,
+      "perspective": "G"
     };
     parameters.appletOnLoad = function(api) {
       let strLength = 150;
@@ -696,6 +987,7 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
       function updateListener(objName) {
         let strVal = api.getValueString(objName);
         console.log(`Update: ${strVal}`);
+        componentThis.updated = true;
       }
 
       function clearListener() {
@@ -716,12 +1008,11 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
         console.log(`${command} ${name} - New state: ${strState}`);
       }
       // register add, remove, rename and update listeners
-      api.registerAddListener(addListener);
-      api.registerRemoveListener(removeListener);
-      api.registerRenameListener(renameListener);
-      api.registerClearListener(clearListener);
-      api.registerUpdateListener(updateListener);
-      componentThis.api = api;
+      // api.registerAddListener(addListener);
+      // api.registerRemoveListener(removeListener);
+      // api.registerRenameListener(renameListener);
+      // api.registerClearListener(clearListener);
+      // api.registerUpdateListener(updateListener);
       // api.evalCommand("A=(-3.15,3.28)");
       // api.evalCommand("B=(-2.15,2.48)");
       // api.evalCommand("line1: 0.8x + y = 0.76");
@@ -740,16 +1031,17 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
       // api.evalCommand("SetVisibleInView(VectorEndPoint,1,false)");
       // api.evalCommand("ShowLabel(vector1,false)");
       const cmds = [
-        // ...new CustomAxisGGO(XY(0, 0), "CustomAxis", 20).rotate(new Angle(45)).rotate(new Angle(45)).getCommands(),
+        // ...new CustomAxesGGO(XY(0, 0), "CustomAxis", 20).rotate(new Angle(45)).rotate(new Angle(45)).getCommands(),
         // ...new EllipseGGO("Ellipse1", XY(10, 10), XY(-10, -10), XY(15, -15)).rotate(new Angle(45), XY(0, 0)).getCommands(),
         // ...new KutykGGO("Kutyk0", XY(2, 2), 20, 3).rotate(new Angle(45)).getCommands(),
         // ...new PlateGGO("P0", XY(-5, 2), 2, 5, true).getCommands(),
         ...new DvotavrGGO("Dvotavr0", XY(0, 0), 10).getCommands(),
-        ...new DvotavrGGO("Dvotavr45", XY(0, 0), 10).rotate(new Angle(45)).getCommands(),
-        ...new DvotavrGGO("Dvotavr90", XY(0, 0), 10).rotate(new Angle(90)).getCommands(),
-        `ZoomOut(10)`
+        `ZoomOut(20)`
       ];
-      cmds.forEach(cmd => api.evalCommand(cmd))
+      api.evalCommand(cmds.join("\n"));
+      // cmds.forEach(cmd => api.evalCommand(cmd))
+      api.setGridVisible(true);
+      componentThis.xml = componentThis.editor.getAppletObject().getXML()
     };
     return parameters
   }
