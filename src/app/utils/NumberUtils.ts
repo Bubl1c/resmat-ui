@@ -6,7 +6,7 @@ export class NumberUtils {
       : value.toFixed(digitsAfterComma);
   }
 
-  public static accurateRound(value: number, scale: number) {
+  public static accurateRound(value: number, scale: number): number {
     if(!("" + value).includes("e")) {
       return +(Math.round((value + "e+" + scale) as any)  + "e-" + scale);
     } else {
@@ -17,6 +17,10 @@ export class NumberUtils {
       }
       return +(Math.round((+arr[0] + "e" + sig + (+arr[1] + scale)) as any) + "e-" + scale);
     }
+  }
+
+  public static maxAbs(...numbers: number[]): number {
+    return Math.max(...numbers.map(n => Math.abs(n)));
   }
 
 }
