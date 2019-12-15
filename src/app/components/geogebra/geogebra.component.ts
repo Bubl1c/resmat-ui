@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DoCheck,
+  Input, IterableDiffer,
+  IterableDiffers,
+  OnChanges,
+  OnInit,
+  SimpleChanges
+} from '@angular/core';
 import { CoordsUtils } from "../../utils/GeometryUtils";
 import { GGB } from "./geogebraDefinitions";
 import { GeogebraObject, TextGGO } from "./geogebraCustomObjects";
@@ -6,6 +15,23 @@ import { NumberUtils } from "../../utils/NumberUtils";
 import XY = CoordsUtils.XY;
 
 declare const GGBApplet: any;
+
+interface IterableChangeRecord<V> {
+  currentIndex: number | null
+  previousIndex: number | null
+  item: V
+  trackById: any
+}
+
+interface IterableChanges<V> {
+  forEachItem(fn: (record: IterableChangeRecord<V>) => void): void
+  forEachOperation(fn: (record: IterableChangeRecord<V>, previousIndex: number, currentIndex: number) => void): void
+  forEachPreviousItem(fn: (record: IterableChangeRecord<V>) => void): void
+  forEachAddedItem(fn: (record: IterableChangeRecord<V>) => void): void
+  forEachMovedItem(fn: (record: IterableChangeRecord<V>) => void): void
+  forEachRemovedItem(fn: (record: IterableChangeRecord<V>) => void): void
+  forEachIdentityChange(fn: (record: IterableChangeRecord<V>) => void): void
+}
 
 export class GeogebraComponentSettings {
   static defaults = {
@@ -31,7 +57,7 @@ export class GeogebraComponentSettings {
   templateUrl: './geogebra.component.html',
   styleUrls: ['./geogebra.component.css']
 })
-export class GeogebraComponent implements OnInit, AfterViewInit {
+export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
 
   @Input() objects: GeogebraObject[];
   @Input() settings?: GeogebraComponentSettings;
@@ -39,9 +65,14 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
   editorId: string;
   private editor?: GGB.Applet;
   private api?: GGB.API;
+  private currentZoom: number = 1;
+  private currentVisibleCoords: number = 0;
 
-  constructor() {
+  iterableDiffer: IterableDiffer;
+
+  constructor(iterableDiffers: IterableDiffers) {
     this.editorId = `geogebra-component-identifier-${Math.random().toString(36).substring(7)}`;
+    this.iterableDiffer = iterableDiffers.find([]).create(null);
   }
 
   ngOnInit() {
@@ -52,39 +83,52 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
     this.editor.inject(this.editorId);
   }
 
+  ngDoCheck() {
+    let changes: IterableChanges<GeogebraObject> = this.iterableDiffer.diff(this.objects);
+    if (changes && this.api) {
+      console.log("Changes: ", changes);
+      changes.forEachAddedItem(record => {
+        this.render(this.api, record.item)
+      });
+      changes.forEachRemovedItem(record => {
+        this.deleteObject(this.api, record.item)
+      })
+      // changes.
+      // this.api.newConstruction();
+      // this.render(this.api);
+    }
+  }
+
   private prepare(): void {
+    this.currentVisibleCoords = this.settings.width / 100;
+    this.iterableDiffer = this.iterableDiffer.diff(this.objects);
     if (!this.settings) {
       this.settings = new GeogebraComponentSettings();
     }
-    if (!this.objects || this.objects.length === 0) {
+    if (!this.objects) {
       this.objects = []
     }
-    const maxCoords = this.objects.map(o => o.maxCoord());
-    const maxCoord = NumberUtils.maxAbs(...maxCoords.map(c => c.x), ...maxCoords.map(c => c.y));
-    const zoomOut = Math.ceil((maxCoord + maxCoord * 0.3) / (this.settings.width / 100));
     const properties = {
       "appName": "classic",
       "width": this.settings.width,
       "height": this.settings.height,
-      "showToolBar": true,
-      "showMenuBar": true,
-      "allowStyleBar": false,
-      "showAlgebraInput": true,
-      "enableLabelDrags": true,
-      "enableShiftDragZoom": true,
-      "enableRightClick": true,
-      "showToolBarHelp": true,
-      "errorDialogsActive": true,
-      "showTutorialLink": true,
-      "showLogging": true,
-      "useBrowserForJS": false,
+      "showToolBar":true,
+      "borderColor":null,
+      "showMenuBar":true,
+      "allowStyleBar":false,
+      "showAlgebraInput":true,
+      "enableLabelDrags":true,
+      "enableShiftDragZoom":true,
+      "enableRightClick":true,
+      "showToolBarHelp":true,
+      "errorDialogsActive":true,
+      "showTutorialLink":true,
+      "showLogging":true,
+      "useBrowserForJS":false,
       "language": "Ukrainian",
       "country": "UA",
       "appletOnLoad": (api: GGB.API) => {
         api.setGridVisible(true);
-        if (zoomOut > 1) {
-          api.evalCommand(`ZoomOut(${zoomOut})`);
-        }
         this.api = api;
         this.render(api);
       }
@@ -95,10 +139,32 @@ export class GeogebraComponent implements OnInit, AfterViewInit {
     this.editor = new GGBApplet(properties) as GGB.Applet;
   }
 
-  private render(api: GGB.API): void {
-    this.objects.forEach(obj => {
-      api.evalCommand(obj.getCommands().join("\n"));
-    })
+  private render(api: GGB.API, object?: GeogebraObject): void {
+    const toRender = object ? [object] : this.objects;
+    console.log("Rendering ", toRender);
+    toRender.forEach(obj => {
+      this.addObject(api, obj);
+    });
+    this.zoomOut(api)
+  }
+
+  private addObject(api: GGB.API, object: GeogebraObject): void {
+    api.evalCommand(object.getCommands().join("\n"));
+  }
+
+  private deleteObject(api: GGB.API, object: GeogebraObject): void {
+    api.evalCommand(object.getDeleteCommands().join("\n"));
+  }
+
+  private zoomOut(api: GGB.API) {
+    const maxCoords = this.objects.map(o => o.maxCoord());
+    const maxCoord = NumberUtils.maxAbs(...maxCoords.map(c => c.x), ...maxCoords.map(c => c.y));
+    const zoomOut = Math.ceil((maxCoord + maxCoord * 0.2) / this.currentVisibleCoords);
+    if (zoomOut > 1) {
+      this.currentVisibleCoords = this.currentVisibleCoords * zoomOut;
+      console.log("Zooming out for " + zoomOut);
+      api.evalCommand(`ZoomOut(${zoomOut})`);
+    }
   }
 
   makeParams() {

@@ -38,8 +38,9 @@ export class DummyForTestingComponent implements OnInit {
 
   playgroundObjects: GeogebraObject[];
   playgroundSettings: GeogebraComponentSettings = new GeogebraComponentSettings(800, 800).setProps({
-    "perspective": "AG",
-    "showMenuBar": true,
+    "perspective": "G",
+    "customToolbar": "0|41|42",
+    "showMenuBar": false,
     "enableLabelDrags": false,
     "showToolBarHelp": false
   });
@@ -63,6 +64,20 @@ export class DummyForTestingComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  newGGBObject(object: GeogebraObject): void {
+    console.log("New ggb object", object);
+    if (this.playgroundObjects.find(po => po.name === object.name)) {
+      alert("Об'єкт з таким іменем вже існує");
+      return;
+    }
+    this.playgroundObjects.push(object)
+  }
+
+  removeGGBObject(index: number): void {
+    console.log("Remove ggb object", index);
+    this.playgroundObjects.splice(index, 1)
   }
 
   private makeDemoObjects() {

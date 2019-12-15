@@ -17,6 +17,8 @@ export namespace GGB {
   export interface API {
     setGridVisible(value: boolean): void
     evalCommand(command: string): void
+    newConstruction(): void
+    deleteObject(objName: string): void
   }
 
   //https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters

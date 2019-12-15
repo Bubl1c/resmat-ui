@@ -1,0 +1,18 @@
+fieldset {
+  border: 0px;
+  margin: 0px;
+  padding: 0px;
+}
+
+.kind {
+  margin-bottom: 0;
+}
+
+.coords-container {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.props-container {
+  display: flex;
+}

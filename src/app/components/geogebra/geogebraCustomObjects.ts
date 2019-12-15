@@ -4,7 +4,36 @@ import { GGB } from "./geogebraDefinitions";
 import { NumberUtils } from "../../utils/NumberUtils";
 import XY = CoordsUtils.XY;
 
-export type GGOKind =
+export class GGOKind {
+  static all: GGOKind[] = [];
+  static ids: GGOKindType[] = [];
+
+  static make(id: GGOKindType, name: string, requiredFieldDefs: Array<[string, string, number]> = []): GGOKind {
+    const k = new GGOKind(id, name, requiredFieldDefs);
+    GGOKind.all.push(k);
+    GGOKind.ids.push(k.id);
+    return k
+  }
+
+  static text = GGOKind.make("text", "Текст");
+  static point = GGOKind.make("point", "Точка");
+  static vector = GGOKind.make("vector", "Вектор");
+  static segment = GGOKind.make("segment", "Відрізок");
+  static custom_axes = GGOKind.make("custom_axes", "Осі координат");
+  static ellipse = GGOKind.make("ellipse", "Еліпс");
+  static kutyk = GGOKind.make("kutyk", "Рівнобічний кутик", [["b", "Ширина", 20], ["t", "Товщина", 3]]);
+  static plate = GGOKind.make("plate", "Пластина", [["b", "Ширина", 20], ["h", "Висота", 5]]);
+  static shveller = GGOKind.make("shveller", "Швеллер", [["n", "Номер в сортаменті", 5]]);
+  static dvotavr = GGOKind.make("dvotavr", "Двотавр", [["n", "Номер в сортаменті", 10]]);
+
+  static withId(id: string): GGOKind | undefined {
+    return GGOKind.all.find(ut => ut.id === id)
+  }
+
+  constructor(public id: GGOKindType, public name: string, public requiredFieldDefs: Array<[string, string, number]>) {}
+}
+
+export type GGOKindType =
   "text"
   | "point"
   | "vector"
@@ -17,13 +46,13 @@ export type GGOKind =
   | "dvotavr";
 
 export interface GeogebraObjectJson {
-  kind: GGOKind
+  kind: GGOKindType
   root: XYCoordsJson
   name: string
 }
 
 export interface GeogebraObject extends GeogebraObjectJson {
-  rotate(angle: Angle, point: XYCoords): GeogebraObject
+  rotate(angle: Angle, point: XYCoordsJson): GeogebraObject
 
   copy(): GeogebraObject
 
@@ -32,6 +61,8 @@ export interface GeogebraObject extends GeogebraObjectJson {
   toJson(): GeogebraObjectJson
 
   maxCoord(): XYCoordsJson
+
+  getDeleteCommands(): string[]
 }
 
 export namespace GeogebraObject {
@@ -73,7 +104,7 @@ export interface TextGGOJSON extends GeogebraObjectJson {
  * https://wiki.geogebra.org/en/Text_Command
  */
 export class TextGGO implements GeogebraObject {
-  kind: GGOKind = "text";
+  kind: GGOKindType = "text";
 
   constructor(public name: string, public root: XYCoords, public substituteVariables: boolean = false, public laTeXFormula: boolean = false) {
   }
@@ -105,6 +136,10 @@ export class TextGGO implements GeogebraObject {
   maxCoord(): XYCoordsJson {
     return this.root.copy()
   }
+
+  getDeleteCommands(): string[] {
+    return [`Delete(${this.name})`]
+  }
 }
 
 export interface PointGGOJSON extends GeogebraObjectJson {
@@ -113,7 +148,7 @@ export interface PointGGOJSON extends GeogebraObjectJson {
 }
 
 export class PointGGO implements GeogebraObject {
-  kind: GGOKind = "point";
+  kind: GGOKindType = "point";
 
   constructor(public name: string,
               public root: XYCoords,
@@ -153,6 +188,10 @@ export class PointGGO implements GeogebraObject {
   maxCoord(): XYCoordsJson {
     return this.root.copy()
   }
+
+  getDeleteCommands(): string[] {
+    return [`Delete(${this.name})`]
+  }
 }
 
 export interface VectorGGOJSON extends GeogebraObjectJson {
@@ -161,7 +200,7 @@ export interface VectorGGOJSON extends GeogebraObjectJson {
 }
 
 export class VectorGGO implements GeogebraObject {
-  kind: GGOKind = "vector";
+  kind: GGOKindType = "vector";
 
   rootPoint: PointGGO;
   endPoint: PointGGO;
@@ -222,6 +261,10 @@ export class VectorGGO implements GeogebraObject {
       y: NumberUtils.maxAbs(rootMC.y, endMC.y)
     }
   }
+
+  getDeleteCommands(): string[] {
+    return [...this.rootPoint.getDeleteCommands(), ...this.endPoint.getDeleteCommands()]
+  }
 }
 
 export interface SegmentGGOJSON extends GeogebraObjectJson {
@@ -230,7 +273,7 @@ export interface SegmentGGOJSON extends GeogebraObjectJson {
 }
 
 export class SegmentGGO implements GeogebraObject {
-  kind: GGOKind = "segment";
+  kind: GGOKindType = "segment";
 
   rootPoint: PointGGO;
   endPoint: PointGGO;
@@ -285,6 +328,10 @@ export class SegmentGGO implements GeogebraObject {
       y: NumberUtils.maxAbs(rootMC.y, endMC.y)
     }
   }
+
+  getDeleteCommands(): string[] {
+    return [...this.rootPoint.getDeleteCommands(), ...this.endPoint.getDeleteCommands()]
+  }
 }
 
 export interface CustomAxesGGOJSON extends GeogebraObjectJson {
@@ -300,7 +347,7 @@ export interface CustomAxesGGOJSON extends GeogebraObjectJson {
 }
 
 export class CustomAxesGGO implements GeogebraObject {
-  kind: GGOKind = "custom_axes";
+  kind: GGOKindType = "custom_axes";
 
   xAxis: VectorGGO;
   yAxis: VectorGGO;
@@ -366,6 +413,10 @@ export class CustomAxesGGO implements GeogebraObject {
       y: NumberUtils.maxAbs(x.y, y.y)
     }
   }
+
+  getDeleteCommands(): string[] {
+    return [...this.xAxis.getDeleteCommands(), ...this.yAxis.getDeleteCommands()]
+  }
 }
 
 export interface EllipseGGOJSON extends GeogebraObjectJson {
@@ -375,7 +426,7 @@ export interface EllipseGGOJSON extends GeogebraObjectJson {
 }
 
 export class EllipseGGO implements GeogebraObject {
-  kind: GGOKind = "ellipse";
+  kind: GGOKindType = "ellipse";
 
   f1Point: PointGGO;
   f2Point: PointGGO;
@@ -440,6 +491,10 @@ export class EllipseGGO implements GeogebraObject {
       y: NumberUtils.maxAbs(this.f1Point.root.y, this.f2Point.root.y, this.ellipsePoint.root.y)
     }
   }
+
+  getDeleteCommands(): string[] {
+    return [...this.f1Point.getDeleteCommands(), ...this.f2Point.getDeleteCommands(), ...this.ellipsePoint.getDeleteCommands()]
+  }
 }
 
 export interface KutykGGOJSON extends GeogebraObjectJson {
@@ -458,7 +513,7 @@ export interface KutykGGOJSON extends GeogebraObjectJson {
  *  Root   b       A
  */
 export class KutykGGO implements GeogebraObject {
-  kind: GGOKind = "kutyk";
+  kind: GGOKindType = "kutyk";
 
   private segments: SegmentGGO[];
 
@@ -514,14 +569,7 @@ export class KutykGGO implements GeogebraObject {
   }
 
   getCommands(): string[] {
-    const polygonVertices = [
-      this.Root_B.rootPoint.name,
-      this.Root_B.endPoint.name,
-      this.B_B1.endPoint.name,
-      this.B1_C1.endPoint.name,
-      this.C1_A1.endPoint.name,
-      this.A1_A.endPoint.name
-    ];
+    const polygonVertices = this.segments.map(s => [s.rootPoint.name, s.endPoint.name]).reduce((prev, cur) => prev.concat(cur));
     return [
       ...this.segments.map(s => s.getCommands()).reduce((prev, cur) => prev.concat(cur)),
       `${this.name}=Polygon(${Array.from(polygonVertices).join(",")})`,
@@ -554,6 +602,10 @@ export class KutykGGO implements GeogebraObject {
       y: NumberUtils.maxAbs(...segmentMaxCoords.map(smc => smc.y))
     }
   }
+
+  getDeleteCommands(): string[] {
+    return this.segments.map(s => s.getDeleteCommands()).reduce((prev, cur) => prev.concat(cur))
+  }
 }
 
 export interface PlateGGOJSON extends GeogebraObjectJson {
@@ -572,7 +624,7 @@ export interface PlateGGOJSON extends GeogebraObjectJson {
  * Root  b      D
  */
 export class PlateGGO implements GeogebraObject {
-  kind: GGOKind = "plate";
+  kind: GGOKindType = "plate";
 
   private segments: SegmentGGO[];
 
@@ -620,12 +672,7 @@ export class PlateGGO implements GeogebraObject {
   }
 
   getCommands(): string[] {
-    const polygonVertices = [
-      this.Root_B.rootPoint.name,
-      this.B_C1.rootPoint.name,
-      this.C1_D.rootPoint.name,
-      this.D_Root.rootPoint.name
-    ];
+    const polygonVertices = this.segments.map(s => [s.rootPoint.name, s.endPoint.name]).reduce((prev, cur) => prev.concat(cur));
     return [
       ...this.segments.map(s => s.getCommands()).reduce((prev, cur) => prev.concat(cur)),
       `${this.name}=Polygon(${Array.from(polygonVertices).join(",")})`,
@@ -659,6 +706,10 @@ export class PlateGGO implements GeogebraObject {
       y: NumberUtils.maxAbs(...segmentMaxCoords.map(smc => smc.y))
     }
   }
+
+  getDeleteCommands(): string[] {
+    return this.segments.map(s => s.getDeleteCommands()).reduce((prev, cur) => prev.concat(cur))
+  }
 }
 
 export interface ShvellerGGOJSON extends GeogebraObjectJson {
@@ -676,7 +727,7 @@ export interface ShvellerGGOJSON extends GeogebraObjectJson {
  * Root  b   B3
  */
 export class ShvellerGGO implements GeogebraObject {
-  kind: GGOKind = "shveller";
+  kind: GGOKindType = "shveller";
 
   private segments: SegmentGGO[];
 
@@ -743,16 +794,7 @@ export class ShvellerGGO implements GeogebraObject {
   }
 
   getCommands(): string[] {
-    const polygonVertices = [
-      this.Root_B1.rootPoint.name,
-      this.Root_B1.endPoint.name,
-      this.B1_B2.endPoint.name,
-      this.B2_D1.endPoint.name,
-      this.D1_C1.endPoint.name,
-      this.C1_C2.endPoint.name,
-      this.C2_D2.endPoint.name,
-      this.D2_B3.endPoint.name
-    ];
+    const polygonVertices = this.segments.map(s => [s.rootPoint.name, s.endPoint.name]).reduce((prev, cur) => prev.concat(cur));
     return [
       ...this.segments.map(s => s.getCommands()).reduce((prev, cur) => prev.concat(cur)),
       `${this.name}=Polygon(${Array.from(polygonVertices).join(",")})`,
@@ -784,6 +826,10 @@ export class ShvellerGGO implements GeogebraObject {
       y: NumberUtils.maxAbs(...segmentMaxCoords.map(smc => smc.y))
     }
   }
+
+  getDeleteCommands(): string[] {
+    return this.segments.map(s => s.getDeleteCommands()).reduce((prev, cur) => prev.concat(cur))
+  }
 }
 
 export interface DvotavrGGOJSON extends GeogebraObjectJson {
@@ -801,7 +847,7 @@ export interface DvotavrGGOJSON extends GeogebraObjectJson {
  * Root    b     A4
  */
 export class DvotavrGGO implements GeogebraObject {
-  kind: GGOKind = "dvotavr";
+  kind: GGOKindType = "dvotavr";
 
   private segments: SegmentGGO[];
 
@@ -885,21 +931,7 @@ export class DvotavrGGO implements GeogebraObject {
   }
 
   getCommands(): string[] {
-    const polygonVertices = [
-      this.Root_A2.rootPoint.name,
-      this.Root_A2.endPoint.name,
-      this.A2_C1.endPoint.name,
-      this.C1_C2.endPoint.name,
-      this.C2_B1.endPoint.name,
-      this.B1_B2.endPoint.name,
-      this.B2_B3.endPoint.name,
-      this.B3_B4.endPoint.name,
-      this.B4_C3.endPoint.name,
-      this.C3_C4.endPoint.name,
-      this.C4_A3.endPoint.name,
-      this.A3_A4.endPoint.name,
-      this.A4_Root.endPoint.name
-    ];
+    const polygonVertices = this.segments.map(s => [s.rootPoint.name, s.endPoint.name]).reduce((prev, cur) => prev.concat(cur));
     return [
       ...this.segments.map(s => s.getCommands()).reduce((prev, cur) => prev.concat(cur)),
       `${this.name}=Polygon(${Array.from(polygonVertices).join(",")})`,
@@ -930,5 +962,9 @@ export class DvotavrGGO implements GeogebraObject {
       x: NumberUtils.maxAbs(...segmentMaxCoords.map(smc => smc.x)),
       y: NumberUtils.maxAbs(...segmentMaxCoords.map(smc => smc.y))
     }
+  }
+
+  getDeleteCommands(): string[] {
+    return this.segments.map(s => s.getDeleteCommands()).reduce((prev, cur) => prev.concat(cur))
   }
 }

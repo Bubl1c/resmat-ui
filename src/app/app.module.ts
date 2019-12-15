@@ -69,6 +69,7 @@ import { TestHelpMaterialsComponent } from './components/test-help-materials/tes
 import { GlobalErrorHandler } from "./global-error-handler";
 import { GeogebraComponent } from './components/geogebra/geogebra.component';
 import { DummyForTestingComponent } from './components/dummy-for-testing/dummy-for-testing.component';
+import { GeogebraCreateObjectComponent } from './components/geogebra-create-object/geogebra-create-object.component';
 
 @NgModule({
   declarations: [
@@ -127,7 +128,8 @@ import { DummyForTestingComponent } from './components/dummy-for-testing/dummy-f
     EditTaskFlowConfComponent,
     TestHelpMaterialsComponent,
     GeogebraComponent,
-    DummyForTestingComponent
+    DummyForTestingComponent,
+    GeogebraCreateObjectComponent
   ],
   imports: [
     BrowserModule,

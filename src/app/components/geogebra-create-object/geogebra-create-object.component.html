@@ -1,0 +1,34 @@
+<form #ggbCreateObjectForm="ngForm" (submit)="save()">
+  <div class="mui-textfield kind">
+    <dropdown [options]="kinds" [selectedOptionId]="object.kind" (onSelected)="kindChanged($event)"></dropdown>
+    <label>Тип об'єкту</label>
+  </div>
+  <div class="mui-textfield">
+    <input type="text" name="object_name" [(ngModel)]="object.name">
+    <label>Назва об'єкту</label>
+  </div>
+  <div class="mui-textfield kind">
+    <dropdown [options]="angles" [selectedOptionId]="this.objectAngle" (onSelected)="angleChanged($event)"></dropdown>
+    <label>Повернути</label>
+  </div>
+  <div class="coords-container">
+    <div class="mui-textfield">
+      <input type="number" name="object_x" [(ngModel)]="object.root.x" required>
+      <label>Координата X</label>
+    </div>
+    <div class="mui-textfield">
+      <input type="number" name="object_y" [(ngModel)]="object.root.y" required>
+      <label>Координата Y</label>
+    </div>
+  </div>
+  <div class="props-container">
+    <div class="mui-textfield" *ngFor="let prop of objectProps">
+      <input type="number" name="{{prop.prop}}" [(ngModel)]="prop.val" required>
+      <label>{{prop.prop}}</label>
+    </div>
+  </div>
+  <button class="mui-btn mui-btn--primary"
+          type="submit" [disabled]="!ggbCreateObjectForm.form.valid">
+    Додати
+  </button>
+</form>
