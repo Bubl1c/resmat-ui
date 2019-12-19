@@ -142,19 +142,31 @@ export class TextGGO implements GeogebraObject {
   }
 }
 
+export interface PointSettingsJson {
+  isVisible?: boolean
+  isLabelVisible?: boolean
+  labelMode?: GGB.LabelMode
+  pointSize?: number
+  isFixed?: boolean
+}
 export interface PointGGOJSON extends GeogebraObjectJson {
-  isVisible: boolean
-  labelMode: GGB.LabelMode
+  settings?: PointSettingsJson
 }
 
-export class PointGGO implements GeogebraObject {
+export class PointGGO implements PointGGOJSON {
   kind: GGOKindType = "point";
+  settings: PointSettingsJson;
 
   constructor(public name: string,
               public root: XYCoords,
-              public isVisible: boolean = false,
-              public labelMode: GGB.LabelMode = GGB.LabelMode.Value,
-              public pointSize: number = 1) {
+              settings?: PointSettingsJson) {
+    this.settings = {
+      isVisible: settings && settings.isVisible || false,
+      isLabelVisible: settings && settings.isLabelVisible || false,
+      labelMode: settings && settings.labelMode || GGB.LabelMode.Name,
+      pointSize: settings && settings.pointSize || 2,
+      isFixed: settings && settings.isFixed || true
+    }
   }
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): PointGGO {
@@ -163,16 +175,18 @@ export class PointGGO implements GeogebraObject {
   }
 
   copy(): PointGGO {
-    return new PointGGO(this.name, this.root.copy(), this.isVisible);
+    return new PointGGO(this.name, this.root.copy(), this.settings);
   }
 
   getCommands(): string[] {
     const pointCmd = `${this.name}=${this.root.getCommand()}`;
     return [
       pointCmd,
-      `SetLabelMode(${this.name},${this.labelMode})`,
-      `SetVisibleInView(${this.name},1,${this.isVisible})`,
-      `SetPointSize(${this.name},${this.pointSize})`
+      ...(this.settings.labelMode !== GGB.LabelMode.Name ? [`SetLabelMode(${this.name},${this.settings.labelMode})`] : []),
+      ...(!this.settings.isVisible ? [`SetVisibleInView(${this.name},1,false)`] : []),
+      ...(this.settings.isVisible ? [`SetPointSize(${this.name},${this.settings.pointSize})`] : []),
+      ...(this.settings.isVisible ? [`ShowLabel(${this.name},${this.settings.isLabelVisible})`] : []),
+      ...(this.settings.isFixed ? [`SetFixed(${this.name},true)`] : [])
     ]
   }
 
@@ -182,7 +196,7 @@ export class PointGGO implements GeogebraObject {
 
   static fromJson(json: GeogebraObjectJson): PointGGO {
     const j = json as PointGGOJSON;
-    return new PointGGO(j.name, XYCoords.fromJson(j.root), j.isVisible, j.labelMode)
+    return new PointGGO(j.name, XYCoords.fromJson(j.root), j.settings)
   }
 
   maxCoord(): XYCoordsJson {
@@ -267,32 +281,47 @@ export class VectorGGO implements GeogebraObject {
   }
 }
 
+export interface SegmentSettingsJson {
+  root?: PointSettingsJson
+  end?: PointSettingsJson
+  isLabelVisible?: boolean
+  isFixed?: boolean
+}
 export interface SegmentGGOJSON extends GeogebraObjectJson {
   end: XYCoordsJson
-  isLabelVisible: boolean
+  settings?: SegmentSettingsJson
 }
 
-export class SegmentGGO implements GeogebraObject {
+export class SegmentGGO implements SegmentGGOJSON {
   kind: GGOKindType = "segment";
+  settings: SegmentSettingsJson;
 
   rootPoint: PointGGO;
   endPoint: PointGGO;
   parentName?: string;
 
-  constructor(public name: string, public root: XYCoords, public end: XYCoords, public isLabelVisible: boolean = false) {
+  constructor(public name: string, public root: XYCoords, public end: XYCoords, settings?: SegmentSettingsJson) {
+    this.settings = {
+      root: settings && settings.root || undefined,
+      end: settings && settings.end || undefined,
+      isLabelVisible: settings && settings.isLabelVisible || false,
+      isFixed: settings && settings.isFixed || true
+    };
     const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.rootPoint = new PointGGO(withName("Root"), this.root.copy());
-    this.endPoint = new PointGGO(withName("End"), this.end.copy());
+    this.rootPoint = new PointGGO(withName("Root"), this.root.copy(), this.settings.root);
+    this.endPoint = new PointGGO(withName("End"), this.end.copy(), this.settings.end);
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): SegmentGGO {
+    this.root = this.root.rotate(angle, point);
+    this.end = this.end.rotate(angle, point);
     this.rootPoint = this.rootPoint.rotate(angle, point);
     this.endPoint = this.endPoint.rotate(angle, point);
     return this;
   }
 
   copy(): SegmentGGO {
-    return new SegmentGGO(this.name, this.root.copy(), this.end.copy(), this.isLabelVisible);
+    return new SegmentGGO(this.name, this.root.copy(), this.end.copy(), this.settings);
   }
 
   getCommands(): string[] {
@@ -301,7 +330,8 @@ export class SegmentGGO implements GeogebraObject {
       ...this.rootPoint.getCommands(),
       ...this.endPoint.getCommands(),
       `${this.name}=Segment(${this.rootPoint.name},${this.endPoint.name}${parentNameParameter})`,
-      `ShowLabel(${this.name},${this.isLabelVisible})`
+      `ShowLabel(${this.name},${this.settings.isLabelVisible})`,
+      `SetFixed(${this.name},${this.settings.isFixed})`
     ]
   }
 
@@ -311,13 +341,13 @@ export class SegmentGGO implements GeogebraObject {
       root: this.root.toJson(),
       end: this.end.toJson(),
       name: this.name,
-      isLabelVisible: this.isLabelVisible
+      settings: this.settings
     }
   }
 
   static fromJson(json: GeogebraObjectJson): SegmentGGO {
     const j = json as SegmentGGOJSON;
-    return new SegmentGGO(j.name, XYCoords.fromJson(j.root), XYCoords.fromJson(j.end), j.isLabelVisible)
+    return new SegmentGGO(j.name, XYCoords.fromJson(j.root), XYCoords.fromJson(j.end), j.settings)
   }
 
   maxCoord(): XYCoordsJson {
@@ -497,9 +527,17 @@ export class EllipseGGO implements GeogebraObject {
   }
 }
 
+
+export interface KutykSettingsJson {
+  isLabelVisible?: boolean
+  caption?: string
+  labelMode?: GGB.LabelMode
+  isFixed?: boolean
+}
 export interface KutykGGOJSON extends GeogebraObjectJson {
   b: number
   t: number
+  settings?: KutykSettingsJson
 }
 
 /**
@@ -514,6 +552,7 @@ export interface KutykGGOJSON extends GeogebraObjectJson {
  */
 export class KutykGGO implements GeogebraObject {
   kind: GGOKindType = "kutyk";
+  settings: KutykSettingsJson;
 
   private segments: SegmentGGO[];
 
@@ -529,11 +568,14 @@ export class KutykGGO implements GeogebraObject {
     public root: XYCoords,
     public b: number,
     public t: number,
-    public isLabelVisible: boolean = false,
-    public caption?: string,
-    public labelMode: GGB.LabelMode = GGB.LabelMode.Caption
+    settings?: KutykSettingsJson
   ) {
-    this.caption = this.caption || this.name;
+    this.settings = {
+      caption: settings && settings.caption || this.name,
+      isLabelVisible: settings && settings.isLabelVisible || false,
+      labelMode: settings && settings.labelMode || GGB.LabelMode.Name,
+      isFixed: settings && settings.isFixed || true
+    };
     const withName = (elementName: string) => `${name}${elementName}`;
 
     const sortamentNumber = b / 10;
@@ -547,12 +589,21 @@ export class KutykGGO implements GeogebraObject {
     const A = XY(root.x + b, root.y);
     const A1 = XY(A.x, A.y + t);
 
-    this.Root_B = new SegmentGGO(withName("RootB"), root, B);
-    this.B_B1 = new SegmentGGO(withName("BB1"), B, B1);
-    this.B1_C1 = new SegmentGGO(withName("B1C1"), B1, C1);
-    this.C1_A1 = new SegmentGGO(withName("C1A1"), C1, A1);
-    this.A1_A = new SegmentGGO(withName("A1A"), A1, A);
-    this.A_Root = new SegmentGGO(withName("ARoot"), A, root);
+    const ss: SegmentSettingsJson = {
+      root: {
+        isVisible: true,
+        isFixed: true,
+        isLabelVisible: true,
+        labelMode: GGB.LabelMode.Value
+      }
+    };
+
+    this.Root_B = new SegmentGGO(withName("RootB"), root, B, ss);
+    this.B_B1 = new SegmentGGO(withName("BB1"), B, B1, ss);
+    this.B1_C1 = new SegmentGGO(withName("B1C1"), B1, C1, ss);
+    this.C1_A1 = new SegmentGGO(withName("C1A1"), C1, A1, ss);
+    this.A1_A = new SegmentGGO(withName("A1A"), A1, A, ss);
+    this.A_Root = new SegmentGGO(withName("ARoot"), A, root, ss);
 
     this.segments = [this.Root_B, this.B_B1, this.B1_C1, this.C1_A1, this.A1_A, this.A_Root]
   }
@@ -574,9 +625,10 @@ export class KutykGGO implements GeogebraObject {
       ...this.segments.map(s => s.getCommands()).reduce((prev, cur) => prev.concat(cur)),
       `${this.name}=Polygon(${Array.from(polygonVertices).join(",")})`,
       `SetLineThickness(${this.name},0)`,
-      `ShowLabel(${this.name},${this.isLabelVisible})`,
-      `SetCaption(${this.name},"${this.caption}")`,
-      `SetLabelMode(${this.name},${this.labelMode})`
+      `ShowLabel(${this.name},${this.settings.isLabelVisible})`,
+      `SetCaption(${this.name},"${this.settings.caption}")`,
+      `SetLabelMode(${this.name},${this.settings.labelMode})`,
+      `SetFixed(${this.name},${this.settings.isFixed})`
     ]
   }
 
@@ -938,7 +990,8 @@ export class DvotavrGGO implements GeogebraObject {
       `SetLineThickness(${this.name},0)`,
       `ShowLabel(${this.name},${this.isLabelVisible})`,
       `SetCaption(${this.name},"${this.caption}")`,
-      `SetLabelMode(${this.name},${this.labelMode})`
+      `SetLabelMode(${this.name},${this.labelMode})`,
+      `SetFixed(${this.name},true,true)`
     ]
   }
 

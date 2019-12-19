@@ -39,7 +39,7 @@ export class DummyForTestingComponent implements OnInit {
   playgroundObjects: GeogebraObject[];
   playgroundSettings: GeogebraComponentSettings = new GeogebraComponentSettings(800, 800).setProps({
     "perspective": "G",
-    "customToolbar": "0|41|42",
+    showToolBar: false,
     "showMenuBar": false,
     "enableLabelDrags": false,
     "showToolBarHelp": false
@@ -49,7 +49,10 @@ export class DummyForTestingComponent implements OnInit {
     this.makeDemoObjects();
 
     const shveller = new ShvellerGGO(`Швеллер`, XY(-50, -5), 5, true, "Швеллер (n=5)").rotate(new Angle(180));
-    const kutyk = new KutykGGO(`Кутик`, shveller.Root_B1.endPoint.root,  35, 5, true, "Кутик (b=35, t=5)")
+    const kutyk = new KutykGGO(`Кутик`, shveller.Root_B1.endPoint.root,  35, 5, {
+      isLabelVisible: true,
+      caption: "Кутик (b=35, t=5)"
+    });
     const C = XY(kutyk.root.x, kutyk.root.y + 20);
     this.demoObjects2 = [
       shveller,
@@ -94,7 +97,7 @@ export class DummyForTestingComponent implements OnInit {
     this.demoObjects = [
       ...make(
         XY(-110, 120),
-        (coords: XYCoords, angle: number) => new KutykGGO(`Кутик${angle}`, coords, 100, 10, angle === 0, angle === 0 ? "Кутик (b=100, t=10)" : null).rotate(new Angle(angle))
+        (coords: XYCoords, angle: number) => new KutykGGO(`Кутик${angle}`, coords, 100, 10, { caption: (angle === 0 ? "Кутик (b=100, t=10)" : null), isLabelVisible: angle === 0}).rotate(new Angle(angle))
       ),
       ...make(
         XY(110, 120),
