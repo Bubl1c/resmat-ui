@@ -44,6 +44,10 @@ export abstract class PolygonGGO implements GeogebraObject {
       return new PointGGO(p.name, XYCoords.fromJson(p.root), p.settings)
     });
     this.actualJsonSettings = settings;
+    const ds = {
+      opacityPercents: 70,
+      color: ColorUtils.randomColor(ColorUtils.darkColors)
+    };
     this.settings = {
       isVisible: settings && settings.isVisible || true,
       isLabelVisible: settings && settings.isLabelVisible || false,
@@ -53,9 +57,9 @@ export abstract class PolygonGGO implements GeogebraObject {
       caption: settings && settings.caption || this.name,
       isFixed: settings && settings.isFixed || true,
       styles: settings && {
-        opacityPercents: settings.styles && settings.styles.opacityPercents || 70,
-        color: settings.styles && settings.styles.color || ColorUtils.randomColor(ColorUtils.darkColors)
-      },
+        opacityPercents: settings.styles && settings.styles.opacityPercents || ds.opacityPercents,
+        color: settings.styles && settings.styles.color || ds.color
+      } || ds,
       isPointLabelsVisible: settings && settings.isPointLabelsVisible || false
     };
   }

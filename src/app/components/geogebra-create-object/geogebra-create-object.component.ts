@@ -7,6 +7,7 @@ import { KutykGGO } from "../geogebra/custom-objects/polygon/kutyk.polygon-ggo";
 import { PlateGGO } from "../geogebra/custom-objects/polygon/plate.polygon-ggo";
 import { ShvellerGGO } from "../geogebra/custom-objects/polygon/shveller.polygon-ggo";
 import { DvotavrGGO } from "../geogebra/custom-objects/polygon/dvotavr.polygon-ggo";
+import { PolygonGGO, PolygonSettingsJson } from "../geogebra/custom-objects/polygon/polygon-ggo";
 
 @Component({
   selector: 'geogebra-create-object',
@@ -43,10 +44,13 @@ export class GeogebraCreateObjectComponent implements OnInit {
 
   reset(kind: GGOKindType) {
     this.objectAngle = 0;
+    const ds: PolygonSettingsJson = {
+      isLabelVisible: true
+    };
     const prop = (prop: string, val: number) => {return {prop: prop, val: val}};
     switch (kind) {
       case "kutyk":
-        const kutyk = new KutykGGO("Кутик1", XY(0, 0), 20, 3);
+        const kutyk = new KutykGGO("Кутик1", XY(0, 0), 20, 3, ds);
         this.objectProps = [
           prop("b", kutyk.b),
           prop("t", kutyk.t)
@@ -54,7 +58,7 @@ export class GeogebraCreateObjectComponent implements OnInit {
         this.object = kutyk;
         break;
       case "plate":
-        const plate = new PlateGGO("Пластина1", XY(0, 0), 20, 5);
+        const plate = new PlateGGO("Пластина1", XY(0, 0), 20, 5, ds);
         this.objectProps = [
           prop("b", plate.b),
           prop("h", plate.h)
@@ -62,14 +66,14 @@ export class GeogebraCreateObjectComponent implements OnInit {
         this.object = plate;
         break;
       case "shveller":
-        const shveller = new ShvellerGGO("Швеллер1", XY(0, 0), 5);
+        const shveller = new ShvellerGGO("Швеллер1", XY(0, 0), 5, ds);
         this.objectProps = [
           prop("n", shveller.n)
         ];
         this.object = shveller;
         break;
       case "dvotavr":
-        const dvotavr = new DvotavrGGO("Двотавр1", XY(0, 0), 10);
+        const dvotavr = new DvotavrGGO("Двотавр1", XY(0, 0), 10, ds);
         this.objectProps = [
           prop("n", dvotavr.n)
         ];
