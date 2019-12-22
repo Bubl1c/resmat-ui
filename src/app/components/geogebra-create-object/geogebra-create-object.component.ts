@@ -1,16 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import {
-  DvotavrGGO,
-  GeogebraObject,
-  GGOKind,
-  GGOKindType,
-  KutykGGO,
-  PlateGGO,
-  ShvellerGGO
-} from "../geogebra/geogebraCustomObjects";
 import { DropdownOption } from "../dropdown/dropdown.component";
 import { Angle, CoordsUtils } from "../../utils/geometryUtils";
 import XY = CoordsUtils.XY;
+import { GeogebraObject, GGOKind, GGOKindType } from "../geogebra/custom-objects/geogebra-object";
+import { KutykGGO } from "../geogebra/custom-objects/polygon/kutyk.polygon-ggo";
+import { PlateGGO } from "../geogebra/custom-objects/polygon/plate.polygon-ggo";
+import { ShvellerGGO } from "../geogebra/custom-objects/polygon/shveller.polygon-ggo";
+import { DvotavrGGO } from "../geogebra/custom-objects/polygon/dvotavr.polygon-ggo";
 
 @Component({
   selector: 'geogebra-create-object',

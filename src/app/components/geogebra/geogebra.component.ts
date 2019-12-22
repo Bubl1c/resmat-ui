@@ -9,10 +9,10 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { CoordsUtils } from "../../utils/GeometryUtils";
-import { GGB } from "./geogebraDefinitions";
-import { GeogebraObject, TextGGO } from "./geogebraCustomObjects";
+import { GGB } from "./geogebra-definitions";
 import { NumberUtils } from "../../utils/NumberUtils";
 import XY = CoordsUtils.XY;
+import { GeogebraObject } from "./custom-objects/geogebra-object";
 
 declare const GGBApplet: any;
 
@@ -164,6 +164,7 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
       this.currentVisibleCoords = this.currentVisibleCoords * zoomOut;
       console.log("Zooming out for " + zoomOut);
       api.evalCommand(`ZoomOut(${zoomOut})`);
+      //TODO: use https://wiki.geogebra.org/en/Pan_Command to move the view to the center. Need to calculate center.
     }
   }
 
