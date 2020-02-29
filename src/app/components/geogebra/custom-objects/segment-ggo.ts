@@ -1,14 +1,12 @@
-import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "./geogebra-object";
-import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
-import { PointGGO, PointSettingsJson } from "./point-ggo";
+import { GeogebraObject, GeogebraObjectJson, GeogebraObjectSettings, GGOKindType } from "./geogebra-object";
+import { Angle, GeometryUtils, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
+import { PointGGO } from "./point-ggo";
 import { NumberUtils } from "../../../utils/NumberUtils";
+import { GeogebraObjectUtils } from "./geogebra-object-utils";
 
-export interface SegmentSettingsJson {
-  root?: PointSettingsJson
-  end?: PointSettingsJson
-  isVisible?: boolean
-  isLabelVisible?: boolean
-  isFixed?: boolean
+export interface SegmentSettingsJson extends GeogebraObjectSettings {
+  root?: GeogebraObjectSettings
+  end?: GeogebraObjectSettings
 }
 export interface SegmentGGOJSON extends GeogebraObjectJson {
   end: XYCoordsJson
@@ -23,16 +21,17 @@ export class SegmentGGO implements GeogebraObject {
   endPoint: PointGGO;
   parentName?: string;
 
-  constructor(public name: string, public root: XYCoords, public end: XYCoords, settings?: SegmentSettingsJson) {
-    this.settings = {
-      root: settings && settings.root || undefined,
-      end: settings && settings.end || undefined,
-      isLabelVisible: settings && settings.isLabelVisible || false,
-      isFixed: settings && settings.isFixed || true
-    };
-    const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.rootPoint = new PointGGO(withName("Root"), this.root.copy(), this.settings.root);
-    this.endPoint = new PointGGO(withName("End"), this.end.copy(), this.settings.end);
+  private readonly shapeId: string;
+
+  constructor(public name: string, public root: XYCoords, public end: XYCoords, settings?: SegmentSettingsJson, public id: number = GeogebraObjectUtils.nextId()) {
+    this.shapeId = `${this.name}${this.id}`;
+    this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
+    this.settings.root = settings && settings.root || undefined;
+    this.settings.end = settings && settings.end || undefined;
+    this.settings.isVisible = settings && settings.isVisible || false;
+    const withId = (elementName: string) => `${this.shapeId}${elementName}`;
+    this.rootPoint = new PointGGO(withId("Root"), this.root.copy(), this.settings.root);
+    this.endPoint = new PointGGO(withId("End"), this.end.copy(), this.settings.end);
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): SegmentGGO {
@@ -52,10 +51,12 @@ export class SegmentGGO implements GeogebraObject {
     return [
       ...this.rootPoint.getCommands(),
       ...this.endPoint.getCommands(),
-      `${this.name}=Segment(${this.rootPoint.name},${this.endPoint.name}${parentNameParameter})`,
-      ...(!this.settings.isVisible ? [`SetVisibleInView(${this.name},1,false)`] : []),
-      `ShowLabel(${this.name},${this.settings.isLabelVisible})`,
-      `SetFixed(${this.name},${this.settings.isFixed})`
+      `${this.shapeId}=Segment(${this.rootPoint.shapeId},${this.endPoint.shapeId}${parentNameParameter})`,
+      ...(!this.settings.isVisible ? [`SetVisibleInView(${this.shapeId},1,false)`] : []),
+      ...(this.settings.isVisible && this.settings.styles.color ? [`SetColor(${this.shapeId},"${this.settings.styles.color}")`] : []),
+      `ShowLabel(${this.shapeId},${this.settings.isLabelVisible})`,
+      `SetFixed(${this.shapeId},${this.settings.isFixed})`,
+      `SetLineThickness(${this.shapeId},${this.settings.lineThickness})`
     ]
   }
 
@@ -65,7 +66,8 @@ export class SegmentGGO implements GeogebraObject {
       root: this.root.toJson(),
       end: this.end.toJson(),
       name: this.name,
-      settings: this.settings
+      settings: this.settings,
+      id: this.id
     }
   }
 
@@ -85,5 +87,20 @@ export class SegmentGGO implements GeogebraObject {
 
   getDeleteCommands(): string[] {
     return [...this.rootPoint.getDeleteCommands(), ...this.endPoint.getDeleteCommands()]
+  }
+
+  getCenterCoords(): XYCoordsJson {
+    return GeometryUtils.segmentCenter(
+      this.rootPoint.root,
+      this.endPoint.root,
+    )
+  }
+
+  getSize(): { width: number; height: number } {
+    const center = this.getCenterCoords();
+    return {
+      width: Math.abs(this.root.x - center.x) * 2,
+      height: Math.abs(this.root.y - center.y) * 2
+    }
   }
 }

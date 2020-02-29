@@ -11,6 +11,12 @@ import { EllipseGGO } from "../geogebra/custom-objects/ellipse-ggo";
 import { PointGGO } from "../geogebra/custom-objects/point-ggo";
 import { PlateGGO } from "../geogebra/custom-objects/polygon/plate.polygon-ggo";
 import { DvotavrGGO } from "../geogebra/custom-objects/polygon/dvotavr.polygon-ggo";
+import { Headers, Http, RequestOptions, RequestOptionsArgs, Response } from "@angular/http";
+import { HttpUtils } from "../../utils/HttpUtils";
+import { CurrentSession } from "../../current-session";
+import { Router } from "@angular/router";
+import { SizeGGO } from "../geogebra/custom-objects/size-ggo";
+import { TextGGO } from "../geogebra/custom-objects/text-ggo";
 
 @Component({
   selector: 'dummy-for-testing',
@@ -18,6 +24,8 @@ import { DvotavrGGO } from "../geogebra/custom-objects/polygon/dvotavr.polygon-g
   styleUrls: ['./dummy-for-testing.component.css']
 })
 export class DummyForTestingComponent implements OnInit {
+
+  demoObjectsTesting: {[key:string]: GeogebraObject[]} = {};
 
   demoObjects: GeogebraObject[];
   demoSettings: GeogebraComponentSettings = new GeogebraComponentSettings(800, 800).setProps({
@@ -48,34 +56,159 @@ export class DummyForTestingComponent implements OnInit {
     rounding: "5"
   });
 
-  constructor() {
+  constructor(private http: Http) {
     this.makeDemoObjects();
 
-    const shveller = new ShvellerGGO(`Швеллер`, XY(-50, -5), 5, { isLabelVisible: true, caption: "Швеллер (n=5)"}).rotate(new Angle(180));
+    this.demoObjectsTesting["test1"] = [
+      new PlateGGO(1, "Plate", XY(5, 5), 20, 10, undefined),
+      new PlateGGO(2, "Plate", XY(5, -5), 20, 10).rotate(new Angle(90)),
+      new PlateGGO(3, "Plate", XY(-5, -5), 20, 10).rotate(new Angle(180)),
+      new PlateGGO(4, "Plate", XY(-5, 5), 20, 10, undefined, {
+        b: "down",
+        h: "left"
+      }).rotate(new Angle(270))
+    ];
+
+    this.demoObjectsTesting["test2"] = [
+      new ShvellerGGO(1,`Двотавр`, XY(5, 5), 10, undefined, {
+        b: "up",
+        h: "right",
+        d: "up",
+        t: "up",
+      }),
+      new ShvellerGGO(2,`Двотавр`, XY(-80, -120), 10, undefined, {
+        b: "down",
+        h: "left",
+        d: "down",
+        t: "down",
+      }),
+      new ShvellerGGO(3,`Двотавр`, XY(-20, 5), 10, undefined, {
+        b: "up",
+        h: "right",
+        d: "up",
+        t: "up",
+      }).rotate(new Angle(-90)),
+      new ShvellerGGO(4,`Двотавр`, XY(80, -20), 10, undefined, {
+        b: "up",
+        h: "right",
+        d: "down",
+        t: "down",
+      }).rotate(new Angle(180)),
+    ];
+
+    this.demoObjectsTesting["test3"] = [
+      new DvotavrGGO(1,`Двотавр`, XY(5, 5), 10, undefined, {
+        b: "up",
+        h: "right",
+        s: "up",
+        t: "right",
+      }),
+      new DvotavrGGO(2,`Двотавр`, XY(-80, -120), 10, undefined, {
+        b: "down",
+        h: "left",
+        s: "down",
+        t: "left",
+      }),
+      new DvotavrGGO(3,`Двотавр`, XY(-20, 5), 10, undefined, {
+        b: "up",
+        h: "right",
+        s: "up",
+        t: "right",
+      }).rotate(new Angle(-90)),
+      new DvotavrGGO(4,`Двотавр`, XY(80, -20), 10, undefined, {
+        b: "up",
+        h: "right",
+        s: "up",
+        t: "right",
+      }).rotate(new Angle(180)),
+    ];
+
+    this.demoObjectsTesting["test4"] = [
+      new KutykGGO(1, "Kutyk", XY(5, 5), 20, 3, undefined, {
+        z0: "right"
+      }),
+      new KutykGGO(2, "Kutyk", XY(5, -5), 20, 3).rotate(new Angle(90)),
+      new KutykGGO(3, "Kutyk", XY(-5, -5), 20, 3).rotate(new Angle(180)),
+      new KutykGGO(4, "Kutyk", XY(-5, 5), 20, 3).rotate(new Angle(270))
+    ];
+
+    const shveller = new ShvellerGGO(1, `Швеллер`, XY(-50, -5), 5, { isLabelVisible: true, caption: "Швеллер (n=5)", outerPoints: { isVisible: true, isLabelsVisible: true }}).rotate(new Angle(180));
     const kutyk = new KutykGGO(
+      2,
       `Кутик`,
       //TODO: hack how to bind objects
       shveller.getPointCoords("B1"),
       35,
       5,
-      { isLabelVisible: true, caption: "Кутик (b=35, t=5)" }
+      { isLabelVisible: true, caption: "Кутик (b=35, t=5)", outerPoints: { isVisible: true, isLabelsVisible: true } }
     );
     const C = XY(kutyk.root.x, kutyk.root.y + 20);
     this.demoObjects2 = [
       shveller,
       kutyk,
-      new CustomAxesGGO("CustomAxis", C, 50).rotate(new Angle(45)),
-      new EllipseGGO("Ellipse1", C, XY(40, 0), XY(20, -20)).rotate(new Angle(-45)),
+      new CustomAxesGGO(3, "CustomAxis", C, 50).rotate(new Angle(45)),
+      new EllipseGGO(4, "Ellipse1", C, 40, 20).rotate(new Angle(-45)),
     ];
 
     this.playgroundObjects = [
-      // new DvotavrGGO(`Двотавр`, XY(-50, -5), 10, false)
-      new PointGGO(`TestPoint`, XY(-5.555, 5.5555555), {
-        isVisible: true,
-        isLabelVisible: true,
-        labelMode: GGB.LabelMode.NameValue
+      // new DvotavrGGO(1,`Двотавр`, XY(5, 5), 10, undefined, {
+      //   b: "up",
+      //   h: "right",
+      //   s: "up",
+      //   t: "right",
+      // }),
+      // new DvotavrGGO(2,`Двотавр`, XY(-80, -120), 10, undefined, {
+      //   b: "down",
+      //   h: "left",
+      //   s: "down",
+      //   t: "left",
+      // }),
+      // new DvotavrGGO(3,`Двотавр`, XY(-20, 5), 10, undefined, {
+      //   b: "up",
+      //   h: "right",
+      //   s: "up",
+      //   t: "right",
+      // }).rotate(new Angle(-90)),
+      // new DvotavrGGO(4,`Двотавр`, XY(80, -20), 10, undefined, {
+      //   b: "up",
+      //   h: "right",
+      //   s: "up",
+      //   t: "right",
+      // }).rotate(new Angle(180)),
+      new ShvellerGGO(1,`Двотавр`, XY(5, 5), 10, undefined, {
+        b: "up",
+        h: "right",
+        d: "up",
+        t: "up",
       }),
-      kutyk
+      new ShvellerGGO(2,`Двотавр`, XY(-80, -120), 10, undefined, {
+        b: "down",
+        h: "left",
+        d: "down",
+        t: "down",
+      }),
+      new ShvellerGGO(3,`Двотавр`, XY(-20, 5), 10, undefined, {
+        b: "up",
+        h: "right",
+        d: "up",
+        t: "up",
+      }).rotate(new Angle(-90)),
+      new ShvellerGGO(4,`Двотавр`, XY(80, -20), 10, undefined, {
+        b: "up",
+        h: "right",
+        d: "down",
+        t: "down",
+      }).rotate(new Angle(180)),
+      // new PointGGO(2, `TestPoint`, XY(-5.555, 5.5555555), {
+      //   isVisible: true,
+      //   isLabelVisible: true,
+      //   labelMode: GGB.LabelMode.NameValue
+      // }),
+      // new SizeGGO('Sizes', XY(1, 1), XY(5, 1), "up", "5", 5),
+      // new SizeGGO('Sizes', XY(1, -1), XY(5, -1), "down", "100", 5),
+      // new SizeGGO('Sizes', XY(-1, -1), XY(-1, -5), "left", "5", 5),
+      // new SizeGGO('Sizes', XY(-4, 1), XY(-4, 10), "right", "5", 5)
+      // kutyk
     ]
   }
 
@@ -110,19 +243,19 @@ export class DummyForTestingComponent implements OnInit {
     this.demoObjects = [
       ...make(
         XY(-110, 120),
-        (coords: XYCoords, angle: number) => new KutykGGO(`Кутик${angle}`, coords, 100, 10, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Кутик (b=100, t=10)" : null) }).rotate(new Angle(angle))
+        (coords: XYCoords, angle: number) => new KutykGGO(1, `Кутик${angle}`, coords, 100, 10, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Кутик (b=100, t=10)" : null) }).rotate(new Angle(angle))
       ),
       ...make(
         XY(110, 120),
-        (coords: XYCoords, angle: number) => new PlateGGO(`Пластина${angle}`, coords, 20, 100, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Пластина (b=20, h=100)" : null)}).rotate(new Angle(angle))
+        (coords: XYCoords, angle: number) => new PlateGGO(2, `Пластина${angle}`, coords, 20, 100, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Пластина (b=20, h=100)" : null)}).rotate(new Angle(angle))
       ),
       ...make(
         XY(110, -120),
-        (coords: XYCoords, angle: number) => new ShvellerGGO(`Швеллер${angle}`, coords, 10, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Швеллер (n=10)" : null) }).rotate(new Angle(angle))
+        (coords: XYCoords, angle: number) => new ShvellerGGO(3, `Швеллер${angle}`, coords, 10, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Швеллер (n=10)" : null) }).rotate(new Angle(angle))
       ),
       ...make(
         XY(-110, -120),
-        (coords: XYCoords, angle: number) => new DvotavrGGO(`Двотавр${angle}`, coords, 10, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Двотавр (n=10)" : null) }).rotate(new Angle(angle))
+        (coords: XYCoords, angle: number) => new DvotavrGGO(4, `Двотавр${angle}`, coords, 10, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Двотавр (n=10)" : null) }).rotate(new Angle(angle))
       )
     ];
   }

@@ -1,5 +1,6 @@
 import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "./geogebra-object";
 import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
+import { GeogebraObjectUtils } from "./geogebra-object-utils";
 
 export interface TextGGOJSON extends GeogebraObjectJson {
   substituteVariables: boolean
@@ -12,7 +13,10 @@ export interface TextGGOJSON extends GeogebraObjectJson {
 export class TextGGO implements GeogebraObject {
   kind: GGOKindType = "text";
 
-  constructor(public name: string, public root: XYCoords, public substituteVariables: boolean = false, public laTeXFormula: boolean = false) {
+  private readonly shapeId: string;
+
+  constructor(public name: string, public root: XYCoords, public substituteVariables: boolean = false, public laTeXFormula: boolean = false, public id: number = GeogebraObjectUtils.nextId()) {
+    this.shapeId = `${this.name}${this.id}`;
   }
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): TextGGO {
@@ -45,5 +49,16 @@ export class TextGGO implements GeogebraObject {
 
   getDeleteCommands(): string[] {
     return [`Delete(${this.name})`]
+  }
+
+  getCenterCoords(): XYCoordsJson {
+    return this.root.toJson()
+  }
+
+  getSize(): { width: number; height: number } {
+    return {
+      width: 1,
+      height: 1
+    }
   }
 }

@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     // this.login("admin", "root");
-    // this.login("1");
+    this.login("1");
   }
 
   login(login: string, password?: string) {
@@ -31,8 +31,8 @@ export class LoginComponent implements OnInit {
       });
       switch(loggedUser.userType) {
         case UserType.student:
-          this.router.navigate(['users/' + login + '/exams']);
-          // this.router.navigate(['users', login, 'exams', 1]);
+          // this.router.navigate(['users/' + login + '/exams']);
+          this.router.navigate(['users', login, 'exams', 1]);
           break;
         case UserType.assistant:
         case UserType.instructor:

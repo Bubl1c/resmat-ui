@@ -6,14 +6,25 @@
   <form #inputSetForm="ngForm" class="data">
 
     <div class="var-group" *ngFor="let group of groups">
-
-      <span class="var-group-name" [innerHTML]="group.name"></span>
-      <div class="variables-container">
-        <smart-input *ngFor="let variable of group.variables"
-                     [variable]="variable"
-                     [showValidation]="isVerified()"
-                     [readonly]="readonly">
-        </smart-input>
+      <div class="var-group-image" *ngIf="group.image">
+        <img *ngIf="group.imageType === 'image-url'"
+             src="https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557216688.9396_YduXUP_n.jpg"
+             alt=""
+             width="400"
+             height="400">
+        <div *ngIf="group.imageType === 'geogebra'">
+          <geogebra [objects]="group.geogebraObjects" [settings]="group.geogebraSettings"></geogebra>
+        </div>
+      </div>
+      <div class="var-group-data">
+        <span class="var-group-name" [innerHTML]="group.name"></span>
+        <div class="variables-container">
+          <smart-input *ngFor="let variable of group.variables"
+                       [variable]="variable"
+                       [showValidation]="isVerified()"
+                       [readonly]="readonly">
+          </smart-input>
+        </div>
       </div>
 
     </div>

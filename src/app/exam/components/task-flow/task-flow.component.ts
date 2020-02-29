@@ -24,7 +24,7 @@ import {
   ItemValueStr
 } from "../equation/equation.component";
 import { EquationSet } from "../equation-set/equation-set.component";
-import { NumberUtils } from "../../../utils/numberUtils";
+import { NumberUtils } from "../../../utils/NumberUtils";
 import { TaskVariantData } from "../task/task.component";
 import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
 import { RMU } from "../../../utils/utils";
@@ -104,7 +104,7 @@ export class TaskFlowComponent implements OnInit {
               i.name = MathSymbolConverter.convertString(i.name);
               return i;
             });
-            s.data = new InputSetData(s.id, -1, s.name, preparedInputs);
+            s.data = new InputSetData(s.id, -1, s.name, preparedInputs, []);
             break;
           default:
             alert(`Invalid help step type: ${s.stepType}`)
@@ -119,6 +119,8 @@ export class TaskFlowComponent implements OnInit {
         return new TestTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.InputSet:
         return new InputSetTaskFlowStep(this.task, stepData, this.examService);
+      case TaskFlowStepTypes.DynamicInputSet:
+        return new DynamicInputSetTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.EquationSet:
         return new EquationSetTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.Charts:
@@ -271,7 +273,45 @@ class InputSetTaskFlowStep extends TaskFlowStep {
       i.name = MathSymbolConverter.convertString(i.name);
       return i;
     });
-    this.data = new InputSetData(data.id, this.sequence, this.name, preparedInputs);
+    this.data = new InputSetData(data.id, this.sequence, this.name, preparedInputs, []);
+  }
+}
+
+class DynamicInputSetTaskFlowStep extends TaskFlowStep {
+  data: InputSetData;
+  constructor(taskData: IExamTaskFlowTaskData, stepData: IExamTaskFlowStepData, public examService: ExamService, public readOnly = false) {
+    super(taskData, stepData);
+  }
+
+  onSubmitted(submittedData: InputSetAnswer): void {
+    console.log("Verify input set answer: ", submittedData);
+    let that = this;
+    this.examService.verifyTaskFlowStepAnswer(
+      this.taskData.examId,
+      this.taskData.examStepSequence,
+      this.taskData.examStepAttemptId,
+      this.taskData.taskFlowId,
+      this.id,
+      JSON.stringify(submittedData)
+    ).subscribe((verified: IVerifiedTaskFlowStepAnswer) => {
+      let verifiedIputSet: {[key: number]:boolean} = JSON.parse(verified.answer);
+      that.data.variables.forEach(v => {
+        v.correct = verifiedIputSet[v.id] || false;
+      });
+      that.data.status = verified.isCorrectAnswer ? InputSetStatus.Correct : InputSetStatus.Incorrect
+      RMU.safe(() => {
+        GoogleAnalyticsUtils.event(`Exam:${this.taskData.examId}:step:${this.taskData.examStepSequence}-task-flow`, `Task flow step ${this.sequence} verified ${verified.isCorrectAnswer ? "correct" : "wrong"}`, `TaskFlowStepVerified${verified.isCorrectAnswer ? "Correct" : "Wrong"}`, this.sequence);
+      });
+    });
+  }
+
+  fillData(data: any): void {
+    console.log(`DynamicInputSetTaskFlowStep`, data);
+    const preparedInputs = data.inputSet.inputs.map((i: InputVariable) => {
+      i.name = MathSymbolConverter.convertString(i.name);
+      return i;
+    });
+    this.data = new InputSetData(data.inputSet.id, this.sequence, this.name, preparedInputs, data.groups);
   }
 }
 

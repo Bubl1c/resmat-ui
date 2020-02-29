@@ -1,4 +1,4 @@
-import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "../geogebra-object";
+import { GeogebraObject, GeogebraObjectJson, GeogebraObjectSettings, GGOKindType } from "../geogebra-object";
 import { Angle, CoordsUtils, XYCoords, XYCoordsJson } from "../../../../utils/geometryUtils";
 import { GGB } from "../../geogebra-definitions";
 import { Sortament } from "../../../../utils/sortament";
@@ -6,7 +6,18 @@ import { NumberUtils } from "../../../../utils/NumberUtils";
 import { SegmentGGO, SegmentSettingsJson } from "../segment-ggo";
 import XY = CoordsUtils.XY;
 import { PolygonGGO, PolygonGGOJSON, PolygonSettingsJson } from "./polygon-ggo";
-import { PointGGO, PointGGOJSON, PointSettingsJson } from "../point-ggo";
+import { PointGGO, PointGGOJSON } from "../point-ggo";
+import { GeogebraObjectUtils } from "../geogebra-object-utils";
+import LabelMode = GGB.LabelMode;
+import { SizeGGO } from "../size-ggo";
+import { KutykGGOSizeDirections } from "./kutyk.polygon-ggo";
+
+export interface DvotavrGGOSizeDirections {
+  b: "up" | "down"
+  h: "left" | "right"
+  s: "up" | "down"
+  t: "left" | "right"
+}
 
 export interface DvotavrGGOJSON extends PolygonGGOJSON {
   n: number
@@ -25,13 +36,42 @@ export interface DvotavrGGOJSON extends PolygonGGOJSON {
 export class DvotavrGGO extends PolygonGGO{
   kind: GGOKindType = "dvotavr";
 
-  static generatePoints(name: string, root: XYCoords, n: number, settings: PolygonSettingsJson): PointGGOJSON[] {
-    const withName = (elementName: string) => `${name}${elementName}`;
+  private RootPoint: PointGGO;
+  private A2Point: PointGGO;
+  private C1Point: PointGGO;
+  private C2Point: PointGGO;
+  private B1Point: PointGGO;
+  private B2Point: PointGGO;
+  private B3Point: PointGGO;
+  private B4Point: PointGGO;
+  private C3Point: PointGGO;
+  private C4Point: PointGGO;
+  private A3Point: PointGGO;
+  private A4Point: PointGGO;
+
+  private sortament: Sortament.DvotavrType;
+
+  constructor(
+    public id: number,
+    public name: string,
+    public root: XYCoords,
+    public n: number,
+    settings?: PolygonSettingsJson,
+    sizeDirections?: DvotavrGGOSizeDirections
+  ) {
+    super(id, name, root, settings);
+    this.generatePoints(root, n, settings);
+    this.generateSizes(sizeDirections);
+  }
+
+  private generatePoints(root: XYCoords, n: number, settings?: PolygonSettingsJson) {
+    const withId = this.withId;
 
     const sortament = Sortament.Dvotavr[n + ""];
     if (!sortament) {
       throw new Error(`Dvotavr with number = ${n} has not been found in sortament!`)
     }
+    this.sortament = sortament;
     const h = sortament.h;
     const b = sortament.b;
     const s = sortament.s;
@@ -53,40 +93,62 @@ export class DvotavrGGO extends PolygonGGO{
     const A3 = XY(C4.x + innerSide, C4.y);
     const A4 = XY(root.x + b, root.y);
 
-    const showLabelSettings: PointSettingsJson = {
-      isVisible: true,
-      isLabelVisible: settings && settings.isPointLabelsVisible,
-      labelMode: GGB.LabelMode.Value
-    };
+    this.RootPoint = new PointGGO(withId("Root"), Root, this.outerPointSettings());
+    this.A2Point = new PointGGO(withId("A2"), A2);
+    this.C1Point = new PointGGO(withId("C1"), C1);
+    this.C2Point = new PointGGO(withId("C2"), C2);
+    this.B1Point = new PointGGO(withId("B1"), B1);
+    this.B2Point = new PointGGO(withId("B2"), B2);
+    this.B3Point = new PointGGO(withId("B3"), B3);
+    this.B4Point = new PointGGO(withId("B4"), B4);
+    this.C3Point = new PointGGO(withId("C3"), C3);
+    this.C4Point = new PointGGO(withId("C4"), C4);
+    this.A3Point = new PointGGO(withId("A3"), A3);
+    this.A4Point = new PointGGO(withId("A4"), A4);
 
-    const points =  [
-      new PointGGO(withName("Root"), Root, showLabelSettings),
-      new PointGGO(withName("A2"), A2),
-      new PointGGO(withName("C1"), C1, showLabelSettings),
-      new PointGGO(withName("C2"), C2, showLabelSettings),
-      new PointGGO(withName("B1"), B1),
-      new PointGGO(withName("B2"), B2, showLabelSettings),
-      new PointGGO(withName("B3"), B3, showLabelSettings),
-      new PointGGO(withName("B4"), B4),
-      new PointGGO(withName("C3"), C3, showLabelSettings),
-      new PointGGO(withName("C4"), C4, showLabelSettings),
-      new PointGGO(withName("A3"), A3),
-      new PointGGO(withName("A4"), A4, showLabelSettings)
+    this.centerPoint = this.makeCenterPoint(XY(root.x + b/2, root.y + h/2));
+
+    this.points =  [
+      this.RootPoint, this.A2Point, this.C1Point, this.C2Point, this.B1Point, this.B2Point, this.B3Point, this.B4Point, this.C3Point, this.C4Point, this.A3Point, this.A4Point
     ];
-    return points
   }
 
-  constructor(
-    public name: string,
-    public root: XYCoords,
-    public n: number,
-    settings?: PolygonSettingsJson
-  ) {
-    super(name, root, DvotavrGGO.generatePoints(name, root, n, settings), settings);
+  private generateSizes(sizeDirections?: DvotavrGGOSizeDirections) {
+    const b = this.sortament.b;
+    const h = this.sortament.h;
+    const s = this.sortament.s;
+    const t = this.sortament.t;
+    const withId = this.withId;
+    if (this.settings.showSizes) {
+      const sizeDirs: DvotavrGGOSizeDirections = {
+        b: sizeDirections && sizeDirections.b || "up",
+        h: sizeDirections && sizeDirections.h || "right",
+        s: sizeDirections && sizeDirections.s || "up",
+        t: sizeDirections && sizeDirections.t || "right",
+      };
+      const shapeSize = h;
+      const sizeB = sizeDirs.b == "up"
+        ? new SizeGGO(withId("SizeB"), this.B2Point.root.copy(), this.B3Point.root.copy(), sizeDirs.b, "" + b, shapeSize)
+        : new SizeGGO(withId("SizeB"), this.RootPoint.root.copy(), this.A4Point.root.copy(), sizeDirs.b, "" + b, shapeSize);
+
+      const sizeH = sizeDirs.h == "right"
+        ? new SizeGGO(withId("SizeH"), this.B3Point.root.copy(), this.A4Point.root.copy(), sizeDirs.h,"" + h, shapeSize, b/3)
+        : new SizeGGO(withId("SizeH"), this.RootPoint.root.copy(), this.B2Point.root.copy(), sizeDirs.h,"" + h, shapeSize, b/3);
+
+      const sizeT = sizeDirs.t == "right"
+        ? new SizeGGO(withId("SizeT"), this.A4Point.root.copy(), this.A3Point.root.copy(), sizeDirs.t,"" + t, shapeSize)
+        : new SizeGGO(withId("SizeT"), this.A2Point.root.copy(), this.RootPoint.root.copy(), sizeDirs.t,"" + t, shapeSize);
+
+      const sizeS = sizeDirs.s == "up"
+        ? new SizeGGO(withId("SizeS"), this.C3Point.root.updY(y => y - h/4), this.C2Point.root.updY(y => y - h/4), sizeDirs.s,"" + s, shapeSize, 0.01, true)
+        : new SizeGGO(withId("SizeS"), this.C3Point.root.updY(y => y - h/4*3), this.C2Point.root.updY(y => y - h/4*3), sizeDirs.t,"" + t, shapeSize, 0.01, true);
+
+      this.sizes = [sizeB, sizeH, sizeT, sizeS]
+    }
   }
 
   copy(): DvotavrGGO {
-    return new DvotavrGGO(this.name, this.root.copy(), this.n, this.actualJsonSettings)
+    return new DvotavrGGO(this.id, this.name, this.root.copy(), this.n, this.actualJsonSettings)
   }
 
   toJson(): DvotavrGGOJSON {
@@ -97,6 +159,6 @@ export class DvotavrGGO extends PolygonGGO{
 
   static fromJson(json: GeogebraObjectJson): DvotavrGGO {
     const j = json as DvotavrGGOJSON;
-    return new DvotavrGGO(j.name, XYCoords.fromJson(j.root), j.n, j.settings)
+    return new DvotavrGGO(j.id, j.name, XYCoords.fromJson(j.root), j.n, j.settings)
   }
 }

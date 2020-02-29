@@ -1,12 +1,20 @@
-import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "./geogebra-object";
+import {
+  GeogebraObject,
+  GeogebraObjectJson,
+  GeogebraObjectSettings,
+  GGOKindType
+} from "./geogebra-object";
 import { Angle, CoordsUtils, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
 import { TextGGO } from "./text-ggo";
 import { NumberUtils } from "../../../utils/NumberUtils";
 import { VectorGGO } from "./vector-ggo";
 import XY = CoordsUtils.XY;
+import { GeogebraObjectUtils } from "./geogebra-object-utils";
+import { PointGGO } from "./point-ggo";
 
 export interface CustomAxesGGOJSON extends GeogebraObjectJson {
-  size: number,
+  xSize: number
+  ySize: number
   axes: {
     x: {
       name: string
@@ -22,33 +30,44 @@ export class CustomAxesGGO implements GeogebraObject {
 
   xAxis: VectorGGO;
   yAxis: VectorGGO;
+  rootPoint: PointGGO;
+
+  private readonly shapeId: string;
 
   constructor(
+    public id: number,
     public name: string,
     public root: XYCoords,
-    public size: number = 5,
+    public xSize: number = 5,
+    public ySize: number = 5,
     public xAxisName: string = "X",
-    public yAxisName: string = "Y"
+    public yAxisName: string = "Y",
+    public settings?: GeogebraObjectSettings
   ) {
-    const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.xAxis = new VectorGGO(withName(xAxisName), XY(root.x - size, root.y), XY(root.x + size, root.y));
-    this.xAxis.setCustomLabel(new TextGGO(xAxisName, this.xAxis.endPoint.root));
-    this.yAxis = new VectorGGO(withName(yAxisName), XY(root.x, root.y - size), XY(root.x, root.y + size));
-    this.yAxis.setCustomLabel(new TextGGO(yAxisName, this.yAxis.endPoint.root));
+    this.shapeId = `${this.name}${this.id}`;
+    this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
+    const withId = (elementName: string) => `${this.shapeId}${elementName}`;
+    this.xAxis = new VectorGGO(withId(xAxisName), XY(root.x - xSize, root.y), XY(root.x + xSize, root.y), settings);
+    this.xAxis.setCustomLabel(new TextGGO(xAxisName, XY(this.xAxis.endPoint.root.x, this.xAxis.endPoint.root.y + 0.3)));
+    this.yAxis = new VectorGGO(withId(yAxisName), XY(root.x, root.y - ySize), XY(root.x, root.y + ySize), settings);
+    this.yAxis.setCustomLabel(new TextGGO(yAxisName, XY(this.yAxis.endPoint.root.x + 0.3, this.yAxis.endPoint.root.y)));
+    this.rootPoint = new PointGGO("C", this.root.copy(), this.settings.rootPoint);
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): CustomAxesGGO {
+    this.rootPoint.rotate(angle, point);
     this.xAxis.rotate(angle, point);
     this.yAxis.rotate(angle, point);
     return this;
   }
 
   copy(): CustomAxesGGO {
-    return new CustomAxesGGO(this.name, this.root.copy(), this.size, this.xAxisName, this.yAxisName);
+    return new CustomAxesGGO(this.id, this.name, this.root.copy(), this.xSize, this.ySize, this.xAxisName, this.yAxisName);
   }
 
   getCommands(): string[] {
     return [
+      ...this.rootPoint.getCommands(),
       ...this.xAxis.getCommands(),
       ...this.yAxis.getCommands()
     ];
@@ -56,10 +75,12 @@ export class CustomAxesGGO implements GeogebraObject {
 
   toJson(): CustomAxesGGOJSON {
     return {
+      id: this.id,
       kind: this.kind,
       root: this.root.toJson(),
       name: this.name,
-      size: this.size,
+      xSize: this.xSize,
+      ySize: this.ySize,
       axes: {
         x: {
           name: this.xAxisName
@@ -73,7 +94,7 @@ export class CustomAxesGGO implements GeogebraObject {
 
   static fromJson(json: GeogebraObjectJson): CustomAxesGGO {
     const j = json as CustomAxesGGOJSON;
-    return new CustomAxesGGO(j.name, XYCoords.fromJson(j.root), j.size, j.axes.x.name, j.axes.y.name)
+    return new CustomAxesGGO(j.id, j.name, XYCoords.fromJson(j.root), j.xSize, j.ySize, j.axes.x.name, j.axes.y.name)
   }
 
   maxCoord(): XYCoordsJson {
@@ -86,6 +107,17 @@ export class CustomAxesGGO implements GeogebraObject {
   }
 
   getDeleteCommands(): string[] {
-    return [...this.xAxis.getDeleteCommands(), ...this.yAxis.getDeleteCommands()]
+    return [...this.rootPoint.getDeleteCommands(), ...this.xAxis.getDeleteCommands(), ...this.yAxis.getDeleteCommands()]
+  }
+
+  getCenterCoords(): XYCoordsJson {
+    return this.root.toJson()
+  }
+
+  getSize(): { width: number; height: number } {
+    return {
+      width: this.xSize,
+      height: this.ySize
+    }
   }
 }

@@ -11,6 +11,7 @@ export interface ISchemaVar {
 export class TaskFlowStepTypes {
   static Test = 'test';
   static InputSet = 'input-set';
+  static DynamicInputSet = 'dynamic-input-set';
   static VariableValueSet = 'var-value-set';
   static EquationSet = 'equation-set';
   static Charts = 'charts';

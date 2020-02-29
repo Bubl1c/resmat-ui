@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NumberUtils } from "../../../utils/numberUtils";
+import { NumberUtils } from "../../../utils/NumberUtils";
 
 export const SmartValueType = {
   input: 'SmartValueInputDto',

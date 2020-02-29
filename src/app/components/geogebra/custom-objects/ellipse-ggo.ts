@@ -6,31 +6,48 @@ import XY = CoordsUtils.XY;
 import { CustomAxesGGO, CustomAxesGGOJSON } from "./custom-axes-ggo";
 
 export interface EllipseGGOJSON extends GeogebraObjectJson {
-  f1: XYCoordsJson,
-  f2: XYCoordsJson,
-  ellipsePoint: XYCoordsJson
+  xR: number,
+  yR: number,
+  root: XYCoordsJson
 }
 
+/**
+ *   f1   |yr
+ * --.----.-----.--
+ *   xr   |      f2
+ *   http://mathprofi.ru/linii_vtorogo_poryadka_ellips_i_okruzhnost.html
+ */
 export class EllipseGGO implements GeogebraObject {
   kind: GGOKindType = "ellipse";
 
+  rootPoint: PointGGO;
   f1Point: PointGGO;
   f2Point: PointGGO;
   ellipsePoint: PointGGO;
 
+  private readonly shapeId: string;
+
   constructor(
+    public id: number,
     public name: string,
     public root: XYCoords,
-    f1Rel: XYCoords,
-    ellipsePointRel: XYCoords
+    public xR: number,
+    public yR: number
   ) {
-    const withName = (elementName: string) => `${name}${elementName}`;
-    const f1 = XY(root.x + f1Rel.x, root.y + f1Rel.y);
-    const ellipsePoint = XY(root.x + ellipsePointRel.x, root.y + ellipsePointRel.y);
-    const f2 = XYCoords.fromJson(GeometryUtils.opositePoint(root.x, root.y, f1.x, f1.y));
-    this.f1Point = new PointGGO(withName("F1Point"), f1.copy(), false);
-    this.f2Point = new PointGGO(withName("F2Point"), f2.copy(), false);
-    this.ellipsePoint = new PointGGO(withName("EllipsePoint"), ellipsePoint.copy(), true);
+    this.shapeId = `${this.name}${this.id}`;
+    const withId = (elementName: string) => `${this.shapeId}${elementName}`;
+    this.rootPoint = new PointGGO(withId("RootPoint"), root.copy(), { isVisible: true });
+    const a = xR;
+    const b = yR;
+    const c = Math.sqrt(a*a - b*b);
+    const x0 = this.root.x;
+    const y0 = this.root.y;
+    const f1 = XY(c + x0, y0);
+    const f2 = XY(- c + x0, y0);
+    const ellipsePoint = XY(x0 - xR, y0);
+    this.f1Point = new PointGGO(withId("F1Point"), f1.copy(), false);
+    this.f2Point = new PointGGO(withId("F2Point"), f2.copy(), false);
+    this.ellipsePoint = new PointGGO(withId("EllipsePoint"), ellipsePoint.copy(), true);
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): EllipseGGO {
@@ -42,7 +59,7 @@ export class EllipseGGO implements GeogebraObject {
   }
 
   copy(): EllipseGGO {
-    return new EllipseGGO(this.name, this.f1Point.root.copy(), this.f2Point.root.copy(), this.ellipsePoint.root.copy());
+    return new EllipseGGO(this.id, this.name, this.root.copy(), this.xR, this.yR);
   }
 
   getCommands(): string[] {
@@ -50,25 +67,25 @@ export class EllipseGGO implements GeogebraObject {
       ...this.f1Point.getCommands(),
       ...this.f2Point.getCommands(),
       ...this.ellipsePoint.getCommands(),
-      `${this.name}: Ellipse(${this.f1Point.name},${this.f2Point.name},${this.ellipsePoint.name})`,
-      `ShowLabel(${this.name},false)`
+      `${this.shapeId}: Ellipse(${this.f1Point.shapeId},${this.f2Point.shapeId},${this.ellipsePoint.shapeId})`,
+      `ShowLabel(${this.shapeId},false)`
     ]
   }
 
   toJson(): EllipseGGOJSON {
     return {
+      id: this.id,
       kind: this.kind,
-      root: this.root.toJson(),
       name: this.name,
-      f1: this.f1Point.root.toJson(),
-      f2: this.f2Point.root.toJson(),
-      ellipsePoint: this.ellipsePoint.root.toJson()
+      root: this.root.toJson(),
+      xR: this.xR,
+      yR: this.yR
     }
   }
 
-  static fromJson(json: GeogebraObjectJson): CustomAxesGGO {
-    const j = json as CustomAxesGGOJSON;
-    return new CustomAxesGGO(j.name, XYCoords.fromJson(j.root), j.size, j.axes.x.name, j.axes.y.name)
+  static fromJson(json: GeogebraObjectJson): EllipseGGO {
+    const j = json as EllipseGGOJSON;
+    return new EllipseGGO(j.id, j.name, XYCoords.fromJson(j.root), j.xR, j.yR)
   }
 
   maxCoord(): XYCoordsJson {
@@ -80,5 +97,16 @@ export class EllipseGGO implements GeogebraObject {
 
   getDeleteCommands(): string[] {
     return [...this.f1Point.getDeleteCommands(), ...this.f2Point.getDeleteCommands(), ...this.ellipsePoint.getDeleteCommands()]
+  }
+
+  getCenterCoords(): XYCoordsJson {
+    return this.root.toJson()
+  }
+
+  getSize(): { width: number; height: number } {
+    return {
+      width: this.xR * 2,
+      height: this.yR * 2
+    }
   }
 }

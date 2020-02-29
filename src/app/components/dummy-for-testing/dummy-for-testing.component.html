@@ -1,42 +1,46 @@
 <div class="dummy-components-container-parent">
   <div class="dummy-components-container">
-    <div class="mui-panel demo-container full-width">
-      <h2>Приклад автоматично намальованих фігур повернутих на 0, 90, 180, 270 градусів</h2>
-      <geogebra [objects]="demoObjects" [settings]="demoSettings"></geogebra>
-      <br>
-      <h2>Приклад автоматично намальованих фігур для задачі з геометрії</h2>
-      <geogebra [objects]="demoObjects2" [settings]="demoSettings2"></geogebra>
-    </div>
-    <div class="mui-panel playground-container full-width">
-      <h2>Редактор а якому можна погратись з фігурами</h2>
-      <p>Координати всіх фігур вказуються для лівої нижньої точки</p>
-      <p>Це демонстраційна версія яка не прив'язана до задачі з геометрії</p>
-      <table class="mui-table mui-table--bordered">
-        <tbody>
-          <tr class="header4">
-            <td>Номер п.п.</td>
-            <td>Назва об'єкту</td>
-            <td>Тип об'єкту</td>
-            <td>Координати</td>
-            <td></td>
-          </tr>
-          <tr *ngFor="let po of playgroundObjects; let i = index">
-            <td>{{i + 1}}</td>
-            <td>{{po.name}}</td>
-            <td>{{po.kind}}</td>
-            <td>({{po.root.x}},{{po.root.y}})</td>
-            <td><a (click)="removeGGBObject(i)"><i class="material-icons">delete_forever</i></a></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="playground-workspace">
-        <div class="mui-panel">
-          <geogebra-create-object (onSaved)="newGGBObject($event)"></geogebra-create-object>
-        </div>
-        <div>
-          <geogebra [objects]="playgroundObjects" [settings]="playgroundSettings"></geogebra>
-        </div>
-      </div>
-    </div>
+    <geogebra [objects]="demoObjectsTesting['test1']" [settings]="demoSettings"></geogebra>
+    <geogebra [objects]="demoObjectsTesting['test2']" [settings]="demoSettings"></geogebra>
+    <geogebra [objects]="demoObjectsTesting['test3']" [settings]="demoSettings"></geogebra>
+    <geogebra [objects]="demoObjectsTesting['test4']" [settings]="demoSettings"></geogebra>
+<!--    <div class="mui-panel demo-container full-width">-->
+<!--      <h2>Приклад автоматично намальованих фігур повернутих на 0, 90, 180, 270 градусів</h2>-->
+<!--      <geogebra [objects]="demoObjects" [settings]="demoSettings"></geogebra>-->
+<!--      <br>-->
+<!--      <h2>Приклад автоматично намальованих фігур для задачі з геометрії</h2>-->
+<!--      <geogebra [objects]="demoObjects2" [settings]="demoSettings2"></geogebra>-->
+<!--    </div>-->
+<!--    <div class="mui-panel playground-container full-width">-->
+<!--      <h2>Редактор а якому можна погратись з фігурами</h2>-->
+<!--      <p>Координати всіх фігур вказуються для лівої нижньої точки</p>-->
+<!--      <p>Це демонстраційна версія яка не прив'язана до задачі з геометрії</p>-->
+<!--      <table class="mui-table mui-table&#45;&#45;bordered">-->
+<!--        <tbody>-->
+<!--          <tr class="header4">-->
+<!--            <td>Номер п.п.</td>-->
+<!--            <td>Назва об'єкту</td>-->
+<!--            <td>Тип об'єкту</td>-->
+<!--            <td>Координати</td>-->
+<!--            <td></td>-->
+<!--          </tr>-->
+<!--          <tr *ngFor="let po of playgroundObjects; let i = index">-->
+<!--            <td>{{i + 1}}</td>-->
+<!--            <td>{{po.name}}</td>-->
+<!--            <td>{{po.kind}}</td>-->
+<!--            <td>({{po.root.x}},{{po.root.y}})</td>-->
+<!--            <td><a (click)="removeGGBObject(i)"><i class="material-icons">delete_forever</i></a></td>-->
+<!--          </tr>-->
+<!--        </tbody>-->
+<!--      </table>-->
+<!--      <div class="playground-workspace">-->
+<!--        <div class="mui-panel">-->
+<!--          <geogebra-create-object (onSaved)="newGGBObject($event)"></geogebra-create-object>-->
+<!--        </div>-->
+<!--        <div>-->
+<!--          <geogebra [objects]="playgroundObjects" [settings]="playgroundSettings"></geogebra>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
 </div>

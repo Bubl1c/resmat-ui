@@ -1,32 +1,26 @@
 import { GGB } from "../geogebra-definitions";
-import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "./geogebra-object";
+import { GeogebraObject, GeogebraObjectJson, GeogebraObjectSettings, GGOKindType } from "./geogebra-object";
 import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
+import { GeogebraObjectUtils } from "./geogebra-object-utils";
+import LabelMode = GGB.LabelMode;
 
-export interface PointSettingsJson {
-  isVisible?: boolean
-  isLabelVisible?: boolean
-  labelMode?: GGB.LabelMode
-  pointSize?: number
-  isFixed?: boolean
-}
 export interface PointGGOJSON extends GeogebraObjectJson {
-  settings?: PointSettingsJson
+  settings?: GeogebraObjectSettings
 }
 
 export class PointGGO implements GeogebraObject {
   kind: GGOKindType = "point";
-  settings: PointSettingsJson;
+  settings: GeogebraObjectSettings;
+
+  readonly shapeId: string;
 
   constructor(public name: string,
               public root: XYCoords,
-              settings?: PointSettingsJson) {
-    this.settings = {
-      isVisible: settings && settings.isVisible || false,
-      isLabelVisible: settings && settings.isLabelVisible || false,
-      labelMode: settings && settings.labelMode || GGB.LabelMode.NameValue,
-      pointSize: settings && settings.pointSize || 3,
-      isFixed: settings && settings.isFixed || true
-    }
+              settings?: GeogebraObjectSettings,
+              public id: number = GeogebraObjectUtils.nextId()) {
+    this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
+    this.settings.isVisible = settings && settings.isVisible || false;
+    this.shapeId = `${this.name}${this.id}`;
   }
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): PointGGO {
@@ -39,14 +33,16 @@ export class PointGGO implements GeogebraObject {
   }
 
   getCommands(): string[] {
-    const pointCmd = `${this.name}=${this.root.getCommand()}`;
+    const pointCmd = `${this.shapeId}=${this.root.getCommand()}`;
     return [
       pointCmd,
-      ...(this.settings.labelMode !== GGB.LabelMode.Name ? [`SetLabelMode(${this.name},${this.settings.labelMode})`] : []),
-      ...(!this.settings.isVisible ? [`SetVisibleInView(${this.name},1,false)`] : []),
-      ...(this.settings.isVisible ? [`SetPointSize(${this.name},${this.settings.pointSize})`] : []),
-      ...(this.settings.isVisible ? [`ShowLabel(${this.name},${this.settings.isLabelVisible})`] : []),
-      ...(this.settings.isFixed ? [`SetFixed(${this.name},true)`] : [])
+      ...(this.settings.labelMode !== GGB.LabelMode.Name ? [`SetLabelMode(${this.shapeId},${this.settings.labelMode})`] : []),
+      ...(!this.settings.isVisible ? [`SetVisibleInView(${this.shapeId},1,false)`] : []),
+      ...(this.settings.isVisible ? [`SetPointSize(${this.shapeId},${this.settings.pointSize})`] : []),
+      ...(this.settings.isVisible ? [`ShowLabel(${this.shapeId},${this.settings.isLabelVisible})`] : []),
+      ...(this.settings.isVisible && this.settings.labelMode === LabelMode.Caption && this.settings.isLabelVisible ? [`SetCaption(${this.shapeId},"${this.settings.caption}")`] : []),
+      ...(this.settings.isVisible && this.settings.styles.color ? [`SetColor(${this.shapeId},"${this.settings.styles.color}")`] : []),
+      ...(this.settings.isFixed ? [`SetFixed(${this.shapeId},true)`] : [])
     ]
   }
 
@@ -56,7 +52,7 @@ export class PointGGO implements GeogebraObject {
 
   static fromJson(json: GeogebraObjectJson): PointGGO {
     const j = json as PointGGOJSON;
-    return new PointGGO(j.name, XYCoords.fromJson(j.root), j.settings)
+    return new PointGGO(j.name, XYCoords.fromJson(j.root), j.settings, j.id)
   }
 
   maxCoord(): XYCoordsJson {
@@ -64,6 +60,17 @@ export class PointGGO implements GeogebraObject {
   }
 
   getDeleteCommands(): string[] {
-    return [`Delete(${this.name})`]
+    return [`Delete(${this.shapeId})`]
+  }
+
+  getCenterCoords(): XYCoordsJson {
+    return this.root.toJson()
+  }
+
+  getSize(): { width: number; height: number } {
+    return {
+      width: 0,
+      height: 0
+    }
   }
 }

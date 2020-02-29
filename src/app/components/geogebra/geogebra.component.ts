@@ -149,7 +149,11 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   private addObject(api: GGB.API, object: GeogebraObject): void {
-    api.evalCommand(object.getCommands().join("\n"));
+    try {
+      api.evalCommand(object.getCommands().join("\n"));
+    } catch (e) {
+      console.error(`Failed to add geogebra object: ${object}`, e)
+    }
   }
 
   private deleteObject(api: GGB.API, object: GeogebraObject): void {

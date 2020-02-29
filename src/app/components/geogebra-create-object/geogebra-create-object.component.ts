@@ -2,12 +2,17 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DropdownOption } from "../dropdown/dropdown.component";
 import { Angle, CoordsUtils } from "../../utils/geometryUtils";
 import XY = CoordsUtils.XY;
-import { GeogebraObject, GGOKind, GGOKindType } from "../geogebra/custom-objects/geogebra-object";
+import {
+  GeogebraObject,
+  GeogebraObjectSettings,
+  GGOKind,
+  GGOKindType
+} from "../geogebra/custom-objects/geogebra-object";
 import { KutykGGO } from "../geogebra/custom-objects/polygon/kutyk.polygon-ggo";
 import { PlateGGO } from "../geogebra/custom-objects/polygon/plate.polygon-ggo";
 import { ShvellerGGO } from "../geogebra/custom-objects/polygon/shveller.polygon-ggo";
 import { DvotavrGGO } from "../geogebra/custom-objects/polygon/dvotavr.polygon-ggo";
-import { PolygonGGO, PolygonSettingsJson } from "../geogebra/custom-objects/polygon/polygon-ggo";
+import { GeogebraObjectUtils } from "../geogebra/custom-objects/geogebra-object-utils";
 
 @Component({
   selector: 'geogebra-create-object',
@@ -43,14 +48,15 @@ export class GeogebraCreateObjectComponent implements OnInit {
   }
 
   reset(kind: GGOKindType) {
+    const id = GeogebraObjectUtils.nextId();
     this.objectAngle = 0;
-    const ds: PolygonSettingsJson = {
+    const ds: GeogebraObjectSettings = {
       isLabelVisible: true
     };
     const prop = (prop: string, val: number) => {return {prop: prop, val: val}};
     switch (kind) {
       case "kutyk":
-        const kutyk = new KutykGGO("Кутик1", XY(0, 0), 20, 3, ds);
+        const kutyk = new KutykGGO(id,"Кутик1", XY(0, 0), 20, 3, ds);
         this.objectProps = [
           prop("b", kutyk.b),
           prop("t", kutyk.t)
@@ -58,7 +64,7 @@ export class GeogebraCreateObjectComponent implements OnInit {
         this.object = kutyk;
         break;
       case "plate":
-        const plate = new PlateGGO("Пластина1", XY(0, 0), 20, 5, ds);
+        const plate = new PlateGGO(id, "Пластина1", XY(0, 0), 20, 5, ds);
         this.objectProps = [
           prop("b", plate.b),
           prop("h", plate.h)
@@ -66,14 +72,14 @@ export class GeogebraCreateObjectComponent implements OnInit {
         this.object = plate;
         break;
       case "shveller":
-        const shveller = new ShvellerGGO("Швеллер1", XY(0, 0), 5, ds);
+        const shveller = new ShvellerGGO(id, "Швеллер1", XY(0, 0), 5, ds);
         this.objectProps = [
           prop("n", shveller.n)
         ];
         this.object = shveller;
         break;
       case "dvotavr":
-        const dvotavr = new DvotavrGGO("Двотавр1", XY(0, 0), 10, ds);
+        const dvotavr = new DvotavrGGO(id, "Двотавр1", XY(0, 0), 10, ds);
         this.objectProps = [
           prop("n", dvotavr.n)
         ];

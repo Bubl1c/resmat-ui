@@ -2,20 +2,48 @@ import { NumberUtils } from "./NumberUtils";
 
 export class GeometryUtils {
 
-  public static segmentCenter(xa: number, ya: number, xb: number, yb: number): { x: number, y: number } {
+  public static segmentCenter(a: XYCoordsJson, b: XYCoordsJson): XYCoordsJson {
     return {
-      x: (xa + xb)/2,
-      y: (ya + yb)/2
+      x: (a.x + b.x)/2,
+      y: (a.y + b.y)/2
     }
   }
 
-  public static opositePoint(xa: number, ya: number, xb: number, yb: number): { x: number, y: number } {
-    const xba = xb - xa;
-    const yba = yb - ya;
+  /**
+   * distance == segmentLength(a, result)
+   * a----------b     .result
+   *
+   * Result can also be within (a, b)
+   * @param a
+   * @param b
+   * @param distance
+   */
+  public static pointOnVector(a: XYCoordsJson, b: XYCoordsJson, distance?: number): XYCoordsJson {
+    const fullLength = GeometryUtils.segmentLength(a, b);
+    const k = distance ? distance / fullLength : 1;
     return {
-      x: xa - xba,
-      y: ya - yba
+      x: a.x + (b.x - a.x) * k,
+      y: a.y + (b.y - a.y) * k,
     }
+  }
+
+  /**
+   * a------b------result
+   * Returns a point opposite to a in relation to b
+   * @param a
+   * @param b
+   * @param oppositeDistance
+   */
+  public static oppositePoint(a: XYCoordsJson, b: XYCoordsJson, oppositeDistance?: number): XYCoordsJson {
+    const opPoint = {
+      x: a.x - (b.x - a.x),
+      y: a.y - (b.y - a.y),
+    };
+    return GeometryUtils.pointOnVector(a, opPoint, oppositeDistance)
+  }
+
+  public static segmentLength(a: XYCoordsJson, b: XYCoordsJson): number {
+    return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2))
   }
 }
 
@@ -57,6 +85,18 @@ export class XYCoords implements XYCoordsJson {
 
   getCommand(): string {
     return `(${this.x},${this.y})`
+  }
+
+  updX(updatedX: (currentX: number) => number): XYCoords {
+    const s = this.copy();
+    s.x = updatedX(s.x);
+    return s;
+  }
+
+  updY(updatedY: (currentY: number) => number): XYCoords {
+    const s = this.copy();
+    s.y = updatedY(s.y);
+    return s;
   }
 
   toJson(): XYCoordsJson {

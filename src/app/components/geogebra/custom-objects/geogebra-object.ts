@@ -1,14 +1,5 @@
 import { Angle, XYCoordsJson } from "../../../utils/geometryUtils";
-import { TextGGO } from "./text-ggo";
-import { PointGGO } from "./point-ggo";
-import { VectorGGO } from "./vector-ggo";
-import { SegmentGGO } from "./segment-ggo";
-import { CustomAxesGGO } from "./custom-axes-ggo";
-import { EllipseGGO } from "./ellipse-ggo";
-import { KutykGGO } from "./polygon/kutyk.polygon-ggo";
-import { PlateGGO } from "./polygon/plate.polygon-ggo";
-import { ShvellerGGO } from "./polygon/shveller.polygon-ggo";
-import { DvotavrGGO } from "./polygon/dvotavr.polygon-ggo";
+import { GGB } from "../geogebra-definitions";
 
 export class GGOKind {
   static all: GGOKind[] = [];
@@ -31,6 +22,7 @@ export class GGOKind {
   static plate = GGOKind.make("plate", "Пластина", [["b", "Ширина", 20], ["h", "Висота", 5]]);
   static shveller = GGOKind.make("shveller", "Швеллер", [["n", "Номер в сортаменті", 5]]);
   static dvotavr = GGOKind.make("dvotavr", "Двотавр", [["n", "Номер в сортаменті", 10]]);
+  static size = GGOKind.make("size", "Розмір");
 
   static withId(id: string): GGOKind | undefined {
     return GGOKind.all.find(ut => ut.id === id)
@@ -50,9 +42,32 @@ export type GGOKindType =
   | "kutyk"
   | "plate"
   | "shveller"
-  | "dvotavr";
+  | "dvotavr"
+  | "size";
+
+export interface GeogebraObjectSettings {
+  isVisible?: boolean
+  isLabelVisible?: boolean
+  labelMode?: GGB.LabelMode
+  caption?: string
+  isFixed?: boolean
+  styles?: {
+    opacityPercents?: number
+    color?: string //hex like #AARRGGBB or canonical color name, see more at https://wiki.geogebra.org/en/SetColor_Command
+  }
+  lineThickness?: number //https://wiki.geogebra.org/en/SetLineThickness_Command
+  pointSize?: number
+  rootPoint?: GeogebraObjectSettings
+  outerPoints?: {
+    isVisible?: boolean
+    isLabelsVisible?: boolean
+    labelMode?: GGB.LabelMode
+  }
+  showSizes?: boolean
+}
 
 export interface GeogebraObjectJson {
+  readonly id: number
   kind: GGOKindType
   root: XYCoordsJson
   name: string
@@ -70,34 +85,8 @@ export interface GeogebraObject extends GeogebraObjectJson {
   maxCoord(): XYCoordsJson
 
   getDeleteCommands(): string[]
-}
 
-export namespace GeogebraObject {
+  getCenterCoords(): XYCoordsJson
 
-  export function fromJson(json: GeogebraObjectJson): GeogebraObject {
-    switch (json.kind) {
-      case "text" :
-        return TextGGO.fromJson(json);
-      case "point" :
-        return PointGGO.fromJson(json);
-      case "vector" :
-        return VectorGGO.fromJson(json);
-      case "segment" :
-        return SegmentGGO.fromJson(json);
-      case "custom_axes" :
-        return CustomAxesGGO.fromJson(json);
-      case "ellipse" :
-        return EllipseGGO.fromJson(json);
-      case "kutyk" :
-        return KutykGGO.fromJson(json);
-      case "plate" :
-        return PlateGGO.fromJson(json);
-      case "shveller" :
-        return ShvellerGGO.fromJson(json);
-      case "dvotavr":
-        return DvotavrGGO.fromJson(json);
-      default:
-        throw new Error(`Unknown GeogebraObject kind ${json.kind} in json ${json}`)
-    }
-  }
+  getSize(): { width: number, height: number }
 }

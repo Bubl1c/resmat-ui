@@ -150,7 +150,7 @@ export class ProblemConfComponent implements OnInit {
     this.newVariant.schemaUrl = null;
     this.newVariantVariables = new InputSetData(-1, -1, "", this.problemConf.inputVariableConfs.map(vc => {
       return new InputVariable(vc.id, vc.name, "", vc.units, "", true)
-    }));
+    }), []);
     setTimeout(() => {
       this.showInputSet = true;
     });

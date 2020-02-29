@@ -12,6 +12,17 @@
 
 .var-group {
   display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: nowrap;
+}
+
+.var-group-image {
+  margin: 1em 0;
+}
+
+.var-group-data {
+  display: flex;
   flex-direction: column;
   text-align: center;
   margin: 1em 0;

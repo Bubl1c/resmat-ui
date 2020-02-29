@@ -1,12 +1,18 @@
-import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "./geogebra-object";
-import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
+import {
+  GeogebraObject,
+  GeogebraObjectJson,
+  GeogebraObjectSettings,
+  GGOKindType
+} from "./geogebra-object";
+import { Angle, GeometryUtils, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
 import { PointGGO } from "./point-ggo";
 import { TextGGO } from "./text-ggo";
 import { NumberUtils } from "../../../utils/NumberUtils";
+import { GeogebraObjectUtils } from "./geogebra-object-utils";
 
 export interface VectorGGOJSON extends GeogebraObjectJson {
   end: XYCoordsJson
-  isLabelVisible: boolean
+  settings: GeogebraObjectSettings
 }
 
 export class VectorGGO implements GeogebraObject {
@@ -16,10 +22,14 @@ export class VectorGGO implements GeogebraObject {
   endPoint: PointGGO;
   customLabel?: TextGGO;
 
-  constructor(public name: string, public root: XYCoords, public end: XYCoords, public isLabelVisible: boolean = false) {
-    const withName = (elementName: string) => `${this.name}${elementName}`;
-    this.rootPoint = new PointGGO(withName("Root"), this.root.copy());
-    this.endPoint = new PointGGO(withName("End"), this.end.copy());
+  private readonly shapeId: string;
+
+  constructor(public name: string, public root: XYCoords, public end: XYCoords, public settings?: GeogebraObjectSettings, public id: number = GeogebraObjectUtils.nextId()) {
+    this.shapeId = `${this.name}${this.id}`;
+    const withId = (elementName: string) => `${this.shapeId}${elementName}`;
+    this.rootPoint = new PointGGO(withId("Root"), this.root.copy());
+    this.endPoint = new PointGGO(withId("End"), this.end.copy());
+    this.settings = GeogebraObjectUtils.settingsWithDefaults(settings)
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): VectorGGO {
@@ -30,7 +40,7 @@ export class VectorGGO implements GeogebraObject {
   }
 
   copy(): VectorGGO {
-    return new VectorGGO(this.name, this.root.copy(), this.end.copy(), this.isLabelVisible);
+    return new VectorGGO(this.name, this.root.copy(), this.end.copy(), this.settings);
   }
 
   setCustomLabel(label: TextGGO): VectorGGO {
@@ -42,25 +52,28 @@ export class VectorGGO implements GeogebraObject {
     return [
       ...this.rootPoint.getCommands(),
       ...this.endPoint.getCommands(),
-      `${this.name}=Vector(${this.rootPoint.name},${this.endPoint.name})`,
-      `ShowLabel(${this.name},${this.isLabelVisible})`,
+      `${this.shapeId}=Vector(${this.rootPoint.shapeId},${this.endPoint.shapeId})`,
+      `ShowLabel(${this.shapeId},${this.settings.isLabelVisible})`,
+      `SetLineThickness(${this.shapeId},${this.settings.lineThickness})`,
+      ...(this.settings.isVisible && this.settings.styles.color ? [`SetColor(${this.shapeId},"${this.settings.styles.color}")`] : []),
       ...(this.customLabel ? this.customLabel.getCommands() : [])
     ]
   }
 
   toJson(): VectorGGOJSON {
     return {
-      kind: this.kind,
-      root: this.root.toJson(),
-      end: this.end.toJson(),
       name: this.name,
-      isLabelVisible: this.isLabelVisible
+      kind: this.kind,
+      root: this.rootPoint.root.toJson(),
+      end: this.endPoint.root.toJson(),
+      settings: this.settings,
+      id: this.id
     }
   }
 
   static fromJson(json: GeogebraObjectJson): VectorGGO {
     const j = json as VectorGGOJSON;
-    return new VectorGGO(j.name, XYCoords.fromJson(j.root), XYCoords.fromJson(j.end), j.isLabelVisible)
+    return new VectorGGO(j.name, XYCoords.fromJson(j.root), XYCoords.fromJson(j.end), j.settings, j.id)
   }
 
   maxCoord(): XYCoordsJson {
@@ -74,5 +87,20 @@ export class VectorGGO implements GeogebraObject {
 
   getDeleteCommands(): string[] {
     return [...this.rootPoint.getDeleteCommands(), ...this.endPoint.getDeleteCommands()]
+  }
+
+  getCenterCoords(): XYCoordsJson {
+    return GeometryUtils.segmentCenter(
+      this.rootPoint.root,
+      this.endPoint.root
+    )
+  }
+
+  getSize(): { width: number; height: number } {
+    const center = this.getCenterCoords();
+    return {
+      width: Math.abs(this.root.x - center.x) * 2,
+      height: Math.abs(this.root.y - center.y) * 2
+    }
   }
 }

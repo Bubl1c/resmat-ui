@@ -1,5 +1,15 @@
-import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
+import { GeogebraObject, GeogebraObjectSettings } from "../../../components/geogebra/custom-objects/geogebra-object";
+import { KutykGGO } from "../../../components/geogebra/custom-objects/polygon/kutyk.polygon-ggo";
+import { Angle, XYCoords } from "../../../utils/geometryUtils";
+import { ShvellerGGO } from "../../../components/geogebra/custom-objects/polygon/shveller.polygon-ggo";
+import { DvotavrGGO } from "../../../components/geogebra/custom-objects/polygon/dvotavr.polygon-ggo";
+import { PlateGGO } from "../../../components/geogebra/custom-objects/polygon/plate.polygon-ggo";
+import { GeogebraComponentSettings } from "../../../components/geogebra/geogebra.component";
+import { GGB } from "../../../components/geogebra/geogebra-definitions";
+import { CustomAxesGGO } from "../../../components/geogebra/custom-objects/custom-axes-ggo";
+import LabelMode = GGB.LabelMode;
 
 export const enum InputSetStatus {
   Initial = 0,  //Not submitted yet
@@ -8,12 +18,24 @@ export const enum InputSetStatus {
   Correct = 1
 }
 
+export type ResmatImageType = "img-url" | "geogebra";
+export const ResmatImageTypes = {
+  ImageUrl: "img-url",
+  Geogebra: "geogebra"
+};
+
+export class InputSetGroup {
+  constructor(public id: number, public name: string, public imageType: ResmatImageType, public image: string) {
+  }
+}
+
 export class InputSetData {
   status: number = InputSetStatus.Initial;
   constructor(public id: number,
               public sequence: number,
               public description: string,
-              public variables: InputVariable[]) {}
+              public variables: InputVariable[],
+              public groups: InputSetGroup[]) {}
 }
 
 export class VarirableAnswer {
@@ -56,7 +78,58 @@ export class InputVariable {
 }
 
 export class VariableGroup {
-  constructor(public name: string, public variables: InputVariable[]) {}
+  public geogebraObjects: GeogebraObject[];
+  public geogebraSettings: GeogebraComponentSettings = new GeogebraComponentSettings(400, 400).setProps({
+    perspective: "G",
+    showToolBar: false,
+    showMenuBar: false,
+    enableLabelDrags: false,
+    showToolBarHelp: false
+  });
+  constructor(public name: string, public variables: InputVariable[], public imageType: ResmatImageType, public image: string) {
+    if (imageType === ResmatImageTypes.Geogebra) {
+      const obj = this.parseGeometryShape(image);
+      const center = XYCoords.fromJson(obj.getCenterCoords());
+      const size = obj.getSize();
+      this.geogebraObjects = [
+        obj,
+        new CustomAxesGGO("Axes", center.copy(), size.width, size.height, "y", "z", {lineThickness: 2, rootPoint: { isVisible: true, isLabelVisible: true }}).rotate(new Angle(180))
+      ]
+    }
+  }
+
+  private parseGeometryShape(shapeJson: string): GeogebraObject {
+    const jsonTypeContainer = JSON.parse(shapeJson);
+    const shapeType: string = Object.keys(jsonTypeContainer)[0];
+    const json = jsonTypeContainer[shapeType];
+    const setting: GeogebraObjectSettings = {
+      outerPoints: {
+        isVisible: true,
+        isLabelsVisible: true,
+        labelMode: GGB.LabelMode.Value
+      }
+    }
+    switch (shapeType) {
+      case "KutykShape":
+        return new KutykGGO(json.name, XYCoords.fromJson(json.root), json.b, json.t, setting);
+      case "ShvellerShape":
+        return new ShvellerGGO(json.name, XYCoords.fromJson(json.root), json.n, setting);
+      case "DvotavrShape":
+        return new DvotavrGGO(json.name, XYCoords.fromJson(json.root), json.n, setting);
+      case "KoloShape":
+        throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
+      case "NapivkoloShape":
+        throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
+      case "Trykutnyk90Shape":
+        throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
+      case "TrykutnykRBShape":
+        throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
+      case "PlastynaShape":
+        return new PlateGGO(json.name, XYCoords.fromJson(json.root), json.b, json.h, setting);
+      default:
+        throw new Error(`Failed to parse geometry shape json. unknown type ${shapeType}. Actual json: ${shapeJson}`)
+    }
+  }
 }
 
 @Component({
@@ -114,6 +187,8 @@ export class InputSetComponent implements OnInit {
     this.onContinue.emit();
   }
 
+
+
   private numberOrNull(num: number): number | null {
     return typeof num === 'number' ? num : null;
   }
@@ -131,7 +206,10 @@ export class InputSetComponent implements OnInit {
     });
 
     for(let groupName in varGroups) {
-      this.groups.push(new VariableGroup(groupName, varGroups[groupName]))
+      const group = this.data.groups.find(g => g.name === groupName);
+      const imageType = group ? group.imageType : ResmatImageTypes.ImageUrl;
+      const image = group ? group.image : "";
+      this.groups.push(new VariableGroup(groupName, varGroups[groupName], imageType as ResmatImageType, image))
     }
   }
 
