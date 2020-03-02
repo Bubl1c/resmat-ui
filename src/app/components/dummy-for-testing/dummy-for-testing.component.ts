@@ -28,20 +28,11 @@ export class DummyForTestingComponent implements OnInit {
   demoObjectsTesting: {[key:string]: GeogebraObject[]} = {};
 
   demoObjects: GeogebraObject[];
-  demoSettings: GeogebraComponentSettings = new GeogebraComponentSettings(800, 800).setProps({
+  demoSettings: GeogebraComponentSettings = new GeogebraComponentSettings(400, 400).setProps({
     "perspective": "G",
     "customToolbar": "0|41|42",
     "showMenuBar": false,
-    "enableLabelDrags": false,
-    "showToolBarHelp": false
-  });
-
-  demoObjects2: GeogebraObject[];
-  demoSettings2: GeogebraComponentSettings = new GeogebraComponentSettings(800, 800).setProps({
-    "perspective": "G",
-    "customToolbar": "0|41|42",
-    "showMenuBar": false,
-    "enableLabelDrags": false,
+    "enableLabelDrags": true,
     "showToolBarHelp": false
   });
 
@@ -132,7 +123,7 @@ export class DummyForTestingComponent implements OnInit {
       new KutykGGO(4, "Kutyk", XY(-5, 5), 20, 3).rotate(new Angle(270))
     ];
 
-    const shveller = new ShvellerGGO(1, `Швеллер`, XY(-50, -5), 5, { isLabelVisible: true, caption: "Швеллер (n=5)", outerPoints: { isVisible: true, isLabelsVisible: true }}).rotate(new Angle(180));
+    const shveller = new ShvellerGGO(1, `Швеллер`, XY(-50, -5), 5, { shapeSizeToCalculateSizeDepth: 50 }).rotate(new Angle(180));
     const kutyk = new KutykGGO(
       2,
       `Кутик`,
@@ -140,14 +131,16 @@ export class DummyForTestingComponent implements OnInit {
       shveller.getPointCoords("B1"),
       35,
       5,
-      { isLabelVisible: true, caption: "Кутик (b=35, t=5)", outerPoints: { isVisible: true, isLabelsVisible: true } }
+      { shapeSizeToCalculateSizeDepth: 50 }
     );
     const C = XY(kutyk.root.x, kutyk.root.y + 20);
-    this.demoObjects2 = [
+    const size = [shveller.getDimensions(), kutyk.getDimensions()].reduce((s, k) => ({ width: s.width + k.width, height: s.height + k.height }));
+    const maxSize = Math.max(size.width, size.height);
+    this.demoObjectsTesting["test5"] = [
       shveller,
       kutyk,
-      new CustomAxesGGO(3, "CustomAxis", C, 50).rotate(new Angle(45)),
-      new EllipseGGO(4, "Ellipse1", C, 40, 20).rotate(new Angle(-45)),
+      // new CustomAxesGGO(3, "CustomAxis", C, maxSize, maxSize, "U", "V").rotate(new Angle(45)),
+      new EllipseGGO(4, "Ellipse1", C, 40, 20, { lineThickness: 2 }).rotate(new Angle(-45))
     ];
 
     this.playgroundObjects = [

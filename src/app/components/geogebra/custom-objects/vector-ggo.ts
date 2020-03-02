@@ -20,12 +20,11 @@ export class VectorGGO implements GeogebraObject {
 
   rootPoint: PointGGO;
   endPoint: PointGGO;
-  customLabel?: TextGGO;
 
   private readonly shapeId: string;
 
   constructor(public name: string, public root: XYCoords, public end: XYCoords, public settings?: GeogebraObjectSettings, public id: number = GeogebraObjectUtils.nextId()) {
-    this.shapeId = `${this.name}${this.id}`;
+    this.shapeId = `Vector${this.name}${this.id}`;
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
     this.rootPoint = new PointGGO(withId("Root"), this.root.copy());
     this.endPoint = new PointGGO(withId("End"), this.end.copy());
@@ -35,17 +34,11 @@ export class VectorGGO implements GeogebraObject {
   rotate(angle: Angle, point: XYCoords = this.root): VectorGGO {
     this.rootPoint.rotate(angle, point);
     this.endPoint.rotate(angle, point);
-    this.customLabel && this.customLabel.rotate(angle, point);
     return this;
   }
 
   copy(): VectorGGO {
     return new VectorGGO(this.name, this.root.copy(), this.end.copy(), this.settings);
-  }
-
-  setCustomLabel(label: TextGGO): VectorGGO {
-    this.customLabel = label.copy();
-    return this;
   }
 
   getCommands(): string[] {
@@ -55,8 +48,7 @@ export class VectorGGO implements GeogebraObject {
       `${this.shapeId}=Vector(${this.rootPoint.shapeId},${this.endPoint.shapeId})`,
       `ShowLabel(${this.shapeId},${this.settings.isLabelVisible})`,
       `SetLineThickness(${this.shapeId},${this.settings.lineThickness})`,
-      ...(this.settings.isVisible && this.settings.styles.color ? [`SetColor(${this.shapeId},"${this.settings.styles.color}")`] : []),
-      ...(this.customLabel ? this.customLabel.getCommands() : [])
+      ...(this.settings.isVisible && this.settings.styles.color ? [`SetColor(${this.shapeId},"${this.settings.styles.color}")`] : [])
     ]
   }
 
@@ -80,8 +72,17 @@ export class VectorGGO implements GeogebraObject {
     const rootMC = this.rootPoint.maxCoord();
     const endMC = this.endPoint.maxCoord();
     return {
-      x: NumberUtils.maxAbs(rootMC.x, endMC.x),
-      y: NumberUtils.maxAbs(rootMC.y, endMC.y)
+      x: Math.max(rootMC.x, endMC.x),
+      y: Math.max(rootMC.y, endMC.y)
+    }
+  }
+
+  minCoord(): XYCoordsJson {
+    const rootMC = this.rootPoint.minCoord();
+    const endMC = this.endPoint.minCoord();
+    return {
+      x: Math.min(rootMC.x, endMC.x),
+      y: Math.min(rootMC.y, endMC.y)
     }
   }
 
@@ -96,7 +97,7 @@ export class VectorGGO implements GeogebraObject {
     )
   }
 
-  getSize(): { width: number; height: number } {
+  getDimensions(): { width: number; height: number } {
     const center = this.getCenterCoords();
     return {
       width: Math.abs(this.root.x - center.x) * 2,

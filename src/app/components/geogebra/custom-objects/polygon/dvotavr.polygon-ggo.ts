@@ -126,7 +126,7 @@ export class DvotavrGGO extends PolygonGGO{
         s: sizeDirections && sizeDirections.s || "up",
         t: sizeDirections && sizeDirections.t || "right",
       };
-      const shapeSize = h;
+      const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || h;
       const sizeB = sizeDirs.b == "up"
         ? new SizeGGO(withId("SizeB"), this.B2Point.root.copy(), this.B3Point.root.copy(), sizeDirs.b, "" + b, shapeSize)
         : new SizeGGO(withId("SizeB"), this.RootPoint.root.copy(), this.A4Point.root.copy(), sizeDirs.b, "" + b, shapeSize);

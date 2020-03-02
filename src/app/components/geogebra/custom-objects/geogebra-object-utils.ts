@@ -35,7 +35,9 @@ export class GeogebraObjectUtils {
       },
       lineThickness: settings && settings.lineThickness || 4,
       pointSize: settings && settings.pointSize || 2,
-      rootPoint: settings && settings.rootPoint || {}
+      rootPoint: settings && settings.rootPoint || {},
+      showSizes: settings && settings.showSizes,
+      shapeSizeToCalculateSizeDepth: settings && settings.shapeSizeToCalculateSizeDepth
     };
   }
 

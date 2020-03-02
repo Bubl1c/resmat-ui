@@ -16,7 +16,7 @@ export class TextGGO implements GeogebraObject {
   private readonly shapeId: string;
 
   constructor(public name: string, public root: XYCoords, public substituteVariables: boolean = false, public laTeXFormula: boolean = false, public id: number = GeogebraObjectUtils.nextId()) {
-    this.shapeId = `${this.name}${this.id}`;
+    this.shapeId = `Text${this.name}${this.id}`;
   }
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): TextGGO {
@@ -47,6 +47,10 @@ export class TextGGO implements GeogebraObject {
     return this.root.copy()
   }
 
+  minCoord(): XYCoordsJson {
+    return this.root.copy()
+  }
+
   getDeleteCommands(): string[] {
     return [`Delete(${this.name})`]
   }
@@ -55,7 +59,7 @@ export class TextGGO implements GeogebraObject {
     return this.root.toJson()
   }
 
-  getSize(): { width: number; height: number } {
+  getDimensions(): { width: number; height: number } {
     return {
       width: 1,
       height: 1

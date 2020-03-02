@@ -29,7 +29,7 @@ export abstract class PolygonGGO implements GeogebraObject {
 
   protected sizes: SizeGGO[] = [];
 
-  protected shapeId = `${this.name}${this.id}`;
+  protected shapeId = `Polygon${this.name}${this.id}`;
 
   constructor(
     public id: number,
@@ -89,8 +89,18 @@ export abstract class PolygonGGO implements GeogebraObject {
       ? this.sizes.map(s => s.maxCoord())
       : this.points.map(s => s.maxCoord());
     return {
-      x: NumberUtils.maxAbs(...pointsMaxCoords.map(smc => smc.x)),
-      y: NumberUtils.maxAbs(...pointsMaxCoords.map(smc => smc.y))
+      x: Math.max(...pointsMaxCoords.map(smc => smc.x)),
+      y: Math.max(...pointsMaxCoords.map(smc => smc.y))
+    }
+  }
+
+  minCoord(): XYCoordsJson {
+    const pointsMinCoords = this.sizes.length > 0
+      ? this.sizes.map(s => s.minCoord())
+      : this.points.map(s => s.minCoord());
+    return {
+      x: Math.min(...pointsMinCoords.map(smc => smc.x)),
+      y: Math.min(...pointsMinCoords.map(smc => smc.y))
     }
   }
 
@@ -114,7 +124,7 @@ export abstract class PolygonGGO implements GeogebraObject {
     return this.centerPoint.root.copy()
   }
 
-  getSize(): { width: number; height: number } {
+  getDimensions(): { width: number; height: number } {
     const center = this.getCenterCoords();
     return {
       width: Math.abs(this.root.x - center.x) * 2,

@@ -65,8 +65,6 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
   editorId: string;
   private editor?: GGB.Applet;
   private api?: GGB.API;
-  private currentZoom: number = 1;
-  private currentVisibleCoords: number = 0;
 
   iterableDiffer: IterableDiffer;
 
@@ -100,7 +98,6 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   private prepare(): void {
-    this.currentVisibleCoords = this.settings.width / 100;
     this.iterableDiffer = this.iterableDiffer.diff(this.objects);
     if (!this.settings) {
       this.settings = new GeogebraComponentSettings();
@@ -162,14 +159,16 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
 
   private zoomOut(api: GGB.API) {
     const maxCoords = this.objects.map(o => o.maxCoord());
-    const maxCoord = NumberUtils.maxAbs(...maxCoords.map(c => c.x), ...maxCoords.map(c => c.y));
-    const zoomOut = Math.ceil((maxCoord + maxCoord * 0.2) / this.currentVisibleCoords);
-    if (zoomOut > 1) {
-      this.currentVisibleCoords = this.currentVisibleCoords * zoomOut;
-      console.log("Zooming out for " + zoomOut);
-      api.evalCommand(`ZoomOut(${zoomOut})`);
-      //TODO: use https://wiki.geogebra.org/en/Pan_Command to move the view to the center. Need to calculate center.
-    }
+    const maxXY = maxCoords.reduce((c, p) => ({ x: Math.max(c.x, p.x), y: Math.max(c.y, p.y) }));
+    const minCoords = this.objects.map(o => o.minCoord());
+    const minXY = minCoords.reduce((c, p) => ({ x: Math.min(c.x, p.x), y: Math.min(c.y, p.y) }));
+    let min = Math.min(minXY.x, minXY.y);
+    let max = Math.max(maxXY.x, maxXY.y);
+    const avg = (min + max) / 2;
+    min = min - Math.abs(avg * 0.1);
+    max = max + Math.abs(avg * 0.1);
+    console.log(`Zoom (${minXY.x},${minXY.y},${maxXY.x},${maxXY.y}) (${min},${min},${max},${max})`);
+    api.evalCommand(`ZoomIn(${min},${min},${max},${max})`);
   }
 
   makeParams() {

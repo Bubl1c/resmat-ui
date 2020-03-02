@@ -74,7 +74,7 @@ export class PlateGGO extends PolygonGGO {
         b: sizeDirections && sizeDirections.b || "up",
         h: sizeDirections && sizeDirections.h || "right",
       };
-      const shapeSize = Math.max(b, h);
+      const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || Math.max(b, h);
       const sizeB = sizeDirs.b == "up"
         ? new SizeGGO(withId("SizeB"), this.bPoint.root.copy(), this.c1Point.root.copy(), sizeDirs.b, "" + b, shapeSize)
         : new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.dPoint.root.copy(), sizeDirs.b, "" + b, shapeSize);

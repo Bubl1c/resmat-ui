@@ -32,6 +32,9 @@ export class CustomAxesGGO implements GeogebraObject {
   yAxis: VectorGGO;
   rootPoint: PointGGO;
 
+  xAxisLabelPoint: PointGGO;
+  yAxisLabelPoint: PointGGO;
+
   private readonly shapeId: string;
 
   constructor(
@@ -44,20 +47,25 @@ export class CustomAxesGGO implements GeogebraObject {
     public yAxisName: string = "Y",
     public settings?: GeogebraObjectSettings
   ) {
-    this.shapeId = `${this.name}${this.id}`;
+    this.shapeId = `CustomAxes${this.name}${this.id}`;
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
+    this.settings.lineThickness = settings && settings.lineThickness || 2;
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
-    this.xAxis = new VectorGGO(withId(xAxisName), XY(root.x - xSize, root.y), XY(root.x + xSize, root.y), settings);
-    this.xAxis.setCustomLabel(new TextGGO(xAxisName, XY(this.xAxis.endPoint.root.x, this.xAxis.endPoint.root.y + 0.3)));
-    this.yAxis = new VectorGGO(withId(yAxisName), XY(root.x, root.y - ySize), XY(root.x, root.y + ySize), settings);
-    this.yAxis.setCustomLabel(new TextGGO(yAxisName, XY(this.yAxis.endPoint.root.x + 0.3, this.yAxis.endPoint.root.y)));
+    this.xAxis = new VectorGGO(withId(xAxisName), XY(root.x - xSize, root.y), XY(root.x + xSize, root.y), this.settings);
+    this.yAxis = new VectorGGO(withId(yAxisName), XY(root.x, root.y - ySize), XY(root.x, root.y + ySize), this.settings);
     this.rootPoint = new PointGGO("C", this.root.copy(), this.settings.rootPoint);
+
+    const labelPointSettings = (c: string): GeogebraObjectSettings => ({ caption: c, isLabelVisible: true, isVisible: true, pointSize: 0.001 });
+    this.xAxisLabelPoint = new PointGGO(xAxisName, XY(this.xAxis.endPoint.root.x, this.xAxis.endPoint.root.y), labelPointSettings(xAxisName));
+    this.yAxisLabelPoint = new PointGGO(yAxisName, XY(this.yAxis.endPoint.root.x, this.yAxis.endPoint.root.y), labelPointSettings(yAxisName));
   }
 
   rotate(angle: Angle, point: XYCoords = this.root): CustomAxesGGO {
     this.rootPoint.rotate(angle, point);
     this.xAxis.rotate(angle, point);
     this.yAxis.rotate(angle, point);
+    this.xAxisLabelPoint.rotate(angle, point);
+    this.yAxisLabelPoint.rotate(angle, point);
     return this;
   }
 
@@ -69,7 +77,9 @@ export class CustomAxesGGO implements GeogebraObject {
     return [
       ...this.rootPoint.getCommands(),
       ...this.xAxis.getCommands(),
-      ...this.yAxis.getCommands()
+      ...this.yAxis.getCommands(),
+      ...this.xAxisLabelPoint.getCommands(),
+      ...this.yAxisLabelPoint.getCommands()
     ];
   }
 
@@ -101,20 +111,35 @@ export class CustomAxesGGO implements GeogebraObject {
     const x = this.xAxis.maxCoord();
     const y = this.yAxis.maxCoord();
     return {
-      x: NumberUtils.maxAbs(x.x, y.x),
-      y: NumberUtils.maxAbs(x.y, y.y)
+      x: Math.max(x.x, y.x),
+      y: Math.max(x.y, y.y)
+    }
+  }
+
+  minCoord(): XYCoordsJson {
+    const rootMC = this.xAxis.minCoord();
+    const endMC = this.yAxis.minCoord();
+    return {
+      x: Math.min(rootMC.x, endMC.x),
+      y: Math.min(rootMC.y, endMC.y)
     }
   }
 
   getDeleteCommands(): string[] {
-    return [...this.rootPoint.getDeleteCommands(), ...this.xAxis.getDeleteCommands(), ...this.yAxis.getDeleteCommands()]
+    return [
+      ...this.rootPoint.getDeleteCommands(),
+      ...this.xAxis.getDeleteCommands(),
+      ...this.yAxis.getDeleteCommands(),
+      ...this.xAxisLabelPoint.getDeleteCommands(),
+      ...this.yAxisLabelPoint.getDeleteCommands()
+    ]
   }
 
   getCenterCoords(): XYCoordsJson {
     return this.root.toJson()
   }
 
-  getSize(): { width: number; height: number } {
+  getDimensions(): { width: number; height: number } {
     return {
       width: this.xSize,
       height: this.ySize

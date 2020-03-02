@@ -60,7 +60,7 @@ export class SizeGGO implements GeogebraObject {
     public settings?: GeogebraObjectSettings,
     public id: number = GeogebraObjectUtils.nextId(),
   ) {
-    this.shapeId = `${this.name}${this.id}`;
+    this.shapeId = `Size${this.name}${this.id}`;
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
 
@@ -186,8 +186,17 @@ export class SizeGGO implements GeogebraObject {
     const x = this.rootSegment.maxCoord();
     const y = this.endSegment.maxCoord();
     return {
-      x: NumberUtils.maxAbs(x.x, y.x),
-      y: NumberUtils.maxAbs(x.y, y.y)
+      x: Math.max(x.x, y.x),
+      y: Math.max(x.y, y.y)
+    }
+  }
+
+  minCoord(): XYCoordsJson {
+    const rootMC = this.rootSegment.minCoord();
+    const endMC = this.endSegment.minCoord();
+    return {
+      x: Math.min(rootMC.x, endMC.x),
+      y: Math.min(rootMC.y, endMC.y)
     }
   }
 
@@ -207,7 +216,7 @@ export class SizeGGO implements GeogebraObject {
     return GeometryUtils.segmentCenter(this.root, this.endSegment.end)
   }
 
-  getSize(): { width: number; height: number } {
+  getDimensions(): { width: number; height: number } {
     return {
       width: this.depth,
       height: this.depth

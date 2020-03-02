@@ -20,7 +20,7 @@ export class PointGGO implements GeogebraObject {
               public id: number = GeogebraObjectUtils.nextId()) {
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     this.settings.isVisible = settings && settings.isVisible || false;
-    this.shapeId = `${this.name}${this.id}`;
+    this.shapeId = `Point${this.name}${this.id}`;
   }
 
   rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): PointGGO {
@@ -59,6 +59,10 @@ export class PointGGO implements GeogebraObject {
     return this.root.copy()
   }
 
+  minCoord(): XYCoordsJson {
+    return this.root.copy()
+  }
+
   getDeleteCommands(): string[] {
     return [`Delete(${this.shapeId})`]
   }
@@ -67,7 +71,7 @@ export class PointGGO implements GeogebraObject {
     return this.root.toJson()
   }
 
-  getSize(): { width: number; height: number } {
+  getDimensions(): { width: number; height: number } {
     return {
       width: 0,
       height: 0

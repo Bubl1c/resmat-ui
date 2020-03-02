@@ -90,7 +90,7 @@ export class KutykGGO extends PolygonGGO {
         t: sizeDirections && sizeDirections.t || "right",
         z0: sizeDirections && sizeDirections.z0 || "up"
       };
-      const shapeSize = b;
+      const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || b;
       const sizeB = sizeDirs.b == "left"
         ? new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.bPoint.root.copy(), sizeDirs.b, "" + b, shapeSize)
         : new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.aPoint.root.copy(), sizeDirs.b, "" + b, shapeSize);

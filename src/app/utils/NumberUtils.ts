@@ -23,6 +23,10 @@ export class NumberUtils {
     return Math.max(...numbers.map(n => Math.abs(n)));
   }
 
+  public static minAbs(...numbers: number[]): number {
+    return Math.min(...numbers.map(n => Math.abs(n)));
+  }
+
   /**
    * Returns a random number between min (inclusive) and max (exclusive)
    */

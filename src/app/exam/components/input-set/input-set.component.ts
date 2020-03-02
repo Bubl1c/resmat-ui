@@ -10,6 +10,7 @@ import { GeogebraComponentSettings } from "../../../components/geogebra/geogebra
 import { GGB } from "../../../components/geogebra/geogebra-definitions";
 import { CustomAxesGGO } from "../../../components/geogebra/custom-objects/custom-axes-ggo";
 import LabelMode = GGB.LabelMode;
+import { GeogebraObjectUtils } from "../../../components/geogebra/custom-objects/geogebra-object-utils";
 
 export const enum InputSetStatus {
   Initial = 0,  //Not submitted yet
@@ -83,17 +84,18 @@ export class VariableGroup {
     perspective: "G",
     showToolBar: false,
     showMenuBar: false,
-    enableLabelDrags: false,
-    showToolBarHelp: false
+    enableLabelDrags: true,
+    showToolBarHelp: false,
+    enableRightClick: false
   });
   constructor(public name: string, public variables: InputVariable[], public imageType: ResmatImageType, public image: string) {
     if (imageType === ResmatImageTypes.Geogebra) {
       const obj = this.parseGeometryShape(image);
       const center = XYCoords.fromJson(obj.getCenterCoords());
-      const size = obj.getSize();
+      const size = obj.getDimensions();
       this.geogebraObjects = [
         obj,
-        new CustomAxesGGO("Axes", center.copy(), size.width, size.height, "y", "z", {lineThickness: 2, rootPoint: { isVisible: true, isLabelVisible: true }}).rotate(new Angle(180))
+        new CustomAxesGGO(GeogebraObjectUtils.nextId(), "Axes", center.copy(), size.width, size.height, "u", "v").rotate(new Angle(180))
       ]
     }
   }
@@ -111,11 +113,11 @@ export class VariableGroup {
     }
     switch (shapeType) {
       case "KutykShape":
-        return new KutykGGO(json.name, XYCoords.fromJson(json.root), json.b, json.t, setting);
+        return new KutykGGO(json.id, json.name, XYCoords.fromJson(json.root), json.b, json.t, setting);
       case "ShvellerShape":
-        return new ShvellerGGO(json.name, XYCoords.fromJson(json.root), json.n, setting);
+        return new ShvellerGGO(json.id, json.name, XYCoords.fromJson(json.root), json.n, setting);
       case "DvotavrShape":
-        return new DvotavrGGO(json.name, XYCoords.fromJson(json.root), json.n, setting);
+        return new DvotavrGGO(json.id, json.name, XYCoords.fromJson(json.root), json.n, setting);
       case "KoloShape":
         throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
       case "NapivkoloShape":
@@ -125,7 +127,7 @@ export class VariableGroup {
       case "TrykutnykRBShape":
         throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
       case "PlastynaShape":
-        return new PlateGGO(json.name, XYCoords.fromJson(json.root), json.b, json.h, setting);
+        return new PlateGGO(json.id, json.name, XYCoords.fromJson(json.root), json.b, json.h, setting);
       default:
         throw new Error(`Failed to parse geometry shape json. unknown type ${shapeType}. Actual json: ${shapeJson}`)
     }

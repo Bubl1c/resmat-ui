@@ -79,7 +79,7 @@ export class ShvellerGGO extends PolygonGGO {
     const D2 = XY(C2.x + b - d, C2.y);
     const B3 = XY(root.x + b, root.y);
 
-    this.RootPoint = new PointGGO(withId("Root"), Root);
+    this.RootPoint = new PointGGO(withId("Root"), Root, this.outerPointSettings());
     this.B1Point = new PointGGO(withId("B1"), B1);
     this.B2Point = new PointGGO(withId("B2"), B2);
     this.D1Point = new PointGGO(withId("D1"), D1);
@@ -107,7 +107,7 @@ export class ShvellerGGO extends PolygonGGO {
         d: sizeDirections && sizeDirections.d || "up",
         t: sizeDirections && sizeDirections.t || "up",
       };
-      const shapeSize = h;
+      const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || h;
       const sizeB = sizeDirs.b == "up"
         ? new SizeGGO(withId("SizeB"), this.B1Point.root.copy(), this.B2Point.root.copy(), sizeDirs.b, "" + b, shapeSize)
         : new SizeGGO(withId("SizeB"), this.RootPoint.root.copy(), this.B3Point.root.copy(), sizeDirs.b, "" + b, shapeSize);

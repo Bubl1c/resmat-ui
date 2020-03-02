@@ -1,9 +1,11 @@
-import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "./geogebra-object";
+import { GeogebraObject, GeogebraObjectJson, GeogebraObjectSettings, GGOKindType } from "./geogebra-object";
 import { Angle, CoordsUtils, GeometryUtils, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
 import { PointGGO } from "./point-ggo";
 import { NumberUtils } from "../../../utils/NumberUtils";
 import XY = CoordsUtils.XY;
 import { CustomAxesGGO, CustomAxesGGOJSON } from "./custom-axes-ggo";
+import { PolygonSettingsJson } from "./polygon/polygon-ggo";
+import { GeogebraObjectUtils } from "./geogebra-object-utils";
 
 export interface EllipseGGOJSON extends GeogebraObjectJson {
   xR: number,
@@ -25,6 +27,7 @@ export class EllipseGGO implements GeogebraObject {
   f2Point: PointGGO;
   ellipsePoint: PointGGO;
 
+  private readonly settings: GeogebraObjectSettings;
   private readonly shapeId: string;
 
   constructor(
@@ -32,9 +35,11 @@ export class EllipseGGO implements GeogebraObject {
     public name: string,
     public root: XYCoords,
     public xR: number,
-    public yR: number
+    public yR: number,
+    settings?: GeogebraObjectSettings
   ) {
-    this.shapeId = `${this.name}${this.id}`;
+    this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
+    this.shapeId = `Ellipse${this.name}${this.id}`;
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
     this.rootPoint = new PointGGO(withId("RootPoint"), root.copy(), { isVisible: true });
     const a = xR;
@@ -68,7 +73,8 @@ export class EllipseGGO implements GeogebraObject {
       ...this.f2Point.getCommands(),
       ...this.ellipsePoint.getCommands(),
       `${this.shapeId}: Ellipse(${this.f1Point.shapeId},${this.f2Point.shapeId},${this.ellipsePoint.shapeId})`,
-      `ShowLabel(${this.shapeId},false)`
+      `ShowLabel(${this.shapeId},false)`,
+      `SetLineThickness(${this.shapeId},${this.settings.lineThickness})`
     ]
   }
 
@@ -90,8 +96,15 @@ export class EllipseGGO implements GeogebraObject {
 
   maxCoord(): XYCoordsJson {
     return {
-      x: NumberUtils.maxAbs(this.f1Point.root.x, this.f2Point.root.x, this.ellipsePoint.root.x),
-      y: NumberUtils.maxAbs(this.f1Point.root.y, this.f2Point.root.y, this.ellipsePoint.root.y)
+      x: Math.max(this.f1Point.root.x, this.f2Point.root.x, this.ellipsePoint.root.x),
+      y: Math.max(this.f1Point.root.y, this.f2Point.root.y, this.ellipsePoint.root.y)
+    }
+  }
+
+  minCoord(): XYCoordsJson {
+    return {
+      x: Math.min(this.f1Point.root.x, this.f2Point.root.x, this.ellipsePoint.root.x),
+      y: Math.min(this.f1Point.root.y, this.f2Point.root.y, this.ellipsePoint.root.y)
     }
   }
 
@@ -103,7 +116,7 @@ export class EllipseGGO implements GeogebraObject {
     return this.root.toJson()
   }
 
-  getSize(): { width: number; height: number } {
+  getDimensions(): { width: number; height: number } {
     return {
       width: this.xR * 2,
       height: this.yR * 2

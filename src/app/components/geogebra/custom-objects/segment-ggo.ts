@@ -24,7 +24,7 @@ export class SegmentGGO implements GeogebraObject {
   private readonly shapeId: string;
 
   constructor(public name: string, public root: XYCoords, public end: XYCoords, settings?: SegmentSettingsJson, public id: number = GeogebraObjectUtils.nextId()) {
-    this.shapeId = `${this.name}${this.id}`;
+    this.shapeId = `Segment${this.name}${this.id}`;
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     this.settings.root = settings && settings.root || undefined;
     this.settings.end = settings && settings.end || undefined;
@@ -80,8 +80,17 @@ export class SegmentGGO implements GeogebraObject {
     const rootMC = this.rootPoint.maxCoord();
     const endMC = this.endPoint.maxCoord();
     return {
-      x: NumberUtils.maxAbs(rootMC.x, endMC.x),
-      y: NumberUtils.maxAbs(rootMC.y, endMC.y)
+      x: Math.max(rootMC.x, endMC.x),
+      y: Math.max(rootMC.y, endMC.y)
+    }
+  }
+
+  minCoord(): XYCoordsJson {
+    const rootMC = this.rootPoint.minCoord();
+    const endMC = this.endPoint.minCoord();
+    return {
+      x: Math.min(rootMC.x, endMC.x),
+      y: Math.min(rootMC.y, endMC.y)
     }
   }
 
@@ -96,7 +105,7 @@ export class SegmentGGO implements GeogebraObject {
     )
   }
 
-  getSize(): { width: number; height: number } {
+  getDimensions(): { width: number; height: number } {
     const center = this.getCenterCoords();
     return {
       width: Math.abs(this.root.x - center.x) * 2,

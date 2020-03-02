@@ -64,6 +64,7 @@ export interface GeogebraObjectSettings {
     labelMode?: GGB.LabelMode
   }
   showSizes?: boolean
+  shapeSizeToCalculateSizeDepth?: number // used to calculate depth of the SizeGGO
 }
 
 export interface GeogebraObjectJson {
@@ -84,9 +85,11 @@ export interface GeogebraObject extends GeogebraObjectJson {
 
   maxCoord(): XYCoordsJson
 
+  minCoord(): XYCoordsJson
+
   getDeleteCommands(): string[]
 
   getCenterCoords(): XYCoordsJson
 
-  getSize(): { width: number, height: number }
+  getDimensions(): { width: number, height: number }
 }
