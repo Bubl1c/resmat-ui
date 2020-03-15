@@ -12,6 +12,7 @@ import XY = CoordsUtils.XY;
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import { PointGGO } from "./point-ggo";
 import { SegmentGGO } from "./segment-ggo";
+import { StringUtils } from "../../../utils/StringUtils";
 
 export type SizeGGODirection = "up" | "down" | "left" | "right"
 
@@ -60,7 +61,7 @@ export class SizeGGO implements GeogebraObject {
     public settings?: GeogebraObjectSettings,
     public id: number = GeogebraObjectUtils.nextId(),
   ) {
-    this.shapeId = `Size${this.name}${this.id}`;
+    this.shapeId = `Size${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
 

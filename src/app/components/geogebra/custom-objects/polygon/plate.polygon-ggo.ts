@@ -14,8 +14,8 @@ export interface PlateGGOJSON extends PolygonGGOJSON {
 }
 
 export interface PlateGGOSizeDirections {
-  b: "up" | "down"
-  h: "right" | "left"
+  b?: "up" | "down"
+  h?: "right" | "left"
 }
 
 /**
@@ -28,8 +28,6 @@ export interface PlateGGOSizeDirections {
  * Root  b      D
  */
 export class PlateGGO extends PolygonGGO {
-  kind: GGOKindType = "plate";
-
   private rootPoint: PointGGO;
   private bPoint: PointGGO;
   private c1Point: PointGGO;
@@ -44,7 +42,7 @@ export class PlateGGO extends PolygonGGO {
     settings?: PolygonSettingsJson,
     sizeDirections?: PlateGGOSizeDirections
   ) {
-    super(id, name, root, settings);
+    super(id, name, root, "plate", settings);
     this.generatePoints(id, root, b, h, this.settings);
     this.generateSizes(id, root, b, h, sizeDirections)
   }

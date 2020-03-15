@@ -28,7 +28,7 @@ export class DummyForTestingComponent implements OnInit {
   demoObjectsTesting: {[key:string]: GeogebraObject[]} = {};
 
   demoObjects: GeogebraObject[];
-  demoSettings: GeogebraComponentSettings = new GeogebraComponentSettings(400, 400).setProps({
+  demoSettings: GeogebraComponentSettings = new GeogebraComponentSettings(800, 800).setProps({
     "perspective": "G",
     "customToolbar": "0|41|42",
     "showMenuBar": false,
@@ -139,7 +139,7 @@ export class DummyForTestingComponent implements OnInit {
     this.demoObjectsTesting["test5"] = [
       shveller,
       kutyk,
-      // new CustomAxesGGO(3, "CustomAxis", C, maxSize, maxSize, "U", "V").rotate(new Angle(45)),
+      new CustomAxesGGO(3, "CustomAxis", C, maxSize, maxSize, "U", "V").rotate(new Angle(45)),
       new EllipseGGO(4, "Ellipse1", C, 40, 20, { lineThickness: 2 }).rotate(new Angle(-45))
     ];
 

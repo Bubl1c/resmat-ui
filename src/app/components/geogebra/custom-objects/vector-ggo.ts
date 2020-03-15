@@ -9,6 +9,7 @@ import { PointGGO } from "./point-ggo";
 import { TextGGO } from "./text-ggo";
 import { NumberUtils } from "../../../utils/NumberUtils";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
+import { StringUtils } from "../../../utils/StringUtils";
 
 export interface VectorGGOJSON extends GeogebraObjectJson {
   end: XYCoordsJson
@@ -24,16 +25,17 @@ export class VectorGGO implements GeogebraObject {
   private readonly shapeId: string;
 
   constructor(public name: string, public root: XYCoords, public end: XYCoords, public settings?: GeogebraObjectSettings, public id: number = GeogebraObjectUtils.nextId()) {
-    this.shapeId = `Vector${this.name}${this.id}`;
+    this.shapeId = `Vector${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
     this.rootPoint = new PointGGO(withId("Root"), this.root.copy());
     this.endPoint = new PointGGO(withId("End"), this.end.copy());
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings)
   }
 
-  rotate(angle: Angle, point: XYCoords = this.root): VectorGGO {
-    this.rootPoint.rotate(angle, point);
-    this.endPoint.rotate(angle, point);
+  rotate(angle: Angle, point?: XYCoords): VectorGGO {
+    const p = point || this.root;
+    this.rootPoint.rotate(angle, p);
+    this.endPoint.rotate(angle, p);
     return this;
   }
 

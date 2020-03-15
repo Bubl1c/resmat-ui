@@ -29,8 +29,6 @@ export interface KutykGGOJSON extends PolygonGGOJSON {
  *  Root   b       A
  */
 export class KutykGGO extends PolygonGGO {
-  kind: GGOKindType = "kutyk";
-
   private rootPoint: PointGGO;
   private bPoint: PointGGO;
   private b1Point: PointGGO;
@@ -49,7 +47,7 @@ export class KutykGGO extends PolygonGGO {
     settings?: PolygonSettingsJson,
     sizeDirections?: KutykGGOSizeDirections
   ) {
-    super(id, name, root, settings);
+    super(id, name, root, "kutyk", settings);
     this.generatePoints(root, b, t, settings);
     this.generateSizes(b, t, sizeDirections);
   }

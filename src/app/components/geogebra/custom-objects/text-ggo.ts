@@ -1,6 +1,7 @@
 import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "./geogebra-object";
 import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
+import { StringUtils } from "../../../utils/StringUtils";
 
 export interface TextGGOJSON extends GeogebraObjectJson {
   substituteVariables: boolean
@@ -16,11 +17,11 @@ export class TextGGO implements GeogebraObject {
   private readonly shapeId: string;
 
   constructor(public name: string, public root: XYCoords, public substituteVariables: boolean = false, public laTeXFormula: boolean = false, public id: number = GeogebraObjectUtils.nextId()) {
-    this.shapeId = `Text${this.name}${this.id}`;
+    this.shapeId = `Text${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
   }
 
-  rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): TextGGO {
-    this.root.rotate(angle, point);
+  rotate(angle: Angle, point?: XYCoords): TextGGO {
+    this.root.rotate(angle, point || new XYCoords(0, 0));
     return this;
   }
 

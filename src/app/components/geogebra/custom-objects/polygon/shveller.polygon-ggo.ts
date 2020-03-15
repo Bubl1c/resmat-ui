@@ -10,10 +10,10 @@ import { SizeGGO } from "../size-ggo";
 import { DvotavrGGOSizeDirections } from "./dvotavr.polygon-ggo";
 
 export interface ShvellerGGOSizeDirections {
-  b: "up" | "down"
-  h: "left" | "right"
-  d: "up" | "down"
-  t: "up" | "down"
+  b?: "up" | "down"
+  h?: "left" | "right"
+  d?: "up" | "down"
+  t?: "up" | "down"
 }
 
 export interface ShvellerGGOJSON extends PolygonGGOJSON {
@@ -31,8 +31,6 @@ export interface ShvellerGGOJSON extends PolygonGGOJSON {
  * Root  b   B3
  */
 export class ShvellerGGO extends PolygonGGO {
-  kind: GGOKindType = "shveller";
-
   private RootPoint: PointGGO;
   private B1Point: PointGGO;
   private B2Point: PointGGO;
@@ -52,7 +50,7 @@ export class ShvellerGGO extends PolygonGGO {
     settings?: PolygonSettingsJson,
     sizeDirections?: ShvellerGGOSizeDirections
   ) {
-    super(id, name, root, settings);
+    super(id, name, root, "shveller", settings);
     this.generatePoints(root, n, settings);
     this.generateSizes(sizeDirections)
   }

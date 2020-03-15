@@ -13,10 +13,10 @@ import { SizeGGO } from "../size-ggo";
 import { KutykGGOSizeDirections } from "./kutyk.polygon-ggo";
 
 export interface DvotavrGGOSizeDirections {
-  b: "up" | "down"
-  h: "left" | "right"
-  s: "up" | "down"
-  t: "left" | "right"
+  b?: "up" | "down"
+  h?: "left" | "right"
+  s?: "up" | "down"
+  t?: "left" | "right"
 }
 
 export interface DvotavrGGOJSON extends PolygonGGOJSON {
@@ -34,8 +34,6 @@ export interface DvotavrGGOJSON extends PolygonGGOJSON {
  * Root    b     A4
  */
 export class DvotavrGGO extends PolygonGGO{
-  kind: GGOKindType = "dvotavr";
-
   private RootPoint: PointGGO;
   private A2Point: PointGGO;
   private C1Point: PointGGO;
@@ -59,7 +57,7 @@ export class DvotavrGGO extends PolygonGGO{
     settings?: PolygonSettingsJson,
     sizeDirections?: DvotavrGGOSizeDirections
   ) {
-    super(id, name, root, settings);
+    super(id, name, root, "dvotavr", settings);
     this.generatePoints(root, n, settings);
     this.generateSizes(sizeDirections);
   }

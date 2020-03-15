@@ -11,6 +11,8 @@ import { GGB } from "../../../components/geogebra/geogebra-definitions";
 import { CustomAxesGGO } from "../../../components/geogebra/custom-objects/custom-axes-ggo";
 import LabelMode = GGB.LabelMode;
 import { GeogebraObjectUtils } from "../../../components/geogebra/custom-objects/geogebra-object-utils";
+import { GeometryShapeJson } from "../../../components/geogebra/custom-objects/geometry-shape";
+import { EllipseGGO } from "../../../components/geogebra/custom-objects/ellipse-ggo";
 
 export const enum InputSetStatus {
   Initial = 0,  //Not submitted yet
@@ -95,42 +97,50 @@ export class VariableGroup {
       const size = obj.getDimensions();
       this.geogebraObjects = [
         obj,
-        new CustomAxesGGO(GeogebraObjectUtils.nextId(), "Axes", center.copy(), size.width, size.height, "u", "v").rotate(new Angle(180))
+        new CustomAxesGGO(GeogebraObjectUtils.nextId(), "Axes", center.copy(), size.width, size.height, "u", "v").rotate(new Angle(150))
       ]
     }
   }
 
   private parseGeometryShape(shapeJson: string): GeogebraObject {
-    const jsonTypeContainer = JSON.parse(shapeJson);
-    const shapeType: string = Object.keys(jsonTypeContainer)[0];
-    const json = jsonTypeContainer[shapeType];
-    const setting: GeogebraObjectSettings = {
+    const json: GeometryShapeJson = JSON.parse(shapeJson);
+    const settings: GeogebraObjectSettings = Object.assign(json.settings, {
       outerPoints: {
         isVisible: true,
         isLabelsVisible: true,
         labelMode: GGB.LabelMode.Value
       }
+    } as GeogebraObjectSettings);
+    const shapeType = json.shapeType;
+    const mkObject = (): GeogebraObject => {
+      switch (shapeType) {
+        case "Kutyk":
+          return new KutykGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["b"], json.dimensions["t"], settings, json.sizeDirections);
+        case "Shveller":
+          return new ShvellerGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["n"], settings, json.sizeDirections);
+        case "Dvotavr":
+          return new DvotavrGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["n"], settings, json.sizeDirections);
+        case "Kolo":
+          throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
+        case "Napivkolo":
+          throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
+        case "Trykutnyk90":
+          throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
+        case "TrykutnykRB":
+          throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
+        case "Plastyna":
+          return new PlateGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["b"], json.dimensions["h"], settings, json.sizeDirections);
+        case "Ellipse":
+          return new EllipseGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["xR"], json.dimensions["yR"], settings);
+        case "CustomAxes":
+          return new CustomAxesGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["xSize"], json.dimensions["ySize"], json.props["xAxisName"], json.props["yAxisName"], json.settings);
+        default:
+          throw new Error(`Failed to parse geometry shape json. unknown type ${shapeType}. Actual json: ${shapeJson}`)
+      }
     }
-    switch (shapeType) {
-      case "KutykShape":
-        return new KutykGGO(json.id, json.name, XYCoords.fromJson(json.root), json.b, json.t, setting);
-      case "ShvellerShape":
-        return new ShvellerGGO(json.id, json.name, XYCoords.fromJson(json.root), json.n, setting);
-      case "DvotavrShape":
-        return new DvotavrGGO(json.id, json.name, XYCoords.fromJson(json.root), json.n, setting);
-      case "KoloShape":
-        throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
-      case "NapivkoloShape":
-        throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
-      case "Trykutnyk90Shape":
-        throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
-      case "TrykutnykRBShape":
-        throw new Error(`Failed to create GeogebraObject, type ${shapeType} is not yet supported. Json ${shapeJson}`);
-      case "PlastynaShape":
-        return new PlateGGO(json.id, json.name, XYCoords.fromJson(json.root), json.b, json.h, setting);
-      default:
-        throw new Error(`Failed to parse geometry shape json. unknown type ${shapeType}. Actual json: ${shapeJson}`)
-    }
+    const object = mkObject()
+    object.rotate(new Angle(json.rotationAngle), json.rotationPoint);
+    return object
   }
 }
 

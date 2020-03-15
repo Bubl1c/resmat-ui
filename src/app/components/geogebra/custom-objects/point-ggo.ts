@@ -3,6 +3,7 @@ import { GeogebraObject, GeogebraObjectJson, GeogebraObjectSettings, GGOKindType
 import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import LabelMode = GGB.LabelMode;
+import { StringUtils } from "../../../utils/StringUtils";
 
 export interface PointGGOJSON extends GeogebraObjectJson {
   settings?: GeogebraObjectSettings
@@ -20,11 +21,11 @@ export class PointGGO implements GeogebraObject {
               public id: number = GeogebraObjectUtils.nextId()) {
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     this.settings.isVisible = settings && settings.isVisible || false;
-    this.shapeId = `Point${this.name}${this.id}`;
+    this.shapeId = `Point${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
   }
 
-  rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): PointGGO {
-    this.root.rotate(angle, point);
+  rotate(angle: Angle, point?: XYCoords): PointGGO {
+    this.root.rotate(angle, point || new XYCoords(0, 0));
     return this
   }
 

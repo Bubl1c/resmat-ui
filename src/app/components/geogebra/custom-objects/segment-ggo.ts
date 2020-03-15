@@ -3,6 +3,7 @@ import { Angle, GeometryUtils, XYCoords, XYCoordsJson } from "../../../utils/geo
 import { PointGGO } from "./point-ggo";
 import { NumberUtils } from "../../../utils/NumberUtils";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
+import { StringUtils } from "../../../utils/StringUtils";
 
 export interface SegmentSettingsJson extends GeogebraObjectSettings {
   root?: GeogebraObjectSettings
@@ -24,7 +25,7 @@ export class SegmentGGO implements GeogebraObject {
   private readonly shapeId: string;
 
   constructor(public name: string, public root: XYCoords, public end: XYCoords, settings?: SegmentSettingsJson, public id: number = GeogebraObjectUtils.nextId()) {
-    this.shapeId = `Segment${this.name}${this.id}`;
+    this.shapeId = `Segment${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     this.settings.root = settings && settings.root || undefined;
     this.settings.end = settings && settings.end || undefined;
@@ -34,11 +35,12 @@ export class SegmentGGO implements GeogebraObject {
     this.endPoint = new PointGGO(withId("End"), this.end.copy(), this.settings.end);
   }
 
-  rotate(angle: Angle, point: XYCoords = this.root): SegmentGGO {
-    this.root = this.root.rotate(angle, point);
-    this.end = this.end.rotate(angle, point);
-    this.rootPoint = this.rootPoint.rotate(angle, point);
-    this.endPoint = this.endPoint.rotate(angle, point);
+  rotate(angle: Angle, point?: XYCoords): SegmentGGO {
+    const p = point || this.root;
+    this.root = this.root.rotate(angle, p);
+    this.end = this.end.rotate(angle, p);
+    this.rootPoint = this.rootPoint.rotate(angle, p);
+    this.endPoint = this.endPoint.rotate(angle, p);
     return this;
   }
 

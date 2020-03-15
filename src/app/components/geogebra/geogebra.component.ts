@@ -165,8 +165,8 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
     let min = Math.min(minXY.x, minXY.y);
     let max = Math.max(maxXY.x, maxXY.y);
     const avg = (min + max) / 2;
-    min = min - Math.abs(avg * 0.1);
-    max = max + Math.abs(avg * 0.1);
+    min = Math.ceil(min - Math.abs(avg * 0.1));
+    max = Math.ceil(max + Math.abs(avg * 0.1));
     console.log(`Zoom (${minXY.x},${minXY.y},${maxXY.x},${maxXY.y}) (${min},${min},${max},${max})`);
     api.evalCommand(`ZoomIn(${min},${min},${max},${max})`);
   }

@@ -68,18 +68,19 @@ export class XYCoords implements XYCoordsJson {
     return new XYCoords(this.x, this.y)
   }
 
-  rotate(angle: Angle, point: XYCoords = new XYCoords(0, 0)): XYCoords {
+  rotate(angle: Angle, point?: XYCoords): XYCoords {
+    const p = point || new XYCoords(0, 0);
     //Translate to a new coordinate system with center at point
-    let translatedX = this.x - point.x;
-    let translatedY = this.y - point.y;
+    let translatedX = this.x - p.x;
+    let translatedY = this.y - p.y;
     //Rotate clockwise
     const cos = Math.cos(angle.radians);
     const sin = Math.sin(angle.radians);
     const rotatedX = translatedX * cos + translatedY * sin;
     const rotatedY = - translatedX * sin + translatedY * cos;
     //Go back to the original coordinate system
-    this.x = NumberUtils.accurateRound(rotatedX + point.x, 2);
-    this.y = NumberUtils.accurateRound(rotatedY + point.y, 2);
+    this.x = NumberUtils.accurateRound(rotatedX + p.x, 2);
+    this.y = NumberUtils.accurateRound(rotatedY + p.y, 2);
     return this
   }
 

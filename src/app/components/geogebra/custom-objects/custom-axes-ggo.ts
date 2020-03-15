@@ -11,6 +11,7 @@ import { VectorGGO } from "./vector-ggo";
 import XY = CoordsUtils.XY;
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import { PointGGO } from "./point-ggo";
+import { StringUtils } from "../../../utils/StringUtils";
 
 export interface CustomAxesGGOJSON extends GeogebraObjectJson {
   xSize: number
@@ -43,13 +44,17 @@ export class CustomAxesGGO implements GeogebraObject {
     public root: XYCoords,
     public xSize: number = 5,
     public ySize: number = 5,
-    public xAxisName: string = "X",
-    public yAxisName: string = "Y",
+    public xAxisName?: string,
+    public yAxisName?: string,
     public settings?: GeogebraObjectSettings
   ) {
-    this.shapeId = `CustomAxes${this.name}${this.id}`;
+    this.shapeId = `CustomAxes${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     this.settings.lineThickness = settings && settings.lineThickness || 2;
+
+    this.xAxisName = xAxisName || "X";
+    this.yAxisName = yAxisName || "Y";
+
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
     this.xAxis = new VectorGGO(withId(xAxisName), XY(root.x - xSize, root.y), XY(root.x + xSize, root.y), this.settings);
     this.yAxis = new VectorGGO(withId(yAxisName), XY(root.x, root.y - ySize), XY(root.x, root.y + ySize), this.settings);
@@ -60,12 +65,13 @@ export class CustomAxesGGO implements GeogebraObject {
     this.yAxisLabelPoint = new PointGGO(yAxisName, XY(this.yAxis.endPoint.root.x, this.yAxis.endPoint.root.y), labelPointSettings(yAxisName));
   }
 
-  rotate(angle: Angle, point: XYCoords = this.root): CustomAxesGGO {
-    this.rootPoint.rotate(angle, point);
-    this.xAxis.rotate(angle, point);
-    this.yAxis.rotate(angle, point);
-    this.xAxisLabelPoint.rotate(angle, point);
-    this.yAxisLabelPoint.rotate(angle, point);
+  rotate(angle: Angle, point?: XYCoords): CustomAxesGGO {
+    const p = point || this.root;
+    this.rootPoint.rotate(angle, p);
+    this.xAxis.rotate(angle, p);
+    this.yAxis.rotate(angle, p);
+    this.xAxisLabelPoint.rotate(angle, p);
+    this.yAxisLabelPoint.rotate(angle, p);
     return this;
   }
 

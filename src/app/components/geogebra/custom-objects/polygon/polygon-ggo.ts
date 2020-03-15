@@ -1,4 +1,4 @@
-import { GeogebraObject, GeogebraObjectJson, GeogebraObjectSettings, GGOKindType } from "../geogebra-object";
+import { GeogebraObject, GeogebraObjectJson, GeogebraObjectSettings, GGOKind, GGOKindType } from "../geogebra-object";
 import { PointGGO, PointGGOJSON } from "../point-ggo";
 import { Angle, XYCoords, XYCoordsJson } from "../../../../utils/geometryUtils";
 import { NumberUtils } from "../../../../utils/NumberUtils";
@@ -7,6 +7,7 @@ import { GGB } from "../../geogebra-definitions";
 import LabelMode = GGB.LabelMode;
 import { SizeGGO } from "../size-ggo";
 import { ColorUtils } from "../../../../utils/color-utils";
+import { StringUtils } from "../../../../utils/StringUtils";
 
 export interface PolygonSettingsJson extends GeogebraObjectSettings {}
 
@@ -15,8 +16,6 @@ export interface PolygonGGOJSON extends GeogebraObjectJson {
 }
 
 export abstract class PolygonGGO implements GeogebraObject {
-  abstract kind: GGOKindType;
-
   /**
    * Needed to keep the original JSON
    */
@@ -29,12 +28,13 @@ export abstract class PolygonGGO implements GeogebraObject {
 
   protected sizes: SizeGGO[] = [];
 
-  protected shapeId = `Polygon${this.name}${this.id}`;
+  protected shapeId = `Polygon${this.kind.toUpperCase()}${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
 
   constructor(
     public id: number,
     public name: string,
     public root: XYCoords,
+    public kind: GGOKindType,
     settings?: PolygonSettingsJson
   ) {
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
@@ -44,15 +44,16 @@ export abstract class PolygonGGO implements GeogebraObject {
     this.actualJsonSettings = settings;
   }
 
-  rotate(angle: Angle, point: XYCoords = this.root.copy()): PolygonGGO {
-    this.root.rotate(angle, point);
-    this.points.forEach(p => {
-      p.rotate(angle, point)
+  rotate(angle: Angle, point?: XYCoords): PolygonGGO {
+    const p = point || this.root.copy();
+    this.root.rotate(angle, p);
+    this.points.forEach(pointGgo => {
+      pointGgo.rotate(angle, p)
     });
     this.sizes.forEach(s => {
-      s.rotate(angle, point)
+      s.rotate(angle, p)
     });
-    this.centerPoint.rotate(angle, point);
+    this.centerPoint.rotate(angle, p);
     return this
   }
 
