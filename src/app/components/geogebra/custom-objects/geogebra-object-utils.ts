@@ -40,31 +40,4 @@ export class GeogebraObjectUtils {
       shapeSizeToCalculateSizeDepth: settings && settings.shapeSizeToCalculateSizeDepth
     };
   }
-
-  // static fromJson(json: GeogebraObjectJson): GeogebraObject {
-  //   switch (json.kind) {
-  //     case "text" :
-  //       return TextGGO.fromJson(json);
-  //     case "point" :
-  //       return PointGGO.fromJson(json);
-  //     case "vector" :
-  //       return VectorGGO.fromJson(json);
-  //     case "segment" :
-  //       return SegmentGGO.fromJson(json);
-  //     case "custom_axes" :
-  //       return CustomAxesGGO.fromJson(json);
-  //     case "ellipse" :
-  //       return EllipseGGO.fromJson(json);
-  //     case "kutyk" :
-  //       return KutykGGO.fromJson(json);
-  //     case "plate" :
-  //       return PlateGGO.fromJson(json);
-  //     case "shveller" :
-  //       return ShvellerGGO.fromJson(json);
-  //     case "dvotavr":
-  //       return DvotavrGGO.fromJson(json);
-  //     default:
-  //       throw new Error(`Unknown GeogebraObject kind ${json.kind} in json ${json}`)
-  //   }
-  // }
 }

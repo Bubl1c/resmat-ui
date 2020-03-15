@@ -126,16 +126,16 @@ export class DvotavrGGO extends PolygonGGO{
       };
       const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || h;
       const sizeB = sizeDirs.b == "up"
-        ? new SizeGGO(withId("SizeB"), this.B2Point.root.copy(), this.B3Point.root.copy(), sizeDirs.b, "" + b, shapeSize)
-        : new SizeGGO(withId("SizeB"), this.RootPoint.root.copy(), this.A4Point.root.copy(), sizeDirs.b, "" + b, shapeSize);
+        ? new SizeGGO(withId("SizeB"), this.B2Point.root.copy(), this.B3Point.root.copy(), sizeDirs.b, `b${this.id}=${b}`, shapeSize)
+        : new SizeGGO(withId("SizeB"), this.RootPoint.root.copy(), this.A4Point.root.copy(), sizeDirs.b, `b${this.id}=${b}`, shapeSize);
 
       const sizeH = sizeDirs.h == "right"
-        ? new SizeGGO(withId("SizeH"), this.B3Point.root.copy(), this.A4Point.root.copy(), sizeDirs.h,"" + h, shapeSize, b/3)
-        : new SizeGGO(withId("SizeH"), this.RootPoint.root.copy(), this.B2Point.root.copy(), sizeDirs.h,"" + h, shapeSize, b/3);
+        ? new SizeGGO(withId("SizeH"), this.B3Point.root.copy(), this.A4Point.root.copy(), sizeDirs.h,`h${this.id}=${h}`, shapeSize, b/3)
+        : new SizeGGO(withId("SizeH"), this.RootPoint.root.copy(), this.B2Point.root.copy(), sizeDirs.h,`h${this.id}=${h}`, shapeSize, b/3);
 
       const sizeT = sizeDirs.t == "right"
-        ? new SizeGGO(withId("SizeT"), this.A4Point.root.copy(), this.A3Point.root.copy(), sizeDirs.t,"" + t, shapeSize)
-        : new SizeGGO(withId("SizeT"), this.A2Point.root.copy(), this.RootPoint.root.copy(), sizeDirs.t,"" + t, shapeSize);
+        ? new SizeGGO(withId("SizeT"), this.A4Point.root.copy(), this.A3Point.root.copy(), sizeDirs.t,`t${this.id}=${t}`, shapeSize)
+        : new SizeGGO(withId("SizeT"), this.A2Point.root.copy(), this.RootPoint.root.copy(), sizeDirs.t,`t${this.id}=${t}`, shapeSize);
 
       const sizeS = sizeDirs.s == "up"
         ? new SizeGGO(withId("SizeS"), this.C3Point.root.updY(y => y - h/4), this.C2Point.root.updY(y => y - h/4), sizeDirs.s,"" + s, shapeSize, 0.01, true)

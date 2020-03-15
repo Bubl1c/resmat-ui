@@ -28,6 +28,8 @@ export class EllipseGGO implements GeogebraObject {
   f2Point: PointGGO;
   ellipsePoint: PointGGO;
 
+  private outerPoints: XYCoords[];
+
   private readonly settings: GeogebraObjectSettings;
   private readonly shapeId: string;
 
@@ -54,6 +56,7 @@ export class EllipseGGO implements GeogebraObject {
     this.f1Point = new PointGGO(withId("F1Point"), f1.copy(), false);
     this.f2Point = new PointGGO(withId("F2Point"), f2.copy(), false);
     this.ellipsePoint = new PointGGO(withId("EllipsePoint"), ellipsePoint.copy(), true);
+    this.outerPoints = [XY(root.x, root.y + yR), XY(root.x + xR, root.y), XY(root.x, root.y - yR), XY(root.x - xR, root.y)];
   }
 
   rotate(angle: Angle, point?: XYCoords): EllipseGGO {
@@ -62,6 +65,7 @@ export class EllipseGGO implements GeogebraObject {
     this.f1Point.rotate(angle, p);
     this.f2Point.rotate(angle, p);
     this.ellipsePoint.rotate(angle, p);
+    this.outerPoints.forEach(p => p.rotate(angle, p));
     return this
   }
 
@@ -98,15 +102,15 @@ export class EllipseGGO implements GeogebraObject {
 
   maxCoord(): XYCoordsJson {
     return {
-      x: Math.max(this.f1Point.root.x, this.f2Point.root.x, this.ellipsePoint.root.x),
-      y: Math.max(this.f1Point.root.y, this.f2Point.root.y, this.ellipsePoint.root.y)
+      x: Math.max(...this.outerPoints.map(p => p.x)),
+      y: Math.max(...this.outerPoints.map(p => p.y)),
     }
   }
 
   minCoord(): XYCoordsJson {
     return {
-      x: Math.min(this.f1Point.root.x, this.f2Point.root.x, this.ellipsePoint.root.x),
-      y: Math.min(this.f1Point.root.y, this.f2Point.root.y, this.ellipsePoint.root.y)
+      x: Math.min(...this.outerPoints.map(p => p.x)),
+      y: Math.min(...this.outerPoints.map(p => p.y)),
     }
   }
 

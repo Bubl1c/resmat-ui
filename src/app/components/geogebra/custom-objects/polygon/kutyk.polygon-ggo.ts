@@ -90,12 +90,12 @@ export class KutykGGO extends PolygonGGO {
       };
       const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || b;
       const sizeB = sizeDirs.b == "left"
-        ? new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.bPoint.root.copy(), sizeDirs.b, "" + b, shapeSize)
-        : new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.aPoint.root.copy(), sizeDirs.b, "" + b, shapeSize);
+        ? new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.bPoint.root.copy(), sizeDirs.b, `b${this.id}=${b}`, shapeSize)
+        : new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.aPoint.root.copy(), sizeDirs.b, `b${this.id}=${b}`, shapeSize);
 
       const sizeH = sizeDirs.t == "right"
-        ? new SizeGGO(withId("SizeT"), this.aPoint.root.copy(), this.a1Point.root.copy(), sizeDirs.t,"" + t, shapeSize)
-        : new SizeGGO(withId("SizeT"), this.bPoint.root.copy(), this.b1Point.root.copy(), sizeDirs.t,"" + t, shapeSize);
+        ? new SizeGGO(withId("SizeT"), this.aPoint.root.copy(), this.a1Point.root.copy(), sizeDirs.t,`t${this.id}=${t}`, shapeSize)
+        : new SizeGGO(withId("SizeT"), this.bPoint.root.copy(), this.b1Point.root.copy(), sizeDirs.t,`t${this.id}=${t}`, shapeSize);
 
       const z0 = this.centerPoint.root.x - this.rootPoint.root.x;
       const z0Depth = (b - z0) * 1.2;

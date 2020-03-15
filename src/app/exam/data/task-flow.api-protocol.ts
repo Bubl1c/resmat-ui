@@ -6,6 +6,7 @@ export interface ISchemaVar {
   units: string;
   alias: string;
   showInExam: boolean;
+  variableGroup: string;
 }
 
 export class TaskFlowStepTypes {

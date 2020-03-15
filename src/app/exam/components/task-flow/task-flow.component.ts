@@ -136,6 +136,7 @@ export class TaskFlowComponent implements OnInit {
     return {
       id: this.task.problemVariantConfId,
       name: this.task.problemName,
+      schemaType: this.task.schemaType,
       schemaUrl: this.task.schemaUrl,
       schemaVars: this.task.schemaVars,
       description: this.task.description

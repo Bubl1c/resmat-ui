@@ -91,6 +91,7 @@ export class ExamResult {
     return {
       id: taskFlowDto.problemVariantConf.id,
       name: taskFlowDto.problemConf.name,
+      schemaType: taskFlowDto.problemVariantConf.schemaType,
       schemaUrl: taskFlowDto.problemVariantConf.schemaUrl,
       schemaVars: TaskDataUtils.mapVariables(
         taskFlowDto.problemConf.inputVariableConfs,

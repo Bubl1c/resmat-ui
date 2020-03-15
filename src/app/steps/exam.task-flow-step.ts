@@ -6,17 +6,19 @@ import { ISchemaVar } from "../exam/data/task-flow.api-protocol";
 
 export namespace TaskDataUtils {
   export function mapVariables(inputVariableConfs: ProblemInputVariableConf[], inputVariableValues: ProblemInputVariableValue[]): ISchemaVar[] {
-    return inputVariableConfs.map(ivc => mapVariable(ivc, inputVariableValues))
+    return inputVariableValues.map(ivv => mapVariable(ivv, inputVariableConfs))
   }
 
-  function mapVariable(inputVariableConf: ProblemInputVariableConf, inputVariableValues: ProblemInputVariableValue[]): ISchemaVar {
-    let valueObj = inputVariableValues.find(v => v.variableConfId === inputVariableConf.id);
+  function mapVariable(ivv: ProblemInputVariableValue, inputVariableConfs: ProblemInputVariableConf[]): ISchemaVar {
+    let conf = inputVariableConfs.find(v => v.id === ivv.variableConfId);
+    const shouldUseStrValueAsName = typeof ivv.value !== "undefined" && ivv.strValue;
     return {
-      name: inputVariableConf.name,
-      value: valueObj && (valueObj.value + "") || "",
-      units: inputVariableConf.units,
-      alias: inputVariableConf.alias,
-      showInExam: inputVariableConf.showInExam
+      name: shouldUseStrValueAsName ? ivv.strValue : conf.name,
+      value: ivv.value + "",
+      units: ivv.unitsOverride || conf.units,
+      alias: conf.alias,
+      showInExam: conf.showInExam,
+      variableGroup: ivv.variableGroup
     }
   }
 }
@@ -41,6 +43,7 @@ export class TaskFlowExamStep extends ExamStep {
       taskFlowId: taskFlow.id,
       currentTaskFlowStepSequence: taskFlow.currentStepSequence,
       problemName: problemConf.name,
+      schemaType: problemVariantConf.schemaType,
       schemaUrl: problemVariantConf.schemaUrl,
       schemaVars: TaskDataUtils.mapVariables(problemConf.inputVariableConfs, problemVariantConf.inputVariableValues),
       description: "description"
@@ -65,11 +68,18 @@ export interface ProblemConf {
 export interface ProblemInputVariableValue {
   variableConfId: number;
   value: number;
+  strValue?: string;
+  variableKey?: string
+  variableGroup?: string
+  unitsOverride?: string
 }
+
+export type ProblemVariantSchemaType = "img-url" | "geogebra"
 
 export interface ProblemVariantConf {
   id: number;
   problemConfId: number;
+  schemaType: ProblemVariantSchemaType;
   schemaUrl: string;
   inputVariableValues: ProblemInputVariableValue[]
 }

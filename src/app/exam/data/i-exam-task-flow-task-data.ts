@@ -1,4 +1,6 @@
 import { ISchemaVar } from "./task-flow.api-protocol";
+import { ProblemVariantSchemaType } from "../../steps/exam.task-flow-step";
+
 export interface IExamTaskFlowTaskData {
   problemConfId: number;
   examId: number;
@@ -8,6 +10,7 @@ export interface IExamTaskFlowTaskData {
   taskFlowId: number;
   currentTaskFlowStepSequence: number;
   problemName: string;
+  schemaType: ProblemVariantSchemaType;
   schemaUrl: string;
   schemaVars: ISchemaVar[];
   description: string;

@@ -2,16 +2,22 @@
   <h3 class="exam-name">Варіант {{task.id}}</h3>
   <div class="exam-assignment" *ngIf="!isCollapsed">
     <div class="exam-schema">
-      <img src="{{task.schemaUrl}}" alt="Схема завдання">
+      <img *ngIf="task.schemaType == 'image-url'" src="{{task.schemaUrl}}" alt="Схема завдання">
+      <geogebra *ngIf="task.schemaType == 'geogebra'" [objects]="geogebraObjects" [settings]="geogebraSettings"></geogebra>
     </div>
     <div class="exam-schema-description">
-      <div class="schema-vars">
-        <div class="schema-var" *ngFor="let schemaVar of task.schemaVars">
-          <div class="var-data">
-            <span class="ital" [innerHTML]="schemaVar.name"></span>
-            <span>=</span>
-            <span>{{ schemaVar.value }}</span>
-            <span class="ital">{{ schemaVar.units }}</span>
+      <div class="schema-var-groups">
+        <div class="schema-var-group" *ngFor="let schemaVarGroup of schemaVarGroups">
+          <span *ngIf="schemaVarGroup.name" class="schema-var-group-name">{{ schemaVarGroup.name }}</span>
+          <div class="schema-var-group-vars">
+            <div class="schema-var" *ngFor="let schemaVar of schemaVarGroup.schemaVars">
+              <div class="var-data">
+                <span class="ital" [innerHTML]="schemaVar.name"></span>
+                <span>=</span>
+                <span>{{ schemaVar.value }}</span>
+                <span class="ital">{{ schemaVar.units }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -107,20 +107,20 @@ export class ShvellerGGO extends PolygonGGO {
       };
       const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || h;
       const sizeB = sizeDirs.b == "up"
-        ? new SizeGGO(withId("SizeB"), this.B1Point.root.copy(), this.B2Point.root.copy(), sizeDirs.b, "" + b, shapeSize)
-        : new SizeGGO(withId("SizeB"), this.RootPoint.root.copy(), this.B3Point.root.copy(), sizeDirs.b, "" + b, shapeSize);
+        ? new SizeGGO(withId("SizeB"), this.B1Point.root.copy(), this.B2Point.root.copy(), sizeDirs.b, `b${this.id}=${b}`, shapeSize)
+        : new SizeGGO(withId("SizeB"), this.RootPoint.root.copy(), this.B3Point.root.copy(), sizeDirs.b, `b${this.id}=${b}`, shapeSize);
 
       const sizeH = sizeDirs.h == "right"
-        ? new SizeGGO(withId("SizeH"), this.B3Point.root.copy(), this.B2Point.root.copy(), sizeDirs.h,"" + h, shapeSize, b/3)
-        : new SizeGGO(withId("SizeH"), this.RootPoint.root.copy(), this.B1Point.root.copy(), sizeDirs.h,"" + h, shapeSize, b/3);
+        ? new SizeGGO(withId("SizeH"), this.B3Point.root.copy(), this.B2Point.root.copy(), sizeDirs.h,`h${this.id}=${h}`, shapeSize, b/3)
+        : new SizeGGO(withId("SizeH"), this.RootPoint.root.copy(), this.B1Point.root.copy(), sizeDirs.h,`h${this.id}=${h}`, shapeSize, b/3);
 
       const sizeT = sizeDirs.t == "up"
-        ? new SizeGGO(withId("SizeT"), this.D1Point.root.copy(), this.B2Point.root.copy(), "right","" + t, shapeSize)
-        : new SizeGGO(withId("SizeT"), this.B3Point.root.copy(), this.D2Point.root.copy(), "right","" + t, shapeSize);
+        ? new SizeGGO(withId("SizeT"), this.D1Point.root.copy(), this.B2Point.root.copy(), "right",`t${this.id}=${t}`, shapeSize)
+        : new SizeGGO(withId("SizeT"), this.B3Point.root.copy(), this.D2Point.root.copy(), "right",`t${this.id}=${t}`, shapeSize);
 
       const sizeD = sizeDirs.d == "up"
-        ? new SizeGGO(withId("SizeD"), this.C1Point.root.updY(y => y - h/4), this.C1Point.root.updY(y => y - h/4).updX(x => x - d), sizeDirs.d,"" + d, shapeSize, 0.01, true)
-        : new SizeGGO(withId("SizeD"), this.C1Point.root.updY(y => y - h/4*3), this.C1Point.root.updY(y => y - h/4*3).updX(x => x - d), sizeDirs.d,"" + d, shapeSize, 0.01, true);
+        ? new SizeGGO(withId("SizeD"), this.C1Point.root.updY(y => y - h/4), this.C1Point.root.updY(y => y - h/4).updX(x => x - d), sizeDirs.d,`d${this.id}=${d}`, shapeSize, 0.01, true)
+        : new SizeGGO(withId("SizeD"), this.C1Point.root.updY(y => y - h/4*3), this.C1Point.root.updY(y => y - h/4*3).updX(x => x - d), sizeDirs.d,`d${this.id}=${d}`, shapeSize, 0.01, true);
 
       this.sizes = [sizeB, sizeH, sizeT, sizeD]
     }

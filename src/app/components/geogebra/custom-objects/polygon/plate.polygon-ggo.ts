@@ -74,12 +74,12 @@ export class PlateGGO extends PolygonGGO {
       };
       const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || Math.max(b, h);
       const sizeB = sizeDirs.b == "up"
-        ? new SizeGGO(withId("SizeB"), this.bPoint.root.copy(), this.c1Point.root.copy(), sizeDirs.b, "" + b, shapeSize)
-        : new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.dPoint.root.copy(), sizeDirs.b, "" + b, shapeSize);
+        ? new SizeGGO(withId("SizeB"), this.bPoint.root.copy(), this.c1Point.root.copy(), sizeDirs.b, `b${this.id}=${b}`, shapeSize)
+        : new SizeGGO(withId("SizeB"), this.rootPoint.root.copy(), this.dPoint.root.copy(), sizeDirs.b, `b${this.id}=${b}`, shapeSize);
 
       const sizeH = sizeDirs.h == "right"
-        ? new SizeGGO(withId("SizeH"), this.dPoint.root.copy(), this.c1Point.root.copy(), sizeDirs.h,"" + h, shapeSize)
-        : new SizeGGO(withId("SizeH"), this.rootPoint.root.copy(), this.bPoint.root.copy(), sizeDirs.h,"" + h, shapeSize);
+        ? new SizeGGO(withId("SizeH"), this.dPoint.root.copy(), this.c1Point.root.copy(), sizeDirs.h,`h${this.id}=${h}`, shapeSize)
+        : new SizeGGO(withId("SizeH"), this.rootPoint.root.copy(), this.bPoint.root.copy(), sizeDirs.h,`h${this.id}=${h}`, shapeSize);
 
       this.sizes = [sizeB, sizeH]
     }
