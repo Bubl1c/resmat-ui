@@ -208,7 +208,7 @@ class EquationSetTaskFlowStep extends TaskFlowStep {
       switch(valueType) {
         case EquationItemValueType.input:
           value = (value as ItemValueInput);
-          newValue.value = new VarirableAnswer(value.id, null);
+          newValue.value = new VarirableAnswer(value.id, null, value.labelKey);
           break;
         case EquationItemValueType.staticString:
           value = (value as ItemValueStr);

@@ -1,27 +1,30 @@
 <div class="container">
-  <div class="left-part">
-    <div class="item" *ngFor="let item of equation.items">
-      <div class="prefix" [innerHtml]="item.prefix"></div>
-      <div [ngSwitch]="item.value.type">
-        <div *ngSwitchCase="ValueType.input">
-          <rgb-input [data]="item.value.value"
-                     [name]="item.value.value.id"
-                     [correct]="item.value.value.correct"
-                     [required]="true"
-                     [showValidation]="showValidation"
-                     [widthRate]="1"></rgb-input>
-        </div>
-        <div *ngSwitchCase="ValueType.staticString">
-          {{ valueAsStr(item.value) }}
-        </div>
-        <div *ngSwitchCase="ValueType.staticDouble">
-          {{ valueAsDouble(item.value).value }}
-        </div>
-        <div *ngSwitchCase="ValueType.dynamicDouble">
-          {{ valueAsDouble(item.value).value }}
-        </div>
+  <div class="item" *ngFor="let item of equation.items">
+    <div class="prefix" [innerHtml]="item.prefix">
+      <mathjax [data]="item.prefix"></mathjax>
+    </div>
+    <div [ngSwitch]="item.value.type">
+      <div *ngSwitchCase="ValueType.input">
+        <rgb-input [data]="item.value.value"
+                   [name]="item.value.value.id"
+                   [correct]="item.value.value.correct"
+                   [required]="true"
+                   [showValidation]="showValidation"
+                   [widthRate]="1"
+                   [label]="item.value.value.label"></rgb-input>
       </div>
-      <div class="suffix" [innerHtml]="item.suffix"></div>
+      <div *ngSwitchCase="ValueType.staticString">
+        <mathjax [data]="valueAsStr(item.value)"></mathjax>
+      </div>
+      <div *ngSwitchCase="ValueType.staticDouble">
+        {{ valueAsDouble(item.value).value }}
+      </div>
+      <div *ngSwitchCase="ValueType.dynamicDouble">
+        {{ valueAsDouble(item.value).value }}
+      </div>
+    </div>
+    <div class="suffix">
+      <mathjax [data]="item.suffix"></mathjax>
     </div>
   </div>
 </div>

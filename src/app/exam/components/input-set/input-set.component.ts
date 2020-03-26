@@ -44,7 +44,9 @@ export class InputSetData {
 
 export class VarirableAnswer {
   correct: boolean;
-  constructor(public id: number, public value: number | null) {}
+  constructor(public id: number, public value: number | null, public label?: string) {
+    this.label = this.label || undefined;
+  }
 
   static roundToFixed(value: number, accuracy: number): string {
     return typeof value === 'undefined' ? '0' : value.toFixed(accuracy);
@@ -100,7 +102,16 @@ export class VariableGroup {
       const size = objGroup.getDimensions();
       this.geogebraObjects = [
         ...objGroup.objects,
-        new CustomAxesGGO(GeogebraObjectUtils.nextId(), "Axes", XYCoords.fromJson(center), size.width, size.height, "u", "v").rotate(new Angle(180))
+        new CustomAxesGGO(
+          GeogebraObjectUtils.nextId(),
+          "Axes",
+          XYCoords.fromJson(center),
+          size.width,
+          size.height,
+          "u",
+          "v",
+          { styles: { color: "blue" } }
+        ).rotate(new Angle(180))
       ]
     }
   }

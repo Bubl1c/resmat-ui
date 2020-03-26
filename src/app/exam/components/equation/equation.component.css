@@ -1,9 +1,9 @@
 .container {
-  display: inline-flex;
-}
-
-.left-part {
-  display: inline-flex;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 .right-part {

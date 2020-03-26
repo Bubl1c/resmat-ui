@@ -11,6 +11,7 @@ export const EquationItemValueType = {
 export interface ItemValueInput {
   id: number
   answerMapping: string
+  labelKey: string
 }
 
 export interface ItemValueStr {
