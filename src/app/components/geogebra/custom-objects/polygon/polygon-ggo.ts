@@ -8,6 +8,7 @@ import LabelMode = GGB.LabelMode;
 import { SizeGGO } from "../size-ggo";
 import { ColorUtils } from "../../../../utils/color-utils";
 import { StringUtils } from "../../../../utils/StringUtils";
+import { GeometryShapeJson } from "../geometry-shape";
 
 export interface PolygonSettingsJson extends GeogebraObjectSettings {}
 
@@ -30,12 +31,16 @@ export abstract class PolygonGGO implements GeogebraObject {
 
   protected shapeId = `Polygon${this.kind.toUpperCase()}${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
 
+  private isInverted: boolean = false;
+
   constructor(
     public id: number,
     public name: string,
     public root: XYCoords,
     public kind: GGOKindType,
-    settings?: PolygonSettingsJson
+    settings?: PolygonSettingsJson,
+    public rotationAngle?: number,
+    public rotationPoint?: XYCoordsJson
   ) {
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     this.settings.showSizes = settings && settings.showSizes || true;
@@ -44,8 +49,8 @@ export abstract class PolygonGGO implements GeogebraObject {
     this.actualJsonSettings = settings;
   }
 
-  rotate(angle: Angle, point?: XYCoords): PolygonGGO {
-    const p = point || this.root.copy();
+  rotate(angle: Angle, point?: XYCoordsJson): PolygonGGO {
+    const p = point || this.centerPoint.root.copy();
     this.root.rotate(angle, p);
     this.points.forEach(pointGgo => {
       pointGgo.rotate(angle, p)
@@ -54,10 +59,26 @@ export abstract class PolygonGGO implements GeogebraObject {
       s.rotate(angle, p)
     });
     this.centerPoint.rotate(angle, p);
+    this.rotationAngle = angle.degrees;
+    this.rotationPoint = p;
     return this
   }
 
-  abstract copy(): GeogebraObject;
+  invert(): PolygonGGO {
+    this.root.invert();
+    this.points.forEach(pointGgo => {
+      pointGgo.invert()
+    });
+    this.sizes.forEach(s => {
+      s.invert()
+    });
+    this.centerPoint.invert();
+    this.isInverted = !this.isInverted;
+    this.rotationAngle = GeogebraObjectUtils.invertRotationAngle(this.rotationAngle);
+    return this
+  }
+
+  abstract copy(): PolygonGGO;
 
   getCommands(): string[] {
     return [
@@ -75,15 +96,7 @@ export abstract class PolygonGGO implements GeogebraObject {
     ]
   }
 
-  toJson(): PolygonGGOJSON {
-    return {
-      id: this.id,
-      kind: this.kind,
-      root: this.root.toJson(),
-      name: this.name,
-      settings: this.actualJsonSettings
-    }
-  };
+  abstract toJson(): GeometryShapeJson
 
   maxCoord(): XYCoordsJson {
     const pointsMaxCoords = this.sizes.length > 0
@@ -150,5 +163,12 @@ export abstract class PolygonGGO implements GeogebraObject {
       labelMode: LabelMode.Caption,
       caption: `C${this.id}`
     });
+  }
+
+  protected applyRotation() {
+    this.rotationAngle = this.rotationAngle || 0;
+    if (this.rotationAngle) {
+      this.rotate(new Angle(this.rotationAngle), this.rotationPoint)
+    }
   }
 }

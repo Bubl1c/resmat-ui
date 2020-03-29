@@ -7,8 +7,8 @@
 
     <div class="var-group" *ngFor="let group of groups">
       <div class="var-group-image" *ngIf="group.image">
-        <img *ngIf="group.imageType === 'image-url'"
-             src="https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557216688.9396_YduXUP_n.jpg"
+        <img *ngIf="group.imageType === 'img-url'"
+             [src]="group.image"
              alt=""
              width="400"
              height="400">

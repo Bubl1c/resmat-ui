@@ -10,6 +10,7 @@ import { TextGGO } from "./text-ggo";
 import { NumberUtils } from "../../../utils/NumberUtils";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import { StringUtils } from "../../../utils/StringUtils";
+import { GeometryShapeJson } from "./geometry-shape";
 
 export interface VectorGGOJSON extends GeogebraObjectJson {
   end: XYCoordsJson
@@ -24,6 +25,8 @@ export class VectorGGO implements GeogebraObject {
 
   private readonly shapeId: string;
 
+  private isInverted: boolean = false;
+
   constructor(public name: string, public root: XYCoords, public end: XYCoords, public settings?: GeogebraObjectSettings, public id: number = GeogebraObjectUtils.nextId()) {
     this.shapeId = `Vector${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
@@ -32,11 +35,22 @@ export class VectorGGO implements GeogebraObject {
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings)
   }
 
-  rotate(angle: Angle, point?: XYCoords): VectorGGO {
-    const p = point || this.root;
+  rotate(angle: Angle, point?: XYCoordsJson): VectorGGO {
+    const p = point || this.getCenterCoords();
+    this.root.rotate(angle, point);
+    this.end.rotate(angle, point);
     this.rootPoint.rotate(angle, p);
     this.endPoint.rotate(angle, p);
     return this;
+  }
+
+  invert(): VectorGGO {
+    this.root.invert();
+    this.end.invert();
+    this.rootPoint.invert();
+    this.endPoint.invert();
+    this.isInverted = !this.isInverted;
+    return this
   }
 
   copy(): VectorGGO {
@@ -54,15 +68,8 @@ export class VectorGGO implements GeogebraObject {
     ]
   }
 
-  toJson(): VectorGGOJSON {
-    return {
-      name: this.name,
-      kind: this.kind,
-      root: this.rootPoint.root.toJson(),
-      end: this.endPoint.root.toJson(),
-      settings: this.settings,
-      id: this.id
-    }
+  toJson(): GeometryShapeJson {
+    throw new Error("toJson() on VectorGGO is not supported.")
   }
 
   static fromJson(json: GeogebraObjectJson): VectorGGO {

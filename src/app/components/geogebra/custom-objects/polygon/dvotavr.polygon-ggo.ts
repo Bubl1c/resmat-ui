@@ -11,8 +11,9 @@ import { GeogebraObjectUtils } from "../geogebra-object-utils";
 import LabelMode = GGB.LabelMode;
 import { SizeGGO } from "../size-ggo";
 import { KutykGGOSizeDirections } from "./kutyk.polygon-ggo";
+import { GeometryShapeJson, StringKV } from "../geometry-shape";
 
-export interface DvotavrGGOSizeDirections {
+export interface DvotavrGGOSizeDirections extends StringKV {
   b?: "up" | "down"
   h?: "left" | "right"
   s?: "up" | "down"
@@ -55,11 +56,14 @@ export class DvotavrGGO extends PolygonGGO{
     public root: XYCoords,
     public n: number,
     settings?: PolygonSettingsJson,
-    sizeDirections?: DvotavrGGOSizeDirections
+    public sizeDirections?: DvotavrGGOSizeDirections,
+    public rotationAngle?: number,
+    public rotationPoint?: XYCoordsJson,
   ) {
-    super(id, name, root, "dvotavr", settings);
+    super(id, name, root, "dvotavr", settings, rotationAngle, rotationPoint);
     this.generatePoints(root, n, settings);
     this.generateSizes(sizeDirections);
+    this.applyRotation();
   }
 
   private generatePoints(root: XYCoords, n: number, settings?: PolygonSettingsJson) {
@@ -70,10 +74,10 @@ export class DvotavrGGO extends PolygonGGO{
       throw new Error(`Dvotavr with number = ${n} has not been found in sortament!`)
     }
     this.sortament = sortament;
-    const h = sortament.h;
-    const b = sortament.b;
-    const s = sortament.s;
-    const t = sortament.t;
+    const h = sortament.h/10;
+    const b = sortament.b/10;
+    const s = sortament.s/10;
+    const t = sortament.t/10;
 
     const innerSide = b / 2 - s / 2;
     const leg = h - t * 2;
@@ -112,10 +116,11 @@ export class DvotavrGGO extends PolygonGGO{
   }
 
   private generateSizes(sizeDirections?: DvotavrGGOSizeDirections) {
-    const b = this.sortament.b;
-    const h = this.sortament.h;
-    const s = this.sortament.s;
-    const t = this.sortament.t;
+    const rnd = (n: number) => NumberUtils.accurateRound(n, 2);
+    const b = rnd(this.sortament.b/10);
+    const h = rnd(this.sortament.h/10);
+    const s = rnd(this.sortament.s/10);
+    const t = rnd(this.sortament.t/10);
     const withId = this.withId;
     if (this.settings.showSizes) {
       const sizeDirs: DvotavrGGOSizeDirections = {
@@ -138,25 +143,31 @@ export class DvotavrGGO extends PolygonGGO{
         : new SizeGGO(withId("SizeT"), this.A2Point.root.copy(), this.RootPoint.root.copy(), sizeDirs.t,`t${this.id}=${t}`, shapeSize);
 
       const sizeS = sizeDirs.s == "up"
-        ? new SizeGGO(withId("SizeS"), this.C3Point.root.updY(y => y - h/4), this.C2Point.root.updY(y => y - h/4), sizeDirs.s,"" + s, shapeSize, 0.01, true)
-        : new SizeGGO(withId("SizeS"), this.C3Point.root.updY(y => y - h/4*3), this.C2Point.root.updY(y => y - h/4*3), sizeDirs.t,"" + t, shapeSize, 0.01, true);
+        ? new SizeGGO(withId("SizeS"), this.C3Point.root.updY(y => y - h/4), this.C2Point.root.updY(y => y - h/4), sizeDirs.s,`s${this.id}=${s}`, shapeSize, 0.01, true)
+        : new SizeGGO(withId("SizeS"), this.C3Point.root.updY(y => y - h/4*3), this.C2Point.root.updY(y => y - h/4*3), sizeDirs.s,`s${this.id}=${s}`, shapeSize, 0.01, true);
 
       this.sizes = [sizeB, sizeH, sizeT, sizeS]
     }
   }
 
   copy(): DvotavrGGO {
-    return new DvotavrGGO(this.id, this.name, this.root.copy(), this.n, this.actualJsonSettings)
+    return new DvotavrGGO(this.id, this.name, this.root.copy(), this.n, this.actualJsonSettings, this.sizeDirections, this.rotationAngle, this.rotationPoint)
   }
 
-  toJson(): DvotavrGGOJSON {
-    return Object.assign(super.toJson(), {
-      n: this.n
-    })
-  }
-
-  static fromJson(json: GeogebraObjectJson): DvotavrGGO {
-    const j = json as DvotavrGGOJSON;
-    return new DvotavrGGO(j.id, j.name, XYCoords.fromJson(j.root), j.n, j.settings)
+  toJson(): GeometryShapeJson {
+    return {
+      id: this.id,
+      name: this.name,
+      shapeType: "Dvotavr",
+      rotationAngle: this.rotationAngle,
+      rotationPoint: this.rotationPoint,
+      root: this.root.toJson(),
+      dimensions: {
+        n: this.n
+      },
+      sizeDirections: this.sizeDirections,
+      settings: this.actualJsonSettings,
+      props: undefined
+    }
   }
 }

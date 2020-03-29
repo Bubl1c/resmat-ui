@@ -51,13 +51,15 @@ export class DummyForTestingComponent implements OnInit {
     this.makeDemoObjects();
 
     this.demoObjectsTesting["test1"] = [
-      new PlateGGO(1, "Plate", XY(5, 5), 20, 10, undefined),
-      new PlateGGO(2, "Plate", XY(5, -5), 20, 10).rotate(new Angle(90)),
-      new PlateGGO(3, "Plate", XY(-5, -5), 20, 10).rotate(new Angle(180)),
-      new PlateGGO(4, "Plate", XY(-5, 5), 20, 10, undefined, {
-        b: "down",
-        h: "left"
-      }).rotate(new Angle(270))
+      new PlateGGO(1, "Plate", XY(5, 2), 2, 6).rotate(new Angle(180), XY(5, 2)),
+      new PlateGGO(2, "Plate2", XY(3, 2), 3, 2).rotate(new Angle(180), XY(3, 2)),
+      // new PlateGGO(1, "Plate", XY(5, 5), 20, 10, undefined),
+      // new PlateGGO(2, "Plate", XY(5, -5), 20, 10).rotate(new Angle(90)),
+      // new PlateGGO(3, "Plate", XY(-5, -5), 20, 10).rotate(new Angle(180)),
+      // new PlateGGO(4, "Plate", XY(-5, 5), 20, 10, undefined, {
+      //   b: "down",
+      //   h: "left"
+      // }).rotate(new Angle(270))
     ];
 
     this.demoObjectsTesting["test2"] = [

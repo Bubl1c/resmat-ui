@@ -3,6 +3,7 @@ import { ExamStepTypes, IExamStepWithData } from "../exam/data/exam.api-protocol
 import { ExamStep } from "./exam.step";
 import { IExamTaskFlowTaskData } from "../exam/data/i-exam-task-flow-task-data";
 import { ISchemaVar } from "../exam/data/task-flow.api-protocol";
+import { CustomAxesSettings } from "../components/geogebra/custom-objects/geometry-shape";
 
 export namespace TaskDataUtils {
   export function mapVariables(inputVariableConfs: ProblemInputVariableConf[], inputVariableValues: ProblemInputVariableValue[]): ISchemaVar[] {
@@ -46,7 +47,8 @@ export class TaskFlowExamStep extends ExamStep {
       schemaType: problemVariantConf.schemaType,
       schemaUrl: problemVariantConf.schemaUrl,
       schemaVars: TaskDataUtils.mapVariables(problemConf.inputVariableConfs, problemVariantConf.inputVariableValues),
-      description: "description"
+      description: "description",
+      problemConf: problemConf
     };
   }
 }
@@ -59,10 +61,16 @@ export interface ProblemInputVariableConf {
   showInExam: boolean;
 }
 
+export interface ProblemConfProps {
+  helpMaterials: string[]
+  customAxesSettings?: CustomAxesSettings
+}
+
 export interface ProblemConf {
   id: number;
   name: string;
   inputVariableConfs: ProblemInputVariableConf[];
+  props: ProblemConfProps
 }
 
 export interface ProblemInputVariableValue {

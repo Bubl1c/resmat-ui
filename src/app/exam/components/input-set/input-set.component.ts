@@ -11,7 +11,11 @@ import { GGB } from "../../../components/geogebra/geogebra-definitions";
 import { CustomAxesGGO } from "../../../components/geogebra/custom-objects/custom-axes-ggo";
 import LabelMode = GGB.LabelMode;
 import { GeogebraObjectUtils } from "../../../components/geogebra/custom-objects/geogebra-object-utils";
-import { GeometryShapeJson, GeometryShapeUtils } from "../../../components/geogebra/custom-objects/geometry-shape";
+import {
+  GeometryShapeInGroupSettingsJson,
+  GeometryShapeJson,
+  GeometryShapeUtils
+} from "../../../components/geogebra/custom-objects/geometry-shape";
 import { EllipseGGO } from "../../../components/geogebra/custom-objects/ellipse-ggo";
 import { GeogebraObjectGroup } from "../../../components/geogebra/custom-objects/object-group-ggo";
 
@@ -29,7 +33,13 @@ export const ResmatImageTypes = {
 };
 
 export class InputSetGroup {
-  constructor(public id: number, public name: string, public imageType: ResmatImageType, public image: string) {
+  constructor(
+    public id: number,
+    public name: string,
+    public imageType: ResmatImageType,
+    public image: string,
+    public groupGraphSettings?: GeometryShapeInGroupSettingsJson,
+    public groupShapeGraphSettings?: GeometryShapeInGroupSettingsJson) {
   }
 }
 
@@ -85,33 +95,43 @@ export class InputVariable {
 
 export class VariableGroup {
   public geogebraObjects: GeogebraObject[];
-  public geogebraSettings: GeogebraComponentSettings = new GeogebraComponentSettings(400, 400).setProps({
-    perspective: "G",
-    showToolBar: false,
-    showMenuBar: false,
-    enableLabelDrags: true,
-    showToolBarHelp: false,
-    enableRightClick: false
-  });
-  constructor(public name: string, public variables: InputVariable[], public imageType: ResmatImageType, public image: string) {
+  public geogebraSettings: GeogebraComponentSettings;
+  constructor(public name: string,
+              public variables: InputVariable[],
+              public imageType: ResmatImageType,
+              public image: string,
+              public groupGraphSettings?: GeometryShapeInGroupSettingsJson,
+              public groupShapeGraphSettings?: GeometryShapeInGroupSettingsJson) {
     if (imageType === ResmatImageTypes.Geogebra) {
       const json = JSON.parse(image) as GeometryShapeJson[];
       const objects: GeogebraObject[] = json.map(j => GeometryShapeUtils.parseGeometryShape(j));
-      const objGroup = new GeogebraObjectGroup(objects);
-      const center = objGroup.getCenterCoords();
-      const size = objGroup.getDimensions();
+      this.geogebraSettings = GeogebraComponentSettings.GRID_ONLY_NO_CONTROLS_WITH_LABEL_DRAG(
+        groupGraphSettings && groupGraphSettings.customAxesSettings,
+        400,
+        400
+      );
+      let customAxes: CustomAxesGGO[] = [];
+      if (groupShapeGraphSettings && groupShapeGraphSettings.customAxesSettings) {
+        const cas = groupShapeGraphSettings.customAxesSettings;
+        customAxes = objects.map(o => {
+          const oDim = o.getDimensions();
+          const oCenter = XYCoords.fromJson(o.getCenterCoords());
+          const ca = new CustomAxesGGO(
+            GeogebraObjectUtils.nextId(),
+            "CustomAxes" + o.id,
+            oCenter,
+            oDim.width,
+            oDim.height,
+            `${cas.xAxisName}${o.id}`,
+            `${cas.yAxisName}${o.id}`,
+            { styles: { color: "blue" } }
+          );
+          return cas.isInverted ? ca.rotate(new Angle(180)) : ca
+        })
+      }
       this.geogebraObjects = [
-        ...objGroup.objects,
-        new CustomAxesGGO(
-          GeogebraObjectUtils.nextId(),
-          "Axes",
-          XYCoords.fromJson(center),
-          size.width,
-          size.height,
-          "u",
-          "v",
-          { styles: { color: "blue" } }
-        ).rotate(new Angle(180))
+        ...objects,
+        ...customAxes
       ]
     }
   }
@@ -192,9 +212,12 @@ export class InputSetComponent implements OnInit {
 
     for(let groupName in varGroups) {
       const group = this.data.groups.find(g => g.name === groupName);
+      if (!group) {
+        throw new Error(`Failed to find group by name ${groupName}, for InputSet ${JSON.stringify(this.data)}`);
+      }
       const imageType = group ? group.imageType : ResmatImageTypes.ImageUrl;
       const image = group ? group.image : "";
-      this.groups.push(new VariableGroup(groupName, varGroups[groupName], imageType as ResmatImageType, image))
+      this.groups.push(new VariableGroup(groupName, varGroups[groupName], imageType as ResmatImageType, image, group.groupGraphSettings, group.groupShapeGraphSettings))
     }
   }
 

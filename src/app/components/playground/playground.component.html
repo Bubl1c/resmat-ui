@@ -1,0 +1,11 @@
+<div class="container flex-container flex-column">
+  <div class="flex-column">
+    <h2>Тут можна протестувати формули</h2>
+    <div class="mui-textfield flex-1">
+      <input type="text" name="mathjaxFormula" [(ngModel)]="mathjaxFormula">
+      <label>Введіть формулу</label>
+    </div>
+    <button class="mui-btn mui-btn--primary" (click)="mathjaxFormulaSubmitted()">Тест</button>
+    <div class="full-width"><mathjax *ngIf="mathjaxFormulaVisible" [data]="mathjaxFormula" ></mathjax></div>
+  </div>
+</div>

@@ -70,6 +70,7 @@ import { GlobalErrorHandler } from "./global-error-handler";
 import { GeogebraComponent } from './components/geogebra/geogebra.component';
 import { DummyForTestingComponent } from './components/dummy-for-testing/dummy-for-testing.component';
 import { GeogebraCreateObjectComponent } from './components/geogebra-create-object/geogebra-create-object.component';
+import { PlaygroundComponent } from './components/playground/playground.component';
 
 @NgModule({
   declarations: [
@@ -129,7 +130,8 @@ import { GeogebraCreateObjectComponent } from './components/geogebra-create-obje
     TestHelpMaterialsComponent,
     GeogebraComponent,
     DummyForTestingComponent,
-    GeogebraCreateObjectComponent
+    GeogebraCreateObjectComponent,
+    PlaygroundComponent
   ],
   imports: [
     BrowserModule,

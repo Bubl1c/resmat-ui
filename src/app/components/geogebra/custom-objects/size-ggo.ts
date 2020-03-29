@@ -13,6 +13,7 @@ import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import { PointGGO } from "./point-ggo";
 import { SegmentGGO } from "./segment-ggo";
 import { StringUtils } from "../../../utils/StringUtils";
+import { GeometryShapeJson } from "./geometry-shape";
 
 export type SizeGGODirection = "up" | "down" | "left" | "right"
 
@@ -48,6 +49,8 @@ export class SizeGGO implements GeogebraObject {
   depth: number;
 
   private readonly shapeId: string;
+
+  private isInverted: boolean = false;
 
   constructor(
     public name: string,
@@ -135,8 +138,8 @@ export class SizeGGO implements GeogebraObject {
       : new PointGGO(withId("labelPoint"), vectorCenter, vcpSettings);
   }
 
-  rotate(angle: Angle, pointOuter?: XYCoords): SizeGGO {
-    const point: XYCoords = pointOuter || XYCoords.fromJson(GeometryUtils.segmentCenter(this.root, this.end));
+  rotate(angle: Angle, pointOuter?: XYCoordsJson): SizeGGO {
+    const point: XYCoordsJson = pointOuter || this.getCenterCoords();
     this.root.rotate(angle, point);
     this.end.rotate(angle, point);
     this.rootSegment.rotate(angle, point);
@@ -146,6 +149,19 @@ export class SizeGGO implements GeogebraObject {
     this.middleSegment && this.middleSegment.rotate(angle, point);
     this.LabelPoint.rotate(angle, point);
     return this;
+  }
+
+  invert(): SizeGGO {
+    this.root.invert();
+    this.end.invert();
+    this.rootSegment.invert();
+    this.endSegment.invert();
+    this.rootVecor.invert();
+    this.endVector.invert();
+    this.middleSegment && this.middleSegment.invert();
+    this.LabelPoint.invert();
+    this.isInverted = !this.isInverted;
+    return this
   }
 
   copy(): SizeGGO {
@@ -164,18 +180,8 @@ export class SizeGGO implements GeogebraObject {
     ];
   }
 
-  toJson(): SizeGGOJSON {
-    return {
-      kind: this.kind,
-      root: this.root.toJson(),
-      end: this.end.toJson(),
-      name: this.name,
-      shapeSize: this.shapeSize,
-      depth: this.depth,
-      direction: this.direction,
-      label: this.label,
-      id: this.id
-    }
+  toJson(): GeometryShapeJson {
+    throw new Error("toJson() on SizeGGO is not supported.")
   }
 
   static fromJson(json: GeogebraObjectJson): SizeGGO {

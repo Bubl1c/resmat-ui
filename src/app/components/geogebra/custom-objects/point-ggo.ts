@@ -4,6 +4,7 @@ import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import LabelMode = GGB.LabelMode;
 import { StringUtils } from "../../../utils/StringUtils";
+import { GeometryShapeJson, GeometryShapeType } from "./geometry-shape";
 
 export interface PointGGOJSON extends GeogebraObjectJson {
   settings?: GeogebraObjectSettings
@@ -15,6 +16,8 @@ export class PointGGO implements GeogebraObject {
 
   readonly shapeId: string;
 
+  private isInverted: boolean = false;
+
   constructor(public name: string,
               public root: XYCoords,
               settings?: GeogebraObjectSettings,
@@ -24,8 +27,14 @@ export class PointGGO implements GeogebraObject {
     this.shapeId = `Point${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
   }
 
-  rotate(angle: Angle, point?: XYCoords): PointGGO {
+  rotate(angle: Angle, point?: XYCoordsJson): PointGGO {
     this.root.rotate(angle, point || new XYCoords(0, 0));
+    return this
+  }
+
+  invert(): PointGGO {
+    this.root.invert();
+    this.isInverted = !this.isInverted;
     return this
   }
 
@@ -35,20 +44,40 @@ export class PointGGO implements GeogebraObject {
 
   getCommands(): string[] {
     const pointCmd = `${this.shapeId}=${this.root.getCommand()}`;
+    let labelMode = this.settings.labelMode;
+    let caption = this.settings.caption;
+    if (this.isInverted) {
+      switch (labelMode) {
+        case GGB.LabelMode.Value:
+          labelMode = GGB.LabelMode.Caption;
+          caption = this.root.copy().invert().getCommand();
+          break;
+        case GGB.LabelMode.NameValue:
+          labelMode = GGB.LabelMode.Caption;
+          caption = `${this.name}${this.root.copy().invert().getCommand()}`;
+          break;
+        case GGB.LabelMode.CaptionValue:
+          labelMode = GGB.LabelMode.Caption;
+          caption = `${caption}${this.root.copy().invert().getCommand()}`;
+          break;
+        default:
+        //leave caption and label mode as is
+      }
+    }
     return [
       pointCmd,
-      ...(this.settings.labelMode !== GGB.LabelMode.Name ? [`SetLabelMode(${this.shapeId},${this.settings.labelMode})`] : []),
+      ...(this.settings.labelMode !== GGB.LabelMode.Name ? [`SetLabelMode(${this.shapeId},${labelMode})`] : []),
       ...(!this.settings.isVisible ? [`SetVisibleInView(${this.shapeId},1,false)`] : []),
       ...(this.settings.isVisible ? [`SetPointSize(${this.shapeId},${this.settings.pointSize})`] : []),
       ...(this.settings.isVisible ? [`ShowLabel(${this.shapeId},${this.settings.isLabelVisible})`] : []),
-      ...(this.settings.isVisible && this.settings.labelMode === LabelMode.Caption && this.settings.isLabelVisible ? [`SetCaption(${this.shapeId},"${this.settings.caption}")`] : []),
+      ...(this.settings.isVisible && labelMode === LabelMode.Caption && this.settings.isLabelVisible ? [`SetCaption(${this.shapeId},"${caption}")`] : []),
       ...(this.settings.isVisible && this.settings.styles.color ? [`SetColor(${this.shapeId},"${this.settings.styles.color}")`] : []),
       ...(this.settings.isFixed ? [`SetFixed(${this.shapeId},true)`] : [])
     ]
   }
 
-  toJson(): PointGGOJSON {
-    return this.copy()
+  toJson(): GeometryShapeJson {
+    throw new Error("toJson() on PointGGO is not supported.")
   }
 
   static fromJson(json: GeogebraObjectJson): PointGGO {

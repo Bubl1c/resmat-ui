@@ -2,7 +2,7 @@
   <h3 class="exam-name">Варіант {{task.id}}</h3>
   <div class="exam-assignment" *ngIf="!isCollapsed">
     <div class="exam-schema">
-      <img *ngIf="task.schemaType == 'image-url'" src="{{task.schemaUrl}}" alt="Схема завдання">
+      <img *ngIf="task.schemaType == 'img-url'" src="{{task.schemaUrl}}" alt="Схема завдання">
       <geogebra *ngIf="task.schemaType == 'geogebra'" [objects]="geogebraObjects" [settings]="geogebraSettings"></geogebra>
     </div>
     <div class="exam-schema-description">
@@ -23,7 +23,7 @@
       </div>
     </div>
   </div>
-  <help-materials imgUrl="img/equations.png" positionH="left" positionV="bottom" [hidden]="hideControls"></help-materials>
+  <help-materials *ngIf="task.problemConf.props.helpMaterials" [imgUrl]="task.problemConf.props.helpMaterials[0]" positionH="left" positionV="bottom" [hidden]="hideControls"></help-materials>
   <border-sticky-btn (onClick)="toggle()" positionH="right" [hidden]="hideControls">
     <i class="material-icons" [hidden]="isCollapsed">keyboard_arrow_up</i>
     <i class="material-icons" [hidden]="!isCollapsed">keyboard_arrow_down</i>

@@ -40,4 +40,14 @@ export class GeogebraObjectUtils {
       shapeSizeToCalculateSizeDepth: settings && settings.shapeSizeToCalculateSizeDepth
     };
   }
+
+  static invertRotationAngle(angle: number): number {
+    if ([0, 180, 360].indexOf(angle) != -1) {
+      return Math.abs(360 - angle - 180)
+    } else if([90, 270].indexOf(angle) != -1) {
+      return 360 - angle
+    } else {
+      return 360 - angle
+    }
+  }
 }

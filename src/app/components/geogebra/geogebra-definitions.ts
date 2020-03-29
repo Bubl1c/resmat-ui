@@ -16,6 +16,7 @@ export namespace GGB {
   // Commands: https://wiki.geogebra.org/en/Scripting_Commands
   export interface API {
     setGridVisible(value: boolean): void
+    setAxesVisible(x: boolean, y: boolean): void
     evalCommand(command: string): void
     newConstruction(): void
     deleteObject(objName: string): void

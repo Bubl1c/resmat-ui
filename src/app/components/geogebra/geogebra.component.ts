@@ -8,11 +8,13 @@ import {
   OnInit,
   SimpleChanges
 } from '@angular/core';
-import { CoordsUtils } from "../../utils/GeometryUtils";
+import { Angle, CoordsUtils } from "../../utils/GeometryUtils";
 import { GGB } from "./geogebra-definitions";
 import { NumberUtils } from "../../utils/NumberUtils";
 import XY = CoordsUtils.XY;
 import { GeogebraObject } from "./custom-objects/geogebra-object";
+import { CustomAxesGGO } from "./custom-objects/custom-axes-ggo";
+import { CustomAxesSettings } from "./custom-objects/geometry-shape";
 
 declare const GGBApplet: any;
 
@@ -35,13 +37,32 @@ interface IterableChanges<V> {
 
 export class GeogebraComponentSettings {
   static defaults = {
-    width: 400,
-    height: 400
+    width: 500,
+    height: 500
   };
+
+  static GRID_ONLY_NO_CONTROLS_WITH_LABEL_DRAG(
+    customAxesSettings?: CustomAxesSettings,
+    width?: number,
+    height?: number
+  ): GeogebraComponentSettings {
+    return new GeogebraComponentSettings(
+      width || GeogebraComponentSettings.defaults.width,
+      height || GeogebraComponentSettings.defaults.height,
+      customAxesSettings
+    ).setProps({
+      perspective: "G",
+      showToolBar: false,
+      showMenuBar: false,
+      enableLabelDrags: true,
+      showToolBarHelp: false,
+      enableRightClick: false
+    })
+  }
 
   props: GGB.AppletProperties = {};
 
-  constructor(public width?: number, public height?: number) {
+  constructor(public width?: number, public height?: number, public customAxesSettings?: CustomAxesSettings) {
     this.width = width || GeogebraComponentSettings.defaults.width;
     this.height = height || GeogebraComponentSettings.defaults.height;
   }
@@ -142,12 +163,13 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
     toRender.forEach(obj => {
       this.addObject(api, obj);
     });
-    this.zoomOut(api)
+    this.prepareView(api)
   }
 
   private addObject(api: GGB.API, object: GeogebraObject): void {
     try {
-      api.evalCommand(object.getCommands().join("\n"));
+      const commands = object.getCommands();
+      api.evalCommand(commands.join("\n"));
     } catch (e) {
       console.error(`Failed to add geogebra object: ${object}`, e)
     }
@@ -157,18 +179,44 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
     api.evalCommand(object.getDeleteCommands().join("\n"));
   }
 
-  private zoomOut(api: GGB.API) {
+  private prepareView(api: GGB.API) {
     const maxCoords = this.objects.map(o => o.maxCoord());
     const maxXY = maxCoords.reduce((c, p) => ({ x: Math.max(c.x, p.x), y: Math.max(c.y, p.y) }));
     const minCoords = this.objects.map(o => o.minCoord());
     const minXY = minCoords.reduce((c, p) => ({ x: Math.min(c.x, p.x), y: Math.min(c.y, p.y) }));
     let min = Math.min(minXY.x, minXY.y);
     let max = Math.max(maxXY.x, maxXY.y);
-    const avg = (min + max) / 2;
-    min = Math.ceil(min - Math.abs(avg * 0.1));
-    max = Math.ceil(max + Math.abs(avg * 0.1));
+    const avg = Math.abs(min + max) / 2;
+    min = Math.floor(min - 1);
+    max = Math.ceil(max + 1);
     console.log(`Zoom (${minXY.x},${minXY.y},${maxXY.x},${maxXY.y}) (${min},${min},${max},${max})`);
     api.evalCommand(`ZoomIn(${min},${min},${max},${max})`);
+    const axesSize = Math.max(Math.abs(min), Math.abs(max));
+    this.renderCustomAxesIfDefined(api, axesSize, axesSize);
+  }
+
+  private renderCustomAxesIfDefined(api: GGB.API, xSize: number, ySize: number) {
+    if (this.settings.customAxesSettings) {
+      api.setAxesVisible(false, false);
+      const ca = new CustomAxesGGO(
+        100500,
+        "RootAxes",
+        XY(0, 0),
+        xSize*0.95,
+        ySize*0.95,
+        this.settings.customAxesSettings.xAxisName,
+        this.settings.customAxesSettings.yAxisName,
+        {
+          styles: {
+            color: "blue"
+          }
+        },
+        undefined,
+        undefined,
+        true
+      );
+      this.addObject(api, this.settings.customAxesSettings.isInverted ? ca.invert() : ca);
+    }
   }
 
   makeParams() {

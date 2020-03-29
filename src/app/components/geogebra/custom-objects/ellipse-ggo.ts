@@ -7,6 +7,7 @@ import { CustomAxesGGO, CustomAxesGGOJSON } from "./custom-axes-ggo";
 import { PolygonSettingsJson } from "./polygon/polygon-ggo";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import { StringUtils } from "../../../utils/StringUtils";
+import { GeometryShapeJson } from "./geometry-shape";
 
 export interface EllipseGGOJSON extends GeogebraObjectJson {
   xR: number,
@@ -33,13 +34,17 @@ export class EllipseGGO implements GeogebraObject {
   private readonly settings: GeogebraObjectSettings;
   private readonly shapeId: string;
 
+  private isInverted: boolean = false;
+
   constructor(
     public id: number,
     public name: string,
     public root: XYCoords,
     public xR: number,
     public yR: number,
-    settings?: GeogebraObjectSettings
+    settings?: GeogebraObjectSettings,
+    public rotationAngle?: number,
+    public rotationPoint?: XYCoordsJson,
   ) {
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     this.shapeId = `Ellipse${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
@@ -57,20 +62,37 @@ export class EllipseGGO implements GeogebraObject {
     this.f2Point = new PointGGO(withId("F2Point"), f2.copy(), false);
     this.ellipsePoint = new PointGGO(withId("EllipsePoint"), ellipsePoint.copy(), true);
     this.outerPoints = [XY(root.x, root.y + yR), XY(root.x + xR, root.y), XY(root.x, root.y - yR), XY(root.x - xR, root.y)];
+    this.rotationAngle = this.rotationAngle || 0;
+    if (this.rotationAngle) {
+      this.rotate(new Angle(this.rotationAngle), this.rotationPoint)
+    }
   }
 
-  rotate(angle: Angle, point?: XYCoords): EllipseGGO {
-    const p = point || this.root;
+  rotate(angle: Angle, point?: XYCoordsJson): EllipseGGO {
+    const p = point || this.root.copy();
     this.root.rotate(angle, p);
     this.f1Point.rotate(angle, p);
     this.f2Point.rotate(angle, p);
     this.ellipsePoint.rotate(angle, p);
     this.outerPoints.forEach(p => p.rotate(angle, p));
+    this.rotationAngle = angle.degrees;
+    this.rotationPoint = p;
+    return this
+  }
+
+  invert(): EllipseGGO {
+    this.root.invert();
+    this.f1Point.invert();
+    this.f2Point.invert();
+    this.ellipsePoint.invert();
+    this.outerPoints.forEach(p => p.invert());
+    this.isInverted = !this.isInverted;
+    this.rotationAngle = GeogebraObjectUtils.invertRotationAngle(this.rotationAngle);
     return this
   }
 
   copy(): EllipseGGO {
-    return new EllipseGGO(this.id, this.name, this.root.copy(), this.xR, this.yR);
+    return new EllipseGGO(this.id, this.name, this.root.copy(), this.xR, this.yR, this.settings, this.rotationAngle, this.rotationPoint);
   }
 
   getCommands(): string[] {
@@ -84,20 +106,22 @@ export class EllipseGGO implements GeogebraObject {
     ]
   }
 
-  toJson(): EllipseGGOJSON {
+  toJson(): GeometryShapeJson {
     return {
       id: this.id,
-      kind: this.kind,
       name: this.name,
+      shapeType: "Ellipse",
+      rotationAngle: this.rotationAngle,
+      rotationPoint: this.rotationPoint,
       root: this.root.toJson(),
-      xR: this.xR,
-      yR: this.yR
+      dimensions: {
+        xR: this.xR,
+        yR: this.yR
+      },
+      sizeDirections: undefined,
+      settings: this.settings,
+      props: undefined
     }
-  }
-
-  static fromJson(json: GeogebraObjectJson): EllipseGGO {
-    const j = json as EllipseGGOJSON;
-    return new EllipseGGO(j.id, j.name, XYCoords.fromJson(j.root), j.xR, j.yR)
   }
 
   maxCoord(): XYCoordsJson {

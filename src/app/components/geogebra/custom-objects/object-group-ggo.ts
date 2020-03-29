@@ -5,17 +5,25 @@ import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
  * Group of geogebra objects
  */
 export class GeogebraObjectGroup {
-  constructor(public objects: GeogebraObject[]) {
+  private isInverted: boolean = false;
+
+  constructor(public readonly id: string, public objects: GeogebraObject[]) {
   }
 
   rotate(angle: Angle, point?: XYCoords): GeogebraObjectGroup {
-    const p = point || new XYCoords(0, 0);
+    const p = point || this.getCenterCoords();
     this.objects.forEach(o => o.rotate(angle, p));
     return this
   }
 
+  invert(): GeogebraObjectGroup {
+    this.objects.forEach(o => o.invert());
+    this.isInverted = !this.isInverted;
+    return this
+  }
+
   copy(): GeogebraObjectGroup {
-    return new GeogebraObjectGroup(this.objects.map(o => o.copy()));
+    return new GeogebraObjectGroup(this.id, this.objects.map(o => o.copy()));
   }
 
   getCommands(): string[] {

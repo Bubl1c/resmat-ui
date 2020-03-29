@@ -1,5 +1,5 @@
 import { ISchemaVar } from "./task-flow.api-protocol";
-import { ProblemVariantSchemaType } from "../../steps/exam.task-flow-step";
+import { ProblemConf, ProblemVariantSchemaType } from "../../steps/exam.task-flow-step";
 
 export interface IExamTaskFlowTaskData {
   problemConfId: number;
@@ -14,4 +14,5 @@ export interface IExamTaskFlowTaskData {
   schemaUrl: string;
   schemaVars: ISchemaVar[];
   description: string;
+  problemConf: ProblemConf //yes, this duplicates problemConfId and problem name, but i don't care
 }

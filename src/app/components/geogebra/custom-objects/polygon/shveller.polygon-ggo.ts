@@ -1,5 +1,5 @@
 import { GeogebraObjectJson, GeogebraObjectSettings, GGOKindType } from "../geogebra-object";
-import { CoordsUtils, XYCoords } from "../../../../utils/geometryUtils";
+import { CoordsUtils, XYCoords, XYCoordsJson } from "../../../../utils/geometryUtils";
 import { GGB } from "../../geogebra-definitions";
 import { Sortament } from "../../../../utils/sortament";
 import { PolygonGGO, PolygonGGOJSON, PolygonSettingsJson } from "./polygon-ggo";
@@ -8,8 +8,10 @@ import XY = CoordsUtils.XY;
 import LabelMode = GGB.LabelMode;
 import { SizeGGO } from "../size-ggo";
 import { DvotavrGGOSizeDirections } from "./dvotavr.polygon-ggo";
+import { GeometryShapeJson, StringKV } from "../geometry-shape";
+import { NumberUtils } from "../../../../utils/NumberUtils";
 
-export interface ShvellerGGOSizeDirections {
+export interface ShvellerGGOSizeDirections extends StringKV {
   b?: "up" | "down"
   h?: "left" | "right"
   d?: "up" | "down"
@@ -48,11 +50,14 @@ export class ShvellerGGO extends PolygonGGO {
     public root: XYCoords,
     public n: number,
     settings?: PolygonSettingsJson,
-    sizeDirections?: ShvellerGGOSizeDirections
+    public sizeDirections?: ShvellerGGOSizeDirections,
+    public rotationAngle?: number,
+    public rotationPoint?: XYCoordsJson
   ) {
-    super(id, name, root, "shveller", settings);
+    super(id, name, root, "shveller", settings, rotationAngle, rotationPoint);
     this.generatePoints(root, n, settings);
-    this.generateSizes(sizeDirections)
+    this.generateSizes(sizeDirections);
+    this.applyRotation();
   }
 
   private generatePoints(root: XYCoords, n: number, settings: PolygonSettingsJson) {
@@ -63,10 +68,10 @@ export class ShvellerGGO extends PolygonGGO {
       throw new Error(`Shveller with number = ${n} has not been found in sortament!`)
     }
     this.sortament = sortament;
-    const h = sortament.h;
-    const b = sortament.b;
-    const d = sortament.d;
-    const t = sortament.t;
+    const h = sortament.h/10;
+    const b = sortament.b/10;
+    const d = sortament.d/10;
+    const t = sortament.t/10;
 
     const Root = root.copy();
     const B1 = XY(root.x, root.y + h);
@@ -86,17 +91,17 @@ export class ShvellerGGO extends PolygonGGO {
     this.D2Point = new PointGGO(withId("D2"), D2);
     this.B3Point = new PointGGO(withId("B3"), B3);
 
-    const z0mm = sortament.z_0 * 10;
-    this.centerPoint = this.makeCenterPoint(XY(root.x + z0mm, root.y + h/2));
+    this.centerPoint = this.makeCenterPoint(XY(root.x + sortament.z_0, root.y + h/2));
 
     this.points = [this.RootPoint, this.B1Point, this.B2Point, this.D1Point, this.C1Point, this.C2Point, this.D2Point, this.B3Point];
   }
 
   private generateSizes(sizeDirections?: ShvellerGGOSizeDirections) {
-    const b = this.sortament.b;
-    const h = this.sortament.h;
-    const d = this.sortament.d;
-    const t = this.sortament.t;
+    const rnd = (n: number) => NumberUtils.accurateRound(n, 2);
+    const b = rnd(this.sortament.b/10);
+    const h = rnd(this.sortament.h/10);
+    const d = rnd(this.sortament.d/10);
+    const t = rnd(this.sortament.t/10);
     const withId = this.withId;
     if (this.settings.showSizes) {
       const sizeDirs: ShvellerGGOSizeDirections = {
@@ -127,13 +132,24 @@ export class ShvellerGGO extends PolygonGGO {
   }
 
   copy(): ShvellerGGO {
-    return new ShvellerGGO(this.id, this.name, this.root.copy(), this.n, this.actualJsonSettings)
+    return new ShvellerGGO(this.id, this.name, this.root.copy(), this.n, this.actualJsonSettings, this.sizeDirections, this.rotationAngle, this.rotationPoint)
   }
 
-  toJson(): ShvellerGGOJSON {
-    return Object.assign(super.toJson(), {
-      n: this.n
-    })
+  toJson(): GeometryShapeJson {
+    return {
+      id: this.id,
+      name: this.name,
+      shapeType: "Shveller",
+      rotationAngle: this.rotationAngle,
+      rotationPoint: this.rotationPoint,
+      root: this.root.toJson(),
+      dimensions: {
+        n: this.n
+      },
+      sizeDirections: this.sizeDirections,
+      settings: this.actualJsonSettings,
+      props: undefined
+    }
   }
 
   static fromJson(json: GeogebraObjectJson): ShvellerGGO {

@@ -1,10 +1,9 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { MathSymbolConverter } from "../../../utils/MathSymbolConverter";
 import { ISchemaVar } from "../../data/task-flow.api-protocol";
-import { GeogebraObject, GeogebraObjectJson } from "../../../components/geogebra/custom-objects/geogebra-object";
-import { GeogebraObjectGroup } from "../../../components/geogebra/custom-objects/object-group-ggo";
+import { GeogebraObject } from "../../../components/geogebra/custom-objects/geogebra-object";
 import { GeometryShapeJson, GeometryShapeUtils } from "../../../components/geogebra/custom-objects/geometry-shape";
-import { ProblemVariantSchemaType } from "../../../steps/exam.task-flow-step";
+import { ProblemConf, ProblemVariantSchemaType } from "../../../steps/exam.task-flow-step";
 import { GeogebraComponentSettings } from "../../../components/geogebra/geogebra.component";
 
 export interface TaskVariantData {
@@ -14,6 +13,7 @@ export interface TaskVariantData {
   schemaUrl: string;
   schemaVars: ISchemaVar[];
   description: string;
+  problemConf: ProblemConf
 }
 
 class SchemaVarGroup {
@@ -35,14 +35,7 @@ export class TaskComponent implements OnInit {
   isCollapsed: boolean;
 
   geogebraObjects: GeogebraObject[];
-  geogebraSettings: GeogebraComponentSettings = new GeogebraComponentSettings(500, 500).setProps({
-    perspective: "G",
-    showToolBar: false,
-    showMenuBar: false,
-    enableLabelDrags: true,
-    showToolBarHelp: false,
-    enableRightClick: false
-  });
+  geogebraSettings: GeogebraComponentSettings;
 
   schemaVarGroups: SchemaVarGroup[];
 
@@ -51,6 +44,8 @@ export class TaskComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.geogebraSettings = GeogebraComponentSettings.GRID_ONLY_NO_CONTROLS_WITH_LABEL_DRAG(this.task.problemConf.props.customAxesSettings);
+
     this.task.schemaVars.map(this.convertSymbols);
     this.task.schemaVars = this.task.schemaVars.filter(sv => sv.showInExam);
 

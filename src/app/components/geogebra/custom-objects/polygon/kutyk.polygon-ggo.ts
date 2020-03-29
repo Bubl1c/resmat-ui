@@ -1,12 +1,14 @@
 import { GeogebraObjectJson, GGOKindType } from "../geogebra-object";
 import { PointGGO } from "../point-ggo";
-import { CoordsUtils, XYCoords } from "../../../../utils/geometryUtils";
+import { CoordsUtils, XYCoords, XYCoordsJson } from "../../../../utils/geometryUtils";
 import { Sortament } from "../../../../utils/sortament";
 import { PolygonGGO, PolygonGGOJSON, PolygonSettingsJson } from "./polygon-ggo";
 import { SizeGGO } from "../size-ggo";
 import XY = CoordsUtils.XY;
+import { GeometryShapeJson, StringKV } from "../geometry-shape";
+import { NumberUtils } from "../../../../utils/NumberUtils";
 
-export interface KutykGGOSizeDirections {
+export interface KutykGGOSizeDirections extends StringKV {
   b?: "left" | "down"
   t?: "up" | "right"
   z0?: "up" | "right"
@@ -45,18 +47,20 @@ export class KutykGGO extends PolygonGGO {
     public b: number,
     public t: number,
     settings?: PolygonSettingsJson,
-    sizeDirections?: KutykGGOSizeDirections
+    public sizeDirections?: KutykGGOSizeDirections,
+    public rotationAngle?: number,
+    public rotationPoint?: XYCoordsJson,
   ) {
-    super(id, name, root, "kutyk", settings);
+    super(id, name, root, "kutyk", settings, rotationAngle, rotationPoint);
     this.generatePoints(root, b, t, settings);
     this.generateSizes(b, t, sizeDirections);
+    this.applyRotation();
   }
 
   private generatePoints(root: XYCoords, b: number, t: number, settings: PolygonSettingsJson) {
     const withId = this.withId;
 
-    const sortamentNumber = b / 10;
-    const sortament = Sortament.Kutyk["" + sortamentNumber + "_" + t];
+    const sortament = Sortament.Kutyk[`${b}_${t*10}`];
     if (!sortament) {
       throw new Error(`Kutyk with b = ${b} and t = ${t} has not been found in sortament!`)
     }
@@ -74,8 +78,7 @@ export class KutykGGO extends PolygonGGO {
     this.a1Point = new PointGGO(withId("A1"), A1);
     this.aPoint = new PointGGO(withId("A"), A);
 
-    const z0mm = sortament.z_0 * 10;
-    this.centerPoint = this.makeCenterPoint(XY(Root.x + z0mm, Root.y + z0mm));
+    this.centerPoint = this.makeCenterPoint(XY(Root.x + sortament.z_0, Root.y + sortament.z_0));
 
     this.points = [this.rootPoint, this.bPoint, this.b1Point, this.c1Point, this.a1Point, this.aPoint]
   }
@@ -97,33 +100,42 @@ export class KutykGGO extends PolygonGGO {
         ? new SizeGGO(withId("SizeT"), this.aPoint.root.copy(), this.a1Point.root.copy(), sizeDirs.t,`t${this.id}=${t}`, shapeSize)
         : new SizeGGO(withId("SizeT"), this.bPoint.root.copy(), this.b1Point.root.copy(), sizeDirs.t,`t${this.id}=${t}`, shapeSize);
 
-      const z0 = this.centerPoint.root.x - this.rootPoint.root.x;
+      const z0 = NumberUtils.accurateRound(this.centerPoint.root.x - this.rootPoint.root.x, 2);
       const z0Depth = (b - z0) * 1.2;
       const sizeZ0 = sizeDirs.z0 == "up"
-        ? new SizeGGO(withId("SizeZ0"), this.rootPoint.root.updY(y => y + z0), this.centerPoint.root.copy(), sizeDirs.z0,"" + z0, shapeSize, z0Depth)
-        : new SizeGGO(withId("SizeZ0"), this.rootPoint.root.updX(x => x + z0), this.centerPoint.root.copy(), sizeDirs.z0,"" + z0, shapeSize, z0Depth);
+        ? new SizeGGO(withId("SizeZ0"), this.rootPoint.root.updY(y => y + z0), this.centerPoint.root.copy(), sizeDirs.z0,`z0${this.id}=${z0}`, shapeSize, z0Depth)
+        : new SizeGGO(withId("SizeZ0"), this.rootPoint.root.updX(x => x + z0), this.centerPoint.root.copy(), sizeDirs.z0,`z0${this.id}=${z0}`, shapeSize, z0Depth);
 
       this.sizes = [sizeB, sizeH, sizeZ0]
     }
   }
 
-  getCommands(): string[] {
-    return super.getCommands();
+  getDimensions(): { width: number; height: number } {
+    return {
+      width: this.b,
+      height: this.b
+    }
   }
 
   copy(): KutykGGO {
-    return new KutykGGO(this.id, this.name, this.root.copy(), this.b, this.t, this.actualJsonSettings)
+    return new KutykGGO(this.id, this.name, this.root.copy(), this.b, this.t, this.actualJsonSettings, this.sizeDirections, this.rotationAngle, this.rotationPoint)
   }
 
-  toJson(): KutykGGOJSON {
-    return Object.assign(super.toJson(), {
-      b: this.b,
-      t: this.t
-    })
-  }
-
-  static fromJson(json: GeogebraObjectJson): KutykGGO {
-    const j = json as KutykGGOJSON;
-    return new KutykGGO(j.id, j.name, XYCoords.fromJson(j.root), j.b, j.t, j.settings)
+  toJson(): GeometryShapeJson {
+    return {
+      id: this.id,
+      name: this.name,
+      shapeType: "Kutyk",
+      rotationAngle: this.rotationAngle,
+      rotationPoint: this.rotationPoint,
+      root: this.root.toJson(),
+      dimensions: {
+        b: this.b,
+        t: this.t
+      },
+      sizeDirections: this.sizeDirections,
+      settings: this.actualJsonSettings,
+      props: undefined
+    }
   }
 }

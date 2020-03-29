@@ -149,6 +149,9 @@ a {
 .flex-column {
   flex-direction: column;
 }
+.flex-row {
+  flex-direction: row;
+}
 
 /* OVERRIDE MUI*/
 .material-icons {

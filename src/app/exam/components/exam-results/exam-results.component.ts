@@ -97,7 +97,8 @@ export class ExamResult {
         taskFlowDto.problemConf.inputVariableConfs,
         taskFlowDto.problemVariantConf.inputVariableValues
       ),
-      description: "description"
+      description: "description",
+      problemConf: taskFlowDto.problemConf
     }
   }
 

@@ -1,11 +1,12 @@
 import { GeogebraObjectJson, GeogebraObjectSettings, GGOKindType } from "../geogebra-object";
-import { Angle, CoordsUtils, XYCoords } from "../../../../utils/geometryUtils";
+import { Angle, CoordsUtils, XYCoords, XYCoordsJson } from "../../../../utils/geometryUtils";
 import { GGB } from "../../geogebra-definitions";
 import { PolygonGGO, PolygonGGOJSON, PolygonSettingsJson } from "./polygon-ggo";
 import { PointGGO, PointGGOJSON } from "../point-ggo";
 import XY = CoordsUtils.XY;
 import { SizeGGO, SizeGGODirection } from "../size-ggo";
 import LabelMode = GGB.LabelMode;
+import { GeometryShapeJson, StringKV } from "../geometry-shape";
 
 export interface PlateGGOJSON extends PolygonGGOJSON {
   b: number
@@ -13,7 +14,7 @@ export interface PlateGGOJSON extends PolygonGGOJSON {
   settings?: PolygonSettingsJson
 }
 
-export interface PlateGGOSizeDirections {
+export interface PlateGGOSizeDirections extends StringKV {
   b?: "up" | "down"
   h?: "right" | "left"
 }
@@ -40,11 +41,14 @@ export class PlateGGO extends PolygonGGO {
     public b: number,
     public h: number,
     settings?: PolygonSettingsJson,
-    sizeDirections?: PlateGGOSizeDirections
+    public sizeDirections?: PlateGGOSizeDirections,
+    public rotationAngle?: number,
+    public rotationPoint?: XYCoordsJson
   ) {
-    super(id, name, root, "plate", settings);
+    super(id, name, root, "plate", settings, rotationAngle, rotationPoint);
     this.generatePoints(id, root, b, h, this.settings);
-    this.generateSizes(id, root, b, h, sizeDirections)
+    this.generateSizes(id, root, b, h, sizeDirections);
+    this.applyRotation();
   }
 
   private generatePoints(id: number, root: XYCoords, b: number, h: number, settings: PolygonSettingsJson) {
@@ -55,7 +59,7 @@ export class PlateGGO extends PolygonGGO {
     const C1 = XY(Root.x + b, Root.y + h);
     const D = XY(Root.x + b, Root.y);
 
-    this.rootPoint = new PointGGO(withId("Root"), root, this.outerPointSettings());
+    this.rootPoint = new PointGGO(withId("Root"), Root, this.outerPointSettings());
     this.bPoint = new PointGGO(withId("B"), B);
     this.c1Point = new PointGGO(withId("C1"), C1);
     this.dPoint = new PointGGO(withId("D"), D);
@@ -86,18 +90,24 @@ export class PlateGGO extends PolygonGGO {
   }
 
   copy(): PlateGGO {
-    return new PlateGGO(this.id, this.name, this.root.copy(), this.b, this.h, this.actualJsonSettings)
+    return new PlateGGO(this.id, this.name, this.root.copy(), this.b, this.h, this.actualJsonSettings, this.sizeDirections, this.rotationAngle, this.rotationPoint)
   }
 
-  toJson(): PlateGGOJSON {
-    return Object.assign(super.toJson(), {
-      b: this.b,
-      h: this.h
-    })
-  }
-
-  static fromJson(json: GeogebraObjectJson): PlateGGO {
-    const j = json as PlateGGOJSON;
-    return new PlateGGO(j.id, j.name, XYCoords.fromJson(j.root), j.b, j.h, j.settings)
+  toJson(): GeometryShapeJson {
+    return {
+      id: this.id,
+      name: this.name,
+      shapeType: "Plastyna",
+      rotationAngle: this.rotationAngle,
+      rotationPoint: this.rotationPoint,
+      root: this.root.toJson(),
+      dimensions: {
+        b: this.b,
+        h: this.h
+      },
+      sizeDirections: this.sizeDirections,
+      settings: this.actualJsonSettings,
+      props: undefined
+    }
   }
 }

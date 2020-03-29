@@ -139,7 +139,8 @@ export class TaskFlowComponent implements OnInit {
       schemaType: this.task.schemaType,
       schemaUrl: this.task.schemaUrl,
       schemaVars: this.task.schemaVars,
-      description: this.task.description
+      description: this.task.description,
+      problemConf: this.task.problemConf
     }
   }
 

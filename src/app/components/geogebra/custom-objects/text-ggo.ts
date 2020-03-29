@@ -2,6 +2,7 @@ import { GeogebraObject, GeogebraObjectJson, GGOKindType } from "./geogebra-obje
 import { Angle, XYCoords, XYCoordsJson } from "../../../utils/geometryUtils";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import { StringUtils } from "../../../utils/StringUtils";
+import { GeometryShapeJson } from "./geometry-shape";
 
 export interface TextGGOJSON extends GeogebraObjectJson {
   substituteVariables: boolean
@@ -16,6 +17,8 @@ export class TextGGO implements GeogebraObject {
 
   private readonly shapeId: string;
 
+  private isInverted: boolean = false;
+
   constructor(public name: string, public root: XYCoords, public substituteVariables: boolean = false, public laTeXFormula: boolean = false, public id: number = GeogebraObjectUtils.nextId()) {
     this.shapeId = `Text${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
   }
@@ -23,6 +26,12 @@ export class TextGGO implements GeogebraObject {
   rotate(angle: Angle, point?: XYCoords): TextGGO {
     this.root.rotate(angle, point || new XYCoords(0, 0));
     return this;
+  }
+
+  invert(): TextGGO {
+    this.root.invert();
+    this.isInverted = !this.isInverted;
+    return this
   }
 
   copy(): TextGGO {
@@ -35,13 +44,8 @@ export class TextGGO implements GeogebraObject {
     ]
   }
 
-  toJson(): TextGGOJSON {
-    return this.copy()
-  }
-
-  static fromJson(json: GeogebraObjectJson): TextGGO {
-    const j = json as TextGGOJSON;
-    return new TextGGO(j.name, XYCoords.fromJson(j.root), j.substituteVariables, j.laTeXFormula)
+  toJson(): GeometryShapeJson {
+    throw new Error("toJson() on TextGGO is not supported.")
   }
 
   maxCoord(): XYCoordsJson {

@@ -1,5 +1,6 @@
 import { Angle, XYCoordsJson } from "../../../utils/geometryUtils";
 import { GGB } from "../geogebra-definitions";
+import { GeometryShapeJson } from "./geometry-shape";
 
 export class GGOKind {
   static all: GGOKind[] = [];
@@ -72,6 +73,8 @@ export interface GeogebraObjectJson {
   kind: GGOKindType
   root: XYCoordsJson
   name: string
+  rotationAngle?: number
+  rotationPoint?: XYCoordsJson
 }
 
 export interface GeogebraObject extends GeogebraObjectJson {
@@ -81,7 +84,7 @@ export interface GeogebraObject extends GeogebraObjectJson {
 
   getCommands(): string[]
 
-  toJson(): GeogebraObjectJson
+  toJson(): GeometryShapeJson
 
   maxCoord(): XYCoordsJson
 
@@ -92,4 +95,6 @@ export interface GeogebraObject extends GeogebraObjectJson {
   getCenterCoords(): XYCoordsJson
 
   getDimensions(): { width: number, height: number }
+
+  invert(): GeogebraObject
 }

@@ -68,7 +68,7 @@ export class XYCoords implements XYCoordsJson {
     return new XYCoords(this.x, this.y)
   }
 
-  rotate(angle: Angle, point?: XYCoords): XYCoords {
+  rotate(angle: Angle, point?: XYCoordsJson): XYCoords {
     const p = point || new XYCoords(0, 0);
     //Translate to a new coordinate system with center at point
     let translatedX = this.x - p.x;
@@ -105,6 +105,16 @@ export class XYCoords implements XYCoordsJson {
       x: this.x,
       y: this.y
     }
+  }
+
+  invert(): XYCoords {
+    this.x = -this.x;
+    this.y = -this.y;
+    return this
+  }
+
+  inverted(): XYCoords {
+    return this.copy().invert()
   }
 }
 
