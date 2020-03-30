@@ -119,7 +119,7 @@ export class TaskFlowComponent implements OnInit {
         return new TestTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.InputSet:
         return new InputSetTaskFlowStep(this.task, stepData, this.examService);
-      case TaskFlowStepTypes.DynamicInputSet:
+      case TaskFlowStepTypes.GroupedInputSet:
         return new DynamicInputSetTaskFlowStep(this.task, stepData, this.examService);
       case TaskFlowStepTypes.EquationSet:
         return new EquationSetTaskFlowStep(this.task, stepData, this.examService);

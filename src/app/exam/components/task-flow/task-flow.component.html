@@ -28,7 +28,7 @@
     <input-set [data]="step.data" [readonly]="step.readOnly"
                (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></input-set>
   </div>
-  <div class="mui-panel" *ngIf="step.type === 'dynamic-input-set'">
+  <div class="mui-panel" *ngIf="step.type === 'grouped-input-set'">
     <input-set [data]="step.data" [readonly]="step.readOnly"
                (onSubmitted)="stepSubmitted($event)" (onContinue)="stepContinue($event)"></input-set>
   </div>
