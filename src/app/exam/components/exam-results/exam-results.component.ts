@@ -4,6 +4,9 @@ import { TaskDataUtils, TaskFlowDto } from "../../../steps/exam.task-flow-step";
 import { TaskVariantData } from "../task/task.component";
 import { DynamicTable } from "../dynamic-table/dynamic-table.component";
 import { SmartValue } from "../smart-value/smart-value.component";
+import { DrawingStepAnswer } from "../../../components/geogebra/custom-objects/geometry-shape";
+import { TaskFlowStepTypes } from "../../data/task-flow.api-protocol";
+import { TaskFlowStepUtils } from "../task/task-flow-step.utils";
 
 export const InfoTypes = {
   taskFlow: 'TaskFlowStepResultStepInfo'
@@ -12,8 +15,8 @@ export const InfoTypes = {
 export interface TaskFlowStepExamResultDto {
   id: number,
   name: string
-  stepType: string //enum
-  data: DynamicTable //json
+  stepType: string //enum TaskFlowStepTypes
+  data: any //json DrawingStepAnswer | DynamicTable
 }
 
 export interface TaskFlowExamStepResultInfoDto {
@@ -26,7 +29,7 @@ export interface TaskFlowExamStepResultInfoData {
   variant: TaskVariantData
 }
 
-export type ExamStepResultInfoDto = TaskFlowExamStepResultInfoDto
+export type ExamStepResultInfoDto = TaskFlowExamStepResultInfoDto // could also be TestSet
 
 export type ExamStepResultInfoData = TaskFlowExamStepResultInfoData
 
@@ -115,6 +118,8 @@ export class ExamResultsComponent implements OnInit {
 
   InfoTypes = InfoTypes;
 
+  TaskFlowStepTypes = TaskFlowStepTypes;
+
   stepInfos: ExamStepResultInfo[];
 
   duration: string;
@@ -164,10 +169,16 @@ export class ExamResultsComponent implements OnInit {
           info = info as TaskFlowExamStepResultInfoData;
           info.variant.name = `Варіант ${String(info.variant.id)}`;
           info.data = info.data.map(stepData => {
-            stepData.data = JSON.parse(stepData.data as any);
-            stepData.data.rows.forEach(r => {
-              r.cells = r.cells.map(c => SmartValue.fromContainer(c as any))
-            });
+            switch(stepData.stepType) {
+              case TaskFlowStepTypes.DynamicTable:
+                stepData.data = TaskFlowStepUtils.prepareDynamicTable(JSON.parse(stepData.data));
+                break;
+              case TaskFlowStepTypes.Drawing:
+                stepData.data = TaskFlowStepUtils.prepareDrawingHelpStepData(JSON.parse(stepData.data));
+                break;
+              default:
+                throw new Error(`Unsupported exam result task flow step type ${stepData.stepType}`)
+            }
             return stepData;
           });
           break;

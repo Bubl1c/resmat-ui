@@ -16,6 +16,9 @@ export class TaskFlowStepTypes {
   static VariableValueSet = 'var-value-set';
   static EquationSet = 'equation-set';
   static Charts = 'charts';
+  static DynamicTable = 'dynamic-table';
+  static Drawing = 'drawing';
+  static EquationSetHelp = 'equation-set-help';
   static Finished = 'finished';
   static Loading = 'loading';
 }

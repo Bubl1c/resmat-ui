@@ -31,7 +31,7 @@ export interface SmartValueDoubleInput {
 }
 
 export class SmartValue {
-  static fromContainer(container: SmartValueContainer) {
+  static fromContainer(container: SmartValueContainer): SmartValue {
     const keys = Object.keys(container);
     let valueType;
     if(keys.length  === 1) { valueType = keys[0] } else { throw new Error(`Invalid item value: ${JSON.stringify(container)}`) }

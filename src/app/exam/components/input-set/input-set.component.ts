@@ -107,6 +107,7 @@ export class VariableGroup {
       const objects: GeogebraObject[] = json.map(j => GeometryShapeUtils.parseGeometryShape(j));
       this.geogebraSettings = GeogebraComponentSettings.GRID_ONLY_NO_CONTROLS_WITH_LABEL_DRAG(
         groupGraphSettings && groupGraphSettings.customAxesSettings,
+        groupGraphSettings && groupGraphSettings.isInverted,
         400,
         400
       );
@@ -122,11 +123,12 @@ export class VariableGroup {
             oCenter,
             oDim.width,
             oDim.height,
-            `${cas.xAxisName}${o.id}`,
-            `${cas.yAxisName}${o.id}`,
-            { styles: { color: "blue" } }
+            {
+              xAxisName: `${cas.xAxisName}${o.id}`,
+              yAxisName: `${cas.yAxisName}${o.id}`
+            }
           );
-          return cas.isInverted ? ca.rotate(new Angle(180)) : ca
+          return groupShapeGraphSettings.isInverted ? ca.rotate(new Angle(180)) : ca
         })
       }
       this.geogebraObjects = [
@@ -212,12 +214,16 @@ export class InputSetComponent implements OnInit {
 
     for(let groupName in varGroups) {
       const group = this.data.groups.find(g => g.name === groupName);
-      if (!group) {
-        throw new Error(`Failed to find group by name ${groupName}, for InputSet ${JSON.stringify(this.data)}`);
-      }
       const imageType = group ? group.imageType : ResmatImageTypes.ImageUrl;
       const image = group ? group.image : "";
-      this.groups.push(new VariableGroup(groupName, varGroups[groupName], imageType as ResmatImageType, image, group.groupGraphSettings, group.groupShapeGraphSettings))
+      this.groups.push(new VariableGroup(
+        groupName,
+        varGroups[groupName],
+        imageType as ResmatImageType,
+        image,
+        group && group.groupGraphSettings,
+        group && group.groupShapeGraphSettings)
+      )
     }
   }
 

@@ -7,8 +7,14 @@
       <div class="relative">
         <p [hidden]="!helpDataItem.collapsed">{{ helpDataItem.name }}</p>
         <div [ngSwitch]="helpDataItem.type" [hidden]="helpDataItem.collapsed">
-          <chart-set [data]="helpDataItem.data" *ngSwitchCase="'charts'"></chart-set>
-          <input-set [data]="helpDataItem.data" *ngSwitchCase="'var-value-set'" [readonly]="true"></input-set>
+          <chart-set *ngSwitchCase="'charts'" [data]="helpDataItem.data" ></chart-set>
+          <input-set *ngSwitchCase="'var-value-set'" [data]="helpDataItem.data" [readonly]="true"></input-set>
+          <div *ngSwitchCase="'drawing'" class="flex-container flex-align-center flex-justify-center">
+            <geogebra [objects]="helpDataItem.data.geogebraObjects"
+                      [settings]="helpDataItem.data.geogebraComponentSettings"></geogebra>
+          </div>
+          <dynamic-table *ngSwitchCase="'dynamic-table'" [data]="helpDataItem.data"></dynamic-table>
+          <equation-set *ngSwitchCase="'equation-set-help'" [data]="helpDataItem.data" [isHelpStep]="true"></equation-set>
         </div>
         <border-sticky-btn (onClick)="helpDataItem.collapsed = !helpDataItem.collapsed" positionH="right">
           <i class="material-icons" [hidden]="helpDataItem.collapsed">keyboard_arrow_up</i>

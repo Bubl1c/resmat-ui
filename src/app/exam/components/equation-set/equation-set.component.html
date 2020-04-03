@@ -1,7 +1,7 @@
 <div>
   <div class="mui--text-subhead">
-    <span class="test-number">{{ data.sequence }}.</span>
-    <mathjax [data]="data.description"></mathjax>
+    <span *ngIf="data.sequence" class="test-number">{{ data.sequence }}.</span>
+    <mathjax *ngIf="data.description" [data]="data.description"></mathjax>
   </div>
   <form #equationsSetForm="ngForm" class="container">
     <div class="set">
@@ -10,7 +10,7 @@
       </div>
     </div>
   </form>
-  <status-with-navigation *ngIf="!readonly" [showStatus]="isVerified()"
+  <status-with-navigation *ngIf="!isHelpStep" [showStatus]="isVerified()"
                           [statusSuccess]="data.status === 1"
                           statusSuccessMessage="Відповідь правильна."
                           statusFailureMessage="Відповідь не вірна, введіть інше значення."

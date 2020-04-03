@@ -1,20 +1,11 @@
-import {
-  AfterViewInit,
-  Component,
-  DoCheck,
-  Input, IterableDiffer,
-  IterableDiffers,
-  OnChanges,
-  OnInit,
-  SimpleChanges
-} from '@angular/core';
-import { Angle, CoordsUtils } from "../../utils/GeometryUtils";
+import { AfterViewInit, Component, DoCheck, Input, IterableDiffer, IterableDiffers, OnInit } from '@angular/core';
+import { CoordsUtils } from "../../utils/GeometryUtils";
 import { GGB } from "./geogebra-definitions";
-import { NumberUtils } from "../../utils/NumberUtils";
-import XY = CoordsUtils.XY;
 import { GeogebraObject } from "./custom-objects/geogebra-object";
 import { CustomAxesGGO } from "./custom-objects/custom-axes-ggo";
 import { CustomAxesSettings } from "./custom-objects/geometry-shape";
+import XY = CoordsUtils.XY;
+import LabelMode = GGB.LabelMode;
 
 declare const GGBApplet: any;
 
@@ -43,6 +34,7 @@ export class GeogebraComponentSettings {
 
   static GRID_ONLY_NO_CONTROLS_WITH_LABEL_DRAG(
     customAxesSettings?: CustomAxesSettings,
+    isInverted: boolean = true,
     width?: number,
     height?: number
   ): GeogebraComponentSettings {
@@ -62,7 +54,7 @@ export class GeogebraComponentSettings {
 
   props: GGB.AppletProperties = {};
 
-  constructor(public width?: number, public height?: number, public customAxesSettings?: CustomAxesSettings) {
+  constructor(public width?: number, public height?: number, public customAxesSettings?: CustomAxesSettings, public isInverted: boolean = true) {
     this.width = width || GeogebraComponentSettings.defaults.width;
     this.height = height || GeogebraComponentSettings.defaults.height;
   }
@@ -204,18 +196,16 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
         XY(0, 0),
         xSize*0.95,
         ySize*0.95,
-        this.settings.customAxesSettings.xAxisName,
-        this.settings.customAxesSettings.yAxisName,
         {
-          styles: {
-            color: "blue"
-          }
+          xAxisName: this.settings.customAxesSettings.xAxisName,
+          yAxisName: this.settings.customAxesSettings.yAxisName
         },
+        { rootPoint: { isLabelVisible: true, labelMode: LabelMode.Caption, caption: "O"} },
         undefined,
         undefined,
         true
       );
-      this.addObject(api, this.settings.customAxesSettings.isInverted ? ca.invert() : ca);
+      this.addObject(api, this.settings.isInverted ? ca.invert() : ca);
     }
   }
 

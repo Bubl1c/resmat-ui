@@ -14,6 +14,11 @@ import { PointGGO } from "./point-ggo";
 import { StringUtils } from "../../../utils/StringUtils";
 import { GeometryShapeJson } from "./geometry-shape";
 
+export interface CustomAxesProps {
+  xAxisName?: string
+  yAxisName?: string
+}
+
 export interface CustomAxesGGOJSON extends GeogebraObjectJson {
   xSize: number
   ySize: number
@@ -50,8 +55,7 @@ export class CustomAxesGGO implements GeogebraObject {
     public root: XYCoords,
     public xSize: number = 5,
     public ySize: number = 5,
-    public xAxisName?: string,
-    public yAxisName?: string,
+    public props?: CustomAxesProps,
     public settings?: GeogebraObjectSettings,
     public rotationAngle?: number,
     public rotationPoint?: XYCoordsJson,
@@ -62,18 +66,25 @@ export class CustomAxesGGO implements GeogebraObject {
     this.shapeId = `CustomAxes${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
     this.settings.lineThickness = settings && settings.lineThickness || 2;
+    this.settings.styles.color =  settings && settings.styles && settings.styles && settings.styles.color || "blue";
 
-    this.xAxisName = xAxisName || "X";
-    this.yAxisName = yAxisName || "Y";
+    this.props = {
+      xAxisName: props.xAxisName || "X",
+      yAxisName: props.yAxisName || "Y"
+    };
 
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
-    this.xAxis = new VectorGGO(withId(xAxisName), XY(root.x - xSize, root.y), XY(root.x + xSize, root.y), this.settings);
-    this.yAxis = new VectorGGO(withId(yAxisName), XY(root.x, root.y - ySize), XY(root.x, root.y + ySize), this.settings);
-    this.rootPoint = new PointGGO("C", this.root.copy(), this.settings.rootPoint);
+    this.xAxis = new VectorGGO(withId(this.props.xAxisName), XY(root.x - xSize, root.y), XY(root.x + xSize, root.y), this.settings);
+    this.yAxis = new VectorGGO(withId(this.props.yAxisName), XY(root.x, root.y - ySize), XY(root.x, root.y + ySize), this.settings);
+    this.rootPoint = new PointGGO(
+      "C",
+      this.root.copy(),
+      Object.assign({}, this.settings, this.settings.rootPoint)
+    );
 
-    const labelPointSettings = (c: string): GeogebraObjectSettings => ({ caption: c, isLabelVisible: true, isVisible: true, pointSize: 0.001 });
-    this.xAxisLabelPoint = new PointGGO(xAxisName, XY(this.xAxis.endPoint.root.x, this.xAxis.endPoint.root.y + 0.3), labelPointSettings(xAxisName));
-    this.yAxisLabelPoint = new PointGGO(yAxisName, XY(this.yAxis.endPoint.root.x, this.yAxis.endPoint.root.y), labelPointSettings(yAxisName));
+    const labelPointSettings = (c: string): GeogebraObjectSettings => Object.assign(this.settings, { caption: c, isLabelVisible: true, isVisible: true, pointSize: 0.001 });
+    this.xAxisLabelPoint = new PointGGO(this.props.xAxisName, XY(this.xAxis.endPoint.root.x, this.xAxis.endPoint.root.y + 0.3), labelPointSettings(this.props.xAxisName));
+    this.yAxisLabelPoint = new PointGGO(this.props.yAxisName, XY(this.yAxis.endPoint.root.x, this.yAxis.endPoint.root.y), labelPointSettings(this.props.yAxisName));
 
     //todo implement scale
     // if (this.hasScale) {
@@ -117,7 +128,7 @@ export class CustomAxesGGO implements GeogebraObject {
   }
 
   copy(): CustomAxesGGO {
-    return new CustomAxesGGO(this.id, this.name, this.root.copy(), this.xSize, this.ySize, this.xAxisName, this.yAxisName, this.settings, this.rotationAngle, this.rotationPoint);
+    return new CustomAxesGGO(this.id, this.name, this.root.copy(), this.xSize, this.ySize, this.props, this.settings, this.rotationAngle, this.rotationPoint);
   }
 
   getCommands(): string[] {
@@ -146,8 +157,8 @@ export class CustomAxesGGO implements GeogebraObject {
       sizeDirections: undefined,
       settings: this.settings,
       props: {
-        xAxisName: this.xAxisName,
-        yAxisName: this.yAxisName
+        xAxisName: this.props.xAxisName,
+        yAxisName: this.props.yAxisName
       }
     }
   }

@@ -60,9 +60,16 @@
             <task [task]="stepInfo.data.variant" [hideControls]="true"></task>
           </div>
           <div *ngFor="let tfStep of stepInfo.data.data">
-            <div class="task-data">
-              <h3>{{tfStep.name}}</h3>
-              <dynamic-table [data]="tfStep.data"></dynamic-table>
+            <div [ngSwitch]="tfStep.stepType" class="task-data">
+              <div *ngSwitchCase="TaskFlowStepTypes.DynamicTable">
+                <h3>{{tfStep.name}}</h3>
+                <dynamic-table [data]="tfStep.data"></dynamic-table>
+              </div>
+              <div *ngSwitchCase="TaskFlowStepTypes.Drawing" class="flex-container flex-column flex-align-center flex-justify-center">
+                <h3>{{tfStep.name}}</h3>
+                <geogebra [objects]="tfStep.data.geogebraObjects"
+                          [settings]="tfStep.data.geogebraComponentSettings"></geogebra>
+              </div>
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { VarirableAnswer } from "../input-set/input-set.component";
 export const EquationItemValueType = {
   input: 'SmartValueInput',
   staticString: 'SmartValueStaticString',
+  dynamicString: 'SmartValueDynamicString',
   dynamicDouble: 'SmartValueDynamicDouble',
   staticDouble: 'SmartValueStaticDouble'
 };

@@ -19,6 +19,7 @@ export class EquationSet {
 export class EquationSetComponent implements OnInit {
 
   @Input() data: EquationSet;
+  @Input() isHelpStep: boolean;
 
   @Output() onSubmitted = new EventEmitter<InputSetAnswer>();
   @Output() onContinue = new EventEmitter<any>();
@@ -26,6 +27,7 @@ export class EquationSetComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    this.isHelpStep = this.isHelpStep === true;
     this.data.description = MathSymbolConverter.convertString(this.data.description)
   }
 

@@ -1,6 +1,6 @@
 <div class="container">
   <div class="item" *ngFor="let item of equation.items">
-    <div class="prefix" [innerHtml]="item.prefix">
+    <div [ngClass]="{ 'prefix': item.value.type === ValueType.input }">
       <mathjax [data]="item.prefix"></mathjax>
     </div>
     <div [ngSwitch]="item.value.type">
@@ -16,6 +16,9 @@
       <div *ngSwitchCase="ValueType.staticString">
         <mathjax [data]="valueAsStr(item.value)"></mathjax>
       </div>
+      <div *ngSwitchCase="ValueType.dynamicString">
+        <mathjax [data]="valueAsStr(item.value)"></mathjax>
+      </div>
       <div *ngSwitchCase="ValueType.staticDouble">
         {{ valueAsDouble(item.value).value }}
       </div>
@@ -23,7 +26,7 @@
         {{ valueAsDouble(item.value).value }}
       </div>
     </div>
-    <div class="suffix">
+    <div [ngClass]="{ 'suffix': item.value.type === ValueType.input }">
       <mathjax [data]="item.suffix"></mathjax>
     </div>
   </div>

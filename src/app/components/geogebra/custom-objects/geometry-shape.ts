@@ -26,11 +26,21 @@ export interface NumberKV {
 export interface CustomAxesSettings {
   xAxisName: string
   yAxisName: string
-  isInverted: number
+}
+
+export interface DrawingStepAnswer {
+  shapes: GeometryShapeInGroupJson[]
+  settings?: GeometryShapeInGroupSettingsJson
+}
+
+export interface GeometryShapeInGroupJson {
+  shape: GeometryShapeJson
+  settings?: GeometryShapeInGroupSettingsJson
 }
 
 export interface GeometryShapeInGroupSettingsJson {
   customAxesSettings?: CustomAxesSettings
+  isInverted: boolean
 }
 
 export interface GeometryShapeJson {
@@ -78,7 +88,7 @@ export class GeometryShapeUtils {
         case "Ellipse":
           return new EllipseGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["xR"], json.dimensions["yR"], settings, json.rotationAngle, json.rotationPoint);
         case "CustomAxes":
-          return new CustomAxesGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["xSize"], json.dimensions["ySize"], json.props["xAxisName"], json.props["yAxisName"], json.settings, json.rotationAngle, json.rotationPoint);
+          return new CustomAxesGGO(json.id, json.name, XYCoords.fromJson(json.root), json.dimensions["xSize"], json.dimensions["ySize"], json.props, json.settings, json.rotationAngle, json.rotationPoint);
         default:
           throw new Error(`Failed to parse geometry shape json. unknown type ${shapeType}. Actual json: ${json}`)
       }

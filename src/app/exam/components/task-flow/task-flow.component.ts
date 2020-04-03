@@ -28,6 +28,17 @@ import { NumberUtils } from "../../../utils/NumberUtils";
 import { TaskVariantData } from "../task/task.component";
 import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
 import { RMU } from "../../../utils/utils";
+import {
+  DrawingStepAnswer,
+  GeometryShapeInGroupJson, GeometryShapeInGroupSettingsJson,
+  GeometryShapeUtils
+} from "../../../components/geogebra/custom-objects/geometry-shape";
+import { CustomAxesGGO } from "../../../components/geogebra/custom-objects/custom-axes-ggo";
+import { GeogebraObjectUtils } from "../../../components/geogebra/custom-objects/geogebra-object-utils";
+import { XYCoords } from "../../../utils/geometryUtils";
+import { GeogebraObject } from "../../../components/geogebra/custom-objects/geogebra-object";
+import { GeogebraComponentSettings } from "../../../components/geogebra/geogebra.component";
+import { TaskFlowStepUtils } from "../task/task-flow-step.utils";
 
 @Component({
   selector: 'task-flow',
@@ -99,12 +110,26 @@ export class TaskFlowComponent implements OnInit {
           case TaskFlowStepTypes.Charts:
             break;
           case TaskFlowStepTypes.VariableValueSet:
-            let preparedInputs = s.data.inputs.map((i: InputVariable) => {
+            const isData = s.data as {
+              id: number,
+              name: string,
+              inputs: InputVariable[]
+            };
+            let preparedInputs = isData.inputs.map((i: InputVariable) => {
               i.value = parseFloat(NumberUtils.roundToFixed(i.value));
               i.name = MathSymbolConverter.convertString(i.name);
               return i;
             });
-            s.data = new InputSetData(s.id, -1, s.name, preparedInputs, []);
+            s.data = new InputSetData(s.id, -1, isData.name, preparedInputs, []);
+            break;
+          case TaskFlowStepTypes.Drawing:
+            s.data = TaskFlowStepUtils.prepareDrawingHelpStepData(s.data);
+            break;
+          case TaskFlowStepTypes.DynamicTable:
+            s.data = TaskFlowStepUtils.prepareDynamicTable(s.data);
+            break;
+          case TaskFlowStepTypes.EquationSetHelp:
+            s.data = TaskFlowStepUtils.prepareEquationSet(s.data, undefined, undefined);
             break;
           default:
             alert(`Invalid help step type: ${s.stepType}`)
@@ -195,50 +220,7 @@ class EquationSetTaskFlowStep extends TaskFlowStep {
   }
 
   fillData(data: EquationSystemDto): void {
-    this.data = new EquationSet(1, this.sequence, this.name, data.equations.map(e => this.fillEquation(e)))
-  }
-
-  fillEquation(eqDto: EquationDto): Equation {
-    const items = eqDto.items.map(i => {
-      const valueType = this.getItemValueType(i.value);
-      let value = i.value[valueType];
-      let newValue: EquationItemValue = {
-        type: valueType,
-        value: null
-      };
-      switch(valueType) {
-        case EquationItemValueType.input:
-          value = (value as ItemValueInput);
-          newValue.value = new VarirableAnswer(value.id, null, value.labelKey);
-          break;
-        case EquationItemValueType.staticString:
-          value = (value as ItemValueStr);
-          newValue.value = MathSymbolConverter.convertString(value.value);
-          break;
-        case EquationItemValueType.dynamicDouble:
-          value = (value as ItemValueDouble);
-          value.value = parseFloat(NumberUtils.roundToFixed(value.value, value.digitsAfterComma));
-          newValue.value = value
-      }
-      return {
-        value: newValue,
-        prefix: i.prefix,
-        suffix: i.suffix
-      };
-    });
-    return {
-      id: eqDto.id,
-      items: items
-    }
-  }
-
-  private getItemValueType(itemValue: EquationItemValueDto): string {
-    const keys = Object.keys(itemValue);
-    if(keys.length  === 1) {
-      return keys[0]
-    } else {
-      throw new Error('Invalid item value: ' + JSON.stringify(itemValue))
-    }
+    this.data = TaskFlowStepUtils.prepareEquationSet(data, this.name, this.sequence);
   }
 }
 

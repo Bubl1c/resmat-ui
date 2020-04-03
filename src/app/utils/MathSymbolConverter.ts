@@ -19,6 +19,9 @@ export class MathSymbolConverter {
     if(!str) {
       return "";
     }
+    if (typeof str !== "string") {
+      return str;
+    }
     return str.replace(this.matchingRegex, function(match) {
       return MathSymbolConverter.mappings[MathSymbolConverter.dropTokenIdentities(match)] || match;
     });

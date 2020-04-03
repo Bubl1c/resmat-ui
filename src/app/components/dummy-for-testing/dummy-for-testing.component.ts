@@ -131,8 +131,8 @@ export class DummyForTestingComponent implements OnInit {
       `Кутик`,
       //TODO: hack how to bind objects
       shveller.getPointCoords("B1"),
-      35,
-      5,
+      3.5,
+      0.5,
       { shapeSizeToCalculateSizeDepth: 50 }
     );
     const C = XY(kutyk.root.x, kutyk.root.y + 20);
@@ -141,7 +141,7 @@ export class DummyForTestingComponent implements OnInit {
     this.demoObjectsTesting["test5"] = [
       shveller,
       kutyk,
-      new CustomAxesGGO(3, "CustomAxis", C, maxSize, maxSize, "U", "V").rotate(new Angle(45)),
+      new CustomAxesGGO(3, "CustomAxis", C, maxSize, maxSize, { xAxisName: "U", yAxisName: "V" }).rotate(new Angle(45)),
       new EllipseGGO(4, "Ellipse1", C, 40, 20, { lineThickness: 2 }).rotate(new Angle(-45))
     ];
 
@@ -238,11 +238,11 @@ export class DummyForTestingComponent implements OnInit {
     this.demoObjects = [
       ...make(
         XY(-110, 120),
-        (coords: XYCoords, angle: number) => new KutykGGO(1, `Кутик${angle}`, coords, 100, 10, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Кутик (b=100, t=10)" : null) }).rotate(new Angle(angle))
+        (coords: XYCoords, angle: number) => new KutykGGO(1, `Кутик${angle}`, coords, 10, 1, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Кутик (b=100, t=10)" : null) }).rotate(new Angle(angle))
       ),
       ...make(
         XY(110, 120),
-        (coords: XYCoords, angle: number) => new PlateGGO(2, `Пластина${angle}`, coords, 20, 100, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Пластина (b=20, h=100)" : null)}).rotate(new Angle(angle))
+        (coords: XYCoords, angle: number) => new PlateGGO(2, `Пластина${angle}`, coords, 2, 10, { isLabelVisible: angle === 0, caption: (angle === 0 ? "Пластина (b=20, h=100)" : null)}).rotate(new Angle(angle))
       ),
       ...make(
         XY(110, -120),

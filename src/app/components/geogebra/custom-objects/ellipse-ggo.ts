@@ -7,7 +7,14 @@ import { CustomAxesGGO, CustomAxesGGOJSON } from "./custom-axes-ggo";
 import { PolygonSettingsJson } from "./polygon/polygon-ggo";
 import { GeogebraObjectUtils } from "./geogebra-object-utils";
 import { StringUtils } from "../../../utils/StringUtils";
-import { GeometryShapeJson } from "./geometry-shape";
+import { GeometryShapeJson, StringKV } from "./geometry-shape";
+import { SizeGGO } from "./size-ggo";
+import { DvotavrGGOSizeDirections } from "./polygon/dvotavr.polygon-ggo";
+
+export interface EllipseGGOSizeDirections extends StringKV {
+  xR?: "up" | "down"
+  yR?: "left" | "right"
+}
 
 export interface EllipseGGOJSON extends GeogebraObjectJson {
   xR: number,
@@ -29,7 +36,13 @@ export class EllipseGGO implements GeogebraObject {
   f2Point: PointGGO;
   ellipsePoint: PointGGO;
 
+  private xRLeft: XYCoords;
+  private xRRight: XYCoords;
+  private yRTop: XYCoords;
+  private yRBottom: XYCoords;
   private outerPoints: XYCoords[];
+
+  private sizes: SizeGGO[] = [];
 
   private readonly settings: GeogebraObjectSettings;
   private readonly shapeId: string;
@@ -45,26 +58,63 @@ export class EllipseGGO implements GeogebraObject {
     settings?: GeogebraObjectSettings,
     public rotationAngle?: number,
     public rotationPoint?: XYCoordsJson,
+    public sizeDirections?: EllipseGGOSizeDirections
   ) {
     this.settings = GeogebraObjectUtils.settingsWithDefaults(settings);
+    this.settings.showSizes = settings && settings.showSizes || true;
     this.shapeId = `Ellipse${StringUtils.keepLettersAndNumbersOnly(this.name)}${this.id}`;
     const withId = (elementName: string) => `${this.shapeId}${elementName}`;
     this.rootPoint = new PointGGO(withId("RootPoint"), root.copy(), { isVisible: true });
-    const a = xR;
-    const b = yR;
-    const c = Math.sqrt(a*a - b*b);
     const x0 = this.root.x;
     const y0 = this.root.y;
-    const f1 = XY(c + x0, y0);
-    const f2 = XY(- c + x0, y0);
-    const ellipsePoint = XY(x0 - xR, y0);
+    const c = Math.sqrt(Math.abs(xR*xR - yR*yR));
+    let f1: XYCoords;
+    let f2: XYCoords;
+    let ellipsePoint: XYCoords;
+    if (xR >= c) {
+      f1 = XY(x0 + c, y0);
+      f2 = XY(x0 - c, y0);
+      ellipsePoint = XY(x0 - xR, y0);
+    } else {
+      f1 = XY(x0, y0 + c);
+      f2 = XY(x0, y0 - c);
+      ellipsePoint = XY(x0, y0 - yR);
+    }
     this.f1Point = new PointGGO(withId("F1Point"), f1.copy(), false);
     this.f2Point = new PointGGO(withId("F2Point"), f2.copy(), false);
     this.ellipsePoint = new PointGGO(withId("EllipsePoint"), ellipsePoint.copy(), true);
-    this.outerPoints = [XY(root.x, root.y + yR), XY(root.x + xR, root.y), XY(root.x, root.y - yR), XY(root.x - xR, root.y)];
+    this.xRLeft = XY(root.x - xR, root.y);
+    this.xRRight = XY(root.x + xR, root.y);
+    this.yRTop = XY(root.x, root.y + yR);
+    this.yRBottom = XY(root.x, root.y - yR);
+    this.outerPoints = [this.xRLeft, this.xRRight, this.yRTop, this.yRBottom];
+    this.generateSizes(sizeDirections);
     this.rotationAngle = this.rotationAngle || 0;
     if (this.rotationAngle) {
       this.rotate(new Angle(this.rotationAngle), this.rotationPoint)
+    }
+  }
+
+  private generateSizes(sizeDirections?: EllipseGGOSizeDirections) {
+    const rnd = (n: number) => NumberUtils.accurateRound(n, 2);
+    const xR = rnd(this.yR);
+    const yR = rnd(this.xR);
+    const withId = (name: string) => `${this.shapeId}${name}`;
+    if (this.settings.showSizes) {
+      const sizeDirs: EllipseGGOSizeDirections = {
+        xR: sizeDirections && sizeDirections.xR || "up",
+        yR: sizeDirections && sizeDirections.yR || "right",
+      };
+      const shapeSize = this.settings.shapeSizeToCalculateSizeDepth || Math.max(xR, yR);
+      const sizeXr = sizeDirs.xR == "up"
+        ? new SizeGGO(withId("SizeXR"), this.rootPoint.root.copy(), this.xRLeft, sizeDirs.xR, `${xR}`, shapeSize)
+        : new SizeGGO(withId("SizeXR"), this.rootPoint.root.copy(), this.xRLeft, sizeDirs.xR, `${xR}`, shapeSize);
+
+      const sizeYr = sizeDirs.yR == "left"
+        ? new SizeGGO(withId("SizeYR"), this.rootPoint.root.copy(), this.yRTop, sizeDirs.yR, `${yR}`, shapeSize)
+        : new SizeGGO(withId("SizeYR"), this.rootPoint.root.copy(), this.yRTop, sizeDirs.yR, `${yR}`, shapeSize);
+
+      this.sizes = [sizeXr, sizeYr]
     }
   }
 
@@ -75,6 +125,7 @@ export class EllipseGGO implements GeogebraObject {
     this.f2Point.rotate(angle, p);
     this.ellipsePoint.rotate(angle, p);
     this.outerPoints.forEach(p => p.rotate(angle, p));
+    this.sizes.forEach(s => s.rotate(angle, p));
     this.rotationAngle = angle.degrees;
     this.rotationPoint = p;
     return this
@@ -86,13 +137,14 @@ export class EllipseGGO implements GeogebraObject {
     this.f2Point.invert();
     this.ellipsePoint.invert();
     this.outerPoints.forEach(p => p.invert());
+    this.sizes.forEach(s => s.invert());
     this.isInverted = !this.isInverted;
     this.rotationAngle = GeogebraObjectUtils.invertRotationAngle(this.rotationAngle);
     return this
   }
 
   copy(): EllipseGGO {
-    return new EllipseGGO(this.id, this.name, this.root.copy(), this.xR, this.yR, this.settings, this.rotationAngle, this.rotationPoint);
+    return new EllipseGGO(this.id, this.name, this.root.copy(), this.xR, this.yR, this.settings, this.rotationAngle, this.rotationPoint, this.sizeDirections);
   }
 
   getCommands(): string[] {
@@ -100,6 +152,7 @@ export class EllipseGGO implements GeogebraObject {
       ...this.f1Point.getCommands(),
       ...this.f2Point.getCommands(),
       ...this.ellipsePoint.getCommands(),
+      ...this.sizes.reduce((acc, s) => acc.concat(s.getCommands()), []),
       `${this.shapeId}: Ellipse(${this.f1Point.shapeId},${this.f2Point.shapeId},${this.ellipsePoint.shapeId})`,
       `ShowLabel(${this.shapeId},false)`,
       `SetLineThickness(${this.shapeId},${this.settings.lineThickness})`
