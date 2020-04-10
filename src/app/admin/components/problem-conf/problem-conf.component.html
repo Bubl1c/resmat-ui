@@ -7,37 +7,61 @@
   </pre>
 </div>
 
-<div class="mui-panel">
-  <h3>Додати варіант</h3>
-  <div class="mui-textfield">
-    <input type="text" name="schemaUrl" placeholder="Посилання на схему" [(ngModel)]="newVariant.schemaUrl">
+<h3>Новий варіант</h3>
+<div>
+  <div [ngSwitch]="problemConfWithVariants.problemConf.problemType">
+    <div *ngSwitchCase="'ring-plate'" class="mui-panel">
+      <div class="mui-textfield">
+        <input type="text" name="schemaUrl" placeholder="Посилання на схему" [(ngModel)]="newVariant.schemaUrl">
+      </div>
+      <input-set *ngIf="showInputSet" [data]="newVariantVariables" [hideHeader]="true" (onSubmitted)="variablesSubmitted($event)"></input-set>
+    </div>
+    <div *ngSwitchCase="'cross-section'">
+      <app-new-cross-section-problem-variant [variantObjects]="newVariantObjects" (onSaved)="shapesSubmitted($event)"></app-new-cross-section-problem-variant>
+    </div>
   </div>
-  <input-set *ngIf="showInputSet" [data]="newVariantVariables" [hideHeader]="true" (onSubmitted)="variablesSubmitted($event)"></input-set>
 </div>
 
-<div class="mui-panel">
-  <h3>Варіанти</h3>
-  <table class="mui-table mui-table--bordered">
-  <tbody>
-    <tr *ngFor="let v of variants">
-      <td><h2>{{ v.id }}</h2></td>
-      <td style="text-align: center">
-        <img src="{{v.schemaUrl}}" alt="Схема завдання" class="variant-schema"/> <br>
-        <span>{{v.schemaUrl}}</span><br><br>
-        <a (click)="loadCalculatedData(v)">Переглянути пораховані дані</a><br>
-        <a (click)="deleteVariant(v)" style="color: red">Видалити</a>
-      </td>
-      <td>
-        <table class="mui-table mui-table--bordered">
-          <tr *ngFor="let iv of v.inputVariableValues" class="variant-variable">
-            <td><span [innerHtml]="variableConfs[iv.variableConfId].name"></span>:</td>
-            <td>{{ iv.value }}</td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+<div>
+  <h3>Існуючі варіанти</h3>
+  <div [ngSwitch]="problemConfWithVariants.problemConf.problemType">
+    <table *ngSwitchCase="'ring-plate'" class="mui-table mui-table--bordered">
+      <tbody>
+      <tr *ngFor="let v of problemConfWithVariants.variants">
+        <td><h2>{{ v.id }}</h2></td>
+        <td style="text-align: center">
+          <img src="{{v.schemaUrl}}" alt="Схема завдання" class="variant-schema"/> <br>
+          <span>{{v.schemaUrl}}</span><br><br>
+          <a (click)="loadCalculatedData(v)">Переглянути пораховані дані</a><br>
+          <a (click)="deleteVariant(v)" style="color: red">Видалити</a>
+        </td>
+        <td>
+          <table class="mui-table mui-table--bordered">
+            <tr *ngFor="let iv of v.inputData.InputVariableValuesProblemVariantInputData.inputVariableValues" class="variant-variable">
+              <td><span [innerHtml]="variableConfs[iv.variableConfId].name"></span>:</td>
+              <td>{{ iv.value }}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div *ngSwitchCase="'cross-section'">
+      <div *ngFor="let v of problemConfWithVariants.variants" class="flex-container flex-column mui-panel flex-1">
+        <task [problemConf]="problemConfWithVariants.problemConf"
+              [problemVariantConf]="v"
+              hideControls="true"></task>
+        <div class="flex-container flex-column flex-align-center flex-justify-center">
+          <br>
+          <a (click)="loadInputData(v)">Переглянути вхідні дані</a>
+          <br>
+          <a (click)="loadCalculatedData(v)">Переглянути пораховані дані</a>
+          <br>
+          <a (click)="deleteVariant(v)" style="color: red">Видалити</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 

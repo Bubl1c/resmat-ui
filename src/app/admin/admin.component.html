@@ -71,21 +71,45 @@
 
       <div *ngIf="workspaceData.type === 'group-students'">
         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-          <editable-text class="resmat-header resmat-regular" style="flex: 5"
+          <editable-text class="resmat-header resmat-regular flex-1"
                          [text]="workspaceData.group.name"
                          inputPlaceholder="Введіть назву групи"
                          (onSave)="workspaceData.saveGroupName($event)"></editable-text>
-          <a (click)="addUserToCurrentGroup(workspaceData.group)" style="float: right">Додати студента</a>
+          <div>
+            <a (click)="lockAllInGroup(workspaceData.group)">Заблокувати всі роботи в групі</a>
+            <br>
+            <a (click)="unlockAllInGroup(workspaceData.group)">Розблокувати всі роботи в групі</a>
+          </div>
         </div>
-        <br>
-        <a (click)="lockAllInGroup(workspaceData.group)">Заблокувати всі роботи в групі</a>
-        <br>
-        <a (click)="unlockAllInGroup(workspaceData.group)">Розблокувати всі роботи в групі</a>
-        <br><br>
+        <div class="flex-container flex-row" style="justify-content: space-between">
+          <button class="mui-btn mui-btn--primary" style="min-width: 190px;" (click)="addUserToCurrentGroup(workspaceData.group)">
+            Додати студента
+          </button>
+          <div class="flex-container flex-column">
+            <div class="mui-dropdown">
+              <button class="mui-btn mui-btn--primary" data-mui-toggle="dropdown">
+                Додати роботу всім студентам в групі
+                <span class="mui-caret"></span>
+              </button>
+              <ul class="mui-dropdown__menu">
+                <li *ngFor="let ec of examConfs"><a (click)="workspaceData.addExamForAllStudents(ec)">{{ ec.name }}</a></li>
+              </ul>
+            </div>
+            <div class="mui-dropdown">
+              <button class="mui-btn mui-btn--danger" data-mui-toggle="dropdown">
+                Видалити роботу всім студентам в групі
+                <span class="mui-caret"></span>
+              </button>
+              <ul class="mui-dropdown__menu">
+                <li *ngFor="let ec of examConfs"><a (click)="workspaceData.deleteExamForAllStudents(ec)">{{ ec.name }}</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
         <group-students
           [students]="workspaceData.data"
           [deletable]="userPermission >= permissions.Instructor"
-          (onResultsRequested)="loadStudentResults($event)"
+          (onResultsRequested)="loadStudentResults($event, workspaceData.group)"
           (onEditRequested)="loadEditUser($event, true)"
           (onDeleteRequested)="deleteStudent($event)"></group-students>
         <br>
@@ -101,6 +125,7 @@
       </div>
 
       <student-exams *ngIf="workspaceData.type === 'student_exams'"
+                     (onBackToGroup)="loadStudentsByGroup(workspaceData.sourceGroup)"
                      [student]="workspaceData.data"
                      [examConfs]="examConfs"
                      [deletable]="userPermission >= permissions.Instructor"
@@ -131,7 +156,7 @@
       </div>
 
       <div *ngIf="workspaceData.type === 'problem'">
-        <problem-conf [problemConf]="workspaceData.data" [variants]="workspaceData.data.variants"></problem-conf>
+        <problem-conf [problemConfWithVariants]="workspaceData.data"></problem-conf>
       </div>
 
       <div *ngIf="workspaceData.type === 'test_group'">

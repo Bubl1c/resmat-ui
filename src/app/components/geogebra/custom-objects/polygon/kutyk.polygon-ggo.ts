@@ -135,7 +135,7 @@ export class KutykGGO extends PolygonGGO {
       },
       sizeDirections: this.sizeDirections,
       settings: this.actualJsonSettings,
-      props: undefined
+      props: {}
     }
   }
 }

@@ -1,12 +1,17 @@
-<div class="mui-container">
-  <div class="mui-dropdown">
-    <button class="mui-btn mui-btn--primary" data-mui-toggle="dropdown">
-      Додати роботу
-      <span class="mui-caret"></span>
-    </button>
-    <ul class="mui-dropdown__menu">
-      <li *ngFor="let ec of examConfs"><a (click)="addExamForConf(ec)">{{ ec.name }}</a></li>
-    </ul>
+<div class="mui-container" [hidden]="showExamResult">
+  <div class="flex-container">
+    <div class="mui-dropdown flex-1">
+      <button class="mui-btn mui-btn--primary" data-mui-toggle="dropdown">
+        Додати роботу
+        <span class="mui-caret"></span>
+      </button>
+      <ul class="mui-dropdown__menu">
+        <li *ngFor="let ec of examConfs"><a (click)="addExamForConf(ec)">{{ ec.name }}</a></li>
+      </ul>
+    </div>
+    <div>
+      <a (click)="emitBackToGroup()">Назад до групи</a>
+    </div>
   </div>
   <div *ngFor="let exam of exams" class="mui-panel relative">
     <div class="relative">
@@ -25,6 +30,7 @@
       </div>
       <div class="success" *ngIf="exam.status === 'success'">
         Завершено успішно
+        <a (click)="loadExamResult(exam)">Переглянути результати</a>
       </div>
       <div class="fail" *ngIf="exam.status === 'failed'">
         Провалено на кроці № {{ exam.currentStep.sequence }} - {{ exam.currentStep.description }}
@@ -34,5 +40,11 @@
       </div>
     </div>
   </div>
-
+</div>
+<div *ngIf="showExamResult">
+  <div class="flex-container" style="justify-content: flex-end">
+    <a (click)="hideExamResult()">Назад до робіт студента</a>
+  </div>
+  <br>
+  <exam-results [data]="examResult"></exam-results>
 </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { ExamStepResultGenericInfo, IUserExamResult } from "../../../steps/exam.results-step";
-import { TaskDataUtils, TaskFlowDto } from "../../../steps/exam.task-flow-step";
+import { TaskFlowDto } from "../../../steps/exam.task-flow-step";
 import { TaskVariantData } from "../task/task.component";
 import { DynamicTable } from "../dynamic-table/dynamic-table.component";
 import { SmartValue } from "../smart-value/smart-value.component";
@@ -94,14 +94,9 @@ export class ExamResult {
     return {
       id: taskFlowDto.problemVariantConf.id,
       name: taskFlowDto.problemConf.name,
-      schemaType: taskFlowDto.problemVariantConf.schemaType,
-      schemaUrl: taskFlowDto.problemVariantConf.schemaUrl,
-      schemaVars: TaskDataUtils.mapVariables(
-        taskFlowDto.problemConf.inputVariableConfs,
-        taskFlowDto.problemVariantConf.inputVariableValues
-      ),
       description: "description",
-      problemConf: taskFlowDto.problemConf
+      problemConf: taskFlowDto.problemConf,
+      problemVariantConf: taskFlowDto.problemVariantConf
     }
   }
 

@@ -1,6 +1,6 @@
 <div #taskFlowContainer>
   <div class="mui-panel">
-    <task [task]="getTaskVariantData()"></task>
+    <task [problemConf]="task.problemConf" [problemVariantConf]="task.problemVariantConf"></task>
   </div>
   <div class="help-data" *ngIf="helpDataItems.length > 0">
     <div class="help-data-item mui-panel" *ngFor="let helpDataItem of helpDataItems">
@@ -47,8 +47,10 @@
       {{ step.name }}
     </div>
     <chart-set [data]="step.data"></chart-set>
-    <navigation showContinue="true" alignContent="right"
-                (onBack)="stepBack($event)" (onContinue)="stepContinue($event)"></navigation>
+    <navigation showContinue="true"
+                alignContent="right"
+                (onBack)="stepBack($event)"
+                (onContinue)="stepContinue($event)"></navigation>
   </div>
   <div id="scrollToBottomAnchor"></div>
 </div>

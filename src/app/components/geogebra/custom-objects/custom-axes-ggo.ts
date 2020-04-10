@@ -154,7 +154,7 @@ export class CustomAxesGGO implements GeogebraObject {
         xSize: this.xSize,
         ySize: this.ySize
       },
-      sizeDirections: undefined,
+      sizeDirections: {},
       settings: this.settings,
       props: {
         xAxisName: this.props.xAxisName,

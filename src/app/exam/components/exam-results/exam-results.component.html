@@ -57,7 +57,9 @@
       <div [ngSwitch]="stepInfo.type">
         <div *ngSwitchCase="InfoTypes.taskFlow" style="display: flex; flex-direction: column">
           <div>
-            <task [task]="stepInfo.data.variant" [hideControls]="true"></task>
+            <task [problemConf]="stepInfo.data.variant.problemConf"
+                  [problemVariantConf]="stepInfo.data.variant.problemVariantConf"
+                  [hideControls]="true"></task>
           </div>
           <div *ngFor="let tfStep of stepInfo.data.data">
             <div [ngSwitch]="tfStep.stepType" class="task-data">

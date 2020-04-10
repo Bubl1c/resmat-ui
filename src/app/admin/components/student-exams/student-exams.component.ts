@@ -1,9 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { IExamConf, IExamDto } from "../../../exam/data/exam.api-protocol";
 import { ExamService } from "../../../exam/data/exam-service.service";
 import { UserData } from "../../../user/user.models";
 import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
 import { RMU } from "../../../utils/utils";
+import { ApiService } from "../../../api.service";
+import { IUserExamResult } from "../../../steps/exam.results-step";
+import { ExamResult } from "../../../exam/components/exam-results/exam-results.component";
 
 @Component({
   selector: 'student-exams',
@@ -16,10 +19,16 @@ export class StudentExamsComponent implements OnInit {
   @Input() examConfs: IExamConf[];
   @Input() deletable: boolean = true;
 
+  @Output() onBackToGroup = new EventEmitter<void>();
+
   exams: IExamDto[];
   loading = true;
 
-  constructor(private examService: ExamService) { }
+  showExamResult: boolean = false;
+  examResults: IUserExamResult[];
+  examResult: ExamResult;
+
+  constructor(private examService: ExamService, private api: ApiService) { }
 
   ngOnInit() {
     this.examService.getAvailableExamsForUser(this.student.id).subscribe(fetchedExams => {
@@ -92,6 +101,27 @@ export class StudentExamsComponent implements OnInit {
         alert("Успішно заблоковано")
       }, error => alert(error))
     }
+  }
+
+  emitBackToGroup() {
+    this.onBackToGroup.emit()
+  }
+
+  loadExamResult(exam: IExamDto) {
+    if (!this.examResults) {
+      this.api.get("/user-exams/results?userId=" + this.student.id).subscribe((results: IUserExamResult[]) => {
+        this.examResults = results;
+        this.examResult = ExamResult.create(this.examResults.find(r => r.userExamId == exam.id));
+        this.showExamResult = true;
+      }, err => alert(err));
+    } else {
+      this.examResult = ExamResult.create(this.examResults.find(r => r.userExamId == exam.id));
+      this.showExamResult = true;
+    }
+  }
+
+  hideExamResult() {
+    this.showExamResult = false;
   }
 
 }

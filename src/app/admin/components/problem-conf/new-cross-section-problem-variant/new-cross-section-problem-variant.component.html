@@ -1,0 +1,39 @@
+<div class="flex-container flex-column mui-panel">
+  <div class="flex-container full-width" style="justify-content: flex-end">
+    <button class="mui-btn mui-btn--primary"
+            (click)="createVariant()" [disabled]="!variantObjects.length">
+      Зберегти варіант
+    </button>
+  </div>
+  <table class="mui-table mui-table--bordered" style="background-color: #0202021a;">
+    <tbody>
+    <tr class="header4">
+      <td>Номер фігури</td>
+      <td>Назва фігури</td>
+      <td>Тип фігури</td>
+      <td>Координати</td>
+      <td>Кут повороту</td>
+      <td></td>
+    </tr>
+    <tr *ngFor="let po of variantObjects; let i = index">
+      <td>{{i + 1}}</td>
+      <td>{{po.name}}</td>
+      <td>{{po.kind}}</td>
+      <td>({{po.root.x}},{{po.root.y}})</td>
+      <td>{{po.rotationAngle}}</td>
+      <td><a (click)="removeGGBObject(i)"><i class="material-icons">delete_forever</i></a></td>
+    </tr>
+    <tr *ngIf="!variantObjects.length">
+      <td colspan="5" style="text-align: center">Додайте фігуру щоб побачити її на кресленні</td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="object-workspace">
+    <div class="flex-1">
+      <geogebra-create-object (onSaved)="newShape($event)"></geogebra-create-object>
+    </div>
+    <div>
+      <geogebra [objects]="variantObjects" [settings]="playgroundSettings"></geogebra>
+    </div>
+  </div>
+</div>

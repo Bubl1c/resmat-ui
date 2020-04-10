@@ -3,26 +3,7 @@ import { ExamStepTypes, IExamStepWithData } from "../exam/data/exam.api-protocol
 import { ExamStep } from "./exam.step";
 import { IExamTaskFlowTaskData } from "../exam/data/i-exam-task-flow-task-data";
 import { ISchemaVar } from "../exam/data/task-flow.api-protocol";
-import { CustomAxesSettings } from "../components/geogebra/custom-objects/geometry-shape";
-
-export namespace TaskDataUtils {
-  export function mapVariables(inputVariableConfs: ProblemInputVariableConf[], inputVariableValues: ProblemInputVariableValue[]): ISchemaVar[] {
-    return inputVariableValues.map(ivv => mapVariable(ivv, inputVariableConfs))
-  }
-
-  function mapVariable(ivv: ProblemInputVariableValue, inputVariableConfs: ProblemInputVariableConf[]): ISchemaVar {
-    let conf = inputVariableConfs.find(v => v.id === ivv.variableConfId);
-    const shouldUseStrValueAsName = typeof ivv.value !== "undefined" && ivv.strValue;
-    return {
-      name: shouldUseStrValueAsName ? ivv.strValue : conf.name,
-      value: ivv.value + "",
-      units: ivv.unitsOverride || conf.units,
-      alias: conf.alias,
-      showInExam: conf.showInExam,
-      variableGroup: ivv.variableGroup
-    }
-  }
-}
+import { CustomAxesSettings, GeometryShapeJson } from "../components/geogebra/custom-objects/geometry-shape";
 
 export class TaskFlowExamStep extends ExamStep {
   taskData: IExamTaskFlowTaskData;
@@ -36,18 +17,12 @@ export class TaskFlowExamStep extends ExamStep {
     let problemVariantConf = data.problemVariantConf;
     let taskFlow = data.taskFlow;
     this.taskData = {
-      problemConfId: problemConf.id,
       examId: stepWithData.attempt.userExamId,
       examStepSequence: stepWithData.stepConf.sequence,
       examStepAttemptId: stepWithData.attempt.id,
-      problemVariantConfId: problemVariantConf.id,
       taskFlowId: taskFlow.id,
       currentTaskFlowStepSequence: taskFlow.currentStepSequence,
-      problemName: problemConf.name,
-      schemaType: problemVariantConf.schemaType,
-      schemaUrl: problemVariantConf.schemaUrl,
-      schemaVars: TaskDataUtils.mapVariables(problemConf.inputVariableConfs, problemVariantConf.inputVariableValues),
-      description: "description",
+      problemVariantConf: problemVariantConf,
       problemConf: problemConf
     };
   }
@@ -63,13 +38,25 @@ export interface ProblemInputVariableConf {
 
 export interface ProblemConfProps {
   helpMaterials: string[]
-  customAxesSettings?: CustomAxesSettings
 }
 
+export interface InputVariableValuesProblemInputConf {
+  InputVariableValuesProblemInputConf : {
+    inputVariableConfs: ProblemInputVariableConf[]
+  }
+}
+export interface GeometryShapesProblemInputConf {
+  GeometryShapesProblemInputConf: {
+    customAxesSettings?: CustomAxesSettings
+  }
+}
+export type ProblemInputConf = InputVariableValuesProblemInputConf | GeometryShapesProblemInputConf;
+export type ProblemType = "ring-plate" | "cross-section"
 export interface ProblemConf {
   id: number;
   name: string;
-  inputVariableConfs: ProblemInputVariableConf[];
+  problemType: ProblemType
+  inputConf: ProblemInputConf
   props: ProblemConfProps
 }
 
@@ -84,12 +71,23 @@ export interface ProblemInputVariableValue {
 
 export type ProblemVariantSchemaType = "img-url" | "geogebra"
 
+export interface InputVariableValuesProblemVariantInputData {
+  InputVariableValuesProblemVariantInputData: {
+    inputVariableValues: ProblemInputVariableValue[]
+  }
+}
+export interface GeometryShapesProblemVariantInputData {
+  GeometryShapesProblemVariantInputData: {
+    shapes: GeometryShapeJson[]
+  }
+}
+export type ProblemVariantInputData = InputVariableValuesProblemVariantInputData | GeometryShapesProblemVariantInputData
 export interface ProblemVariantConf {
   id: number;
   problemConfId: number;
   schemaType: ProblemVariantSchemaType;
   schemaUrl: string;
-  inputVariableValues: ProblemInputVariableValue[]
+  inputData: ProblemVariantInputData
 }
 
 export interface UserExamStepAttemptTaskFlow {

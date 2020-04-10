@@ -17,10 +17,10 @@ import { ITestSetConfDto, TestType } from "../../../exam/data/test-set.api-proto
 import { Observable } from "rxjs/Observable";
 import { TestConfService } from "../../data/test-conf.service";
 import { ITestGroupConf } from "../test-group-list/test-group-list.component";
-import { IProblemConf } from "../problem-conf/problem-conf.component";
 import { ITaskFlowConfDto } from "../../../exam/data/task-flow.api-protocol";
 import { GoogleAnalyticsUtils } from "../../../utils/GoogleAnalyticsUtils";
 import { RMU } from "../../../utils/utils";
+import { ProblemConf } from "../../../steps/exam.task-flow-step";
 
 @Component({
   selector: 'edit-exam-conf',
@@ -273,7 +273,7 @@ export class TaskFlowConfStepWorkspace extends IStepConfWorkspace {
   dataSet: IExamStepTaskFlowDataSet;
 
   stepData: ExamStepDataConfTaskFlowConfDto;
-  problemConf: IProblemConf;
+  problemConf: ProblemConf;
 
   constructor(private api: ApiService, public stepConf: IExamStepConf) {
     super(stepConf);

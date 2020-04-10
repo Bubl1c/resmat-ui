@@ -26,6 +26,7 @@ export interface NumberKV {
 export interface CustomAxesSettings {
   xAxisName: string
   yAxisName: string
+  root?: XYCoordsJson
 }
 
 export interface DrawingStepAnswer {
@@ -58,13 +59,7 @@ export interface GeometryShapeJson {
 
 export class GeometryShapeUtils {
   static parseGeometryShape(json: GeometryShapeJson, isInverted: boolean = true): GeogebraObject {
-    const settings: GeogebraObjectSettings = Object.assign(json.settings, {
-      outerPoints: {
-        isVisible: true,
-        isLabelsVisible: true,
-        labelMode: GGB.LabelMode.Value
-      }
-    } as GeogebraObjectSettings);
+    const settings: GeogebraObjectSettings = json.settings;
     const shapeType = json.shapeType;
 
     const mkObject = (): GeogebraObject => {

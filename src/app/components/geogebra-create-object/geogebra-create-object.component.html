@@ -1,34 +1,36 @@
 <form #ggbCreateObjectForm="ngForm" (submit)="save()">
   <div class="mui-textfield kind">
-    <dropdown [options]="kinds" [selectedOptionId]="object.kind" (onSelected)="kindChanged($event)"></dropdown>
+    <dropdown [options]="kinds" [selectedOptionId]="selectedKind.id" (onSelected)="kindChanged($event)"></dropdown>
     <label>Тип об'єкту</label>
   </div>
   <div class="mui-textfield">
-    <input type="text" name="object_name" [(ngModel)]="object.name">
-    <label>Назва об'єкту</label>
+    <input type="text" name="object_name" [(ngModel)]="shapeJson.name" required>
+    <label>Назва фігури</label>
   </div>
   <div class="mui-textfield kind">
-    <dropdown [options]="angles" [selectedOptionId]="this.objectAngle" (onSelected)="angleChanged($event)"></dropdown>
+    <dropdown [options]="angles" [selectedOptionId]="this.selectedAngle.id" (onSelected)="angleChanged($event)"></dropdown>
     <label>Повернути</label>
   </div>
+  <h4>Координати крайньої правої верхньої точки в базовому положенні (поворот 0 градусів)</h4>
   <div class="coords-container">
     <div class="mui-textfield">
-      <input type="number" name="object_x" [(ngModel)]="object.root.x" required>
-      <label>Координата X</label>
+      <input type="number" name="object_x" [(ngModel)]="shapeJson.root.x" required>
+      <label>X</label>
     </div>
     <div class="mui-textfield">
-      <input type="number" name="object_y" [(ngModel)]="object.root.y" required>
-      <label>Координата Y</label>
+      <input type="number" name="object_y" [(ngModel)]="shapeJson.root.y" required>
+      <label>Y</label>
     </div>
   </div>
+  <h4>Розміри (або номер) фігури</h4>
   <div class="props-container">
-    <div class="mui-textfield" *ngFor="let prop of objectProps">
-      <input type="number" name="{{prop.prop}}" [(ngModel)]="prop.val" required>
-      <label>{{prop.prop}}</label>
+    <div class="mui-textfield" *ngFor="let prop of shapeDimensions">
+      <input type="number" step="0.1" name="{{prop.prop}}" [(ngModel)]="prop.val" required>
+      <label><b>{{prop.prop}}</b> ({{ prop.description }})</label>
     </div>
   </div>
   <button class="mui-btn mui-btn--primary"
           type="submit" [disabled]="!ggbCreateObjectForm.form.valid">
-    Додати
+    Додати фігуру
   </button>
 </form>

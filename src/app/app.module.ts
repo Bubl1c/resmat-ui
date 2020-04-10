@@ -71,6 +71,7 @@ import { GeogebraComponent } from './components/geogebra/geogebra.component';
 import { DummyForTestingComponent } from './components/dummy-for-testing/dummy-for-testing.component';
 import { GeogebraCreateObjectComponent } from './components/geogebra-create-object/geogebra-create-object.component';
 import { PlaygroundComponent } from './components/playground/playground.component';
+import { NewCrossSectionProblemVariantComponent } from './admin/components/problem-conf/new-cross-section-problem-variant/new-cross-section-problem-variant.component';
 
 @NgModule({
   declarations: [
@@ -131,7 +132,8 @@ import { PlaygroundComponent } from './components/playground/playground.componen
     GeogebraComponent,
     DummyForTestingComponent,
     GeogebraCreateObjectComponent,
-    PlaygroundComponent
+    PlaygroundComponent,
+    NewCrossSectionProblemVariantComponent
   ],
   imports: [
     BrowserModule,

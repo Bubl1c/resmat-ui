@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DropdownOption } from "../dropdown/dropdown.component";
-import { Angle, CoordsUtils } from "../../utils/geometryUtils";
+import { Angle, CoordsUtils, XYCoords } from "../../utils/geometryUtils";
 import XY = CoordsUtils.XY;
 import {
-  GeogebraObject,
+  GeogebraObject, GeogebraObjectJson,
   GeogebraObjectSettings,
   GGOKind,
   GGOKindType
@@ -13,6 +13,7 @@ import { PlateGGO } from "../geogebra/custom-objects/polygon/plate.polygon-ggo";
 import { ShvellerGGO } from "../geogebra/custom-objects/polygon/shveller.polygon-ggo";
 import { DvotavrGGO } from "../geogebra/custom-objects/polygon/dvotavr.polygon-ggo";
 import { GeogebraObjectUtils } from "../geogebra/custom-objects/geogebra-object-utils";
+import { GeometryShapeJson, GeometryShapeUtils } from "../geogebra/custom-objects/geometry-shape";
 
 @Component({
   selector: 'geogebra-create-object',
@@ -21,94 +22,74 @@ import { GeogebraObjectUtils } from "../geogebra/custom-objects/geogebra-object-
 })
 export class GeogebraCreateObjectComponent implements OnInit {
 
-  @Output() onSaved = new EventEmitter<GeogebraObject>();
+  @Output() onSaved = new EventEmitter<GeometryShapeJson>();
 
-  object: GeogebraObject;
+  availableGgoKinds: GGOKind[] = [GGOKind.kutyk, GGOKind.plate, GGOKind.shveller, GGOKind.dvotavr];
 
-  kinds: DropdownOption[] = [GGOKind.kutyk, GGOKind.plate, GGOKind.shveller, GGOKind.dvotavr].map(ut => new DropdownOption(ut.id, ut.name));
+  shapeJson: GeometryShapeJson;
+  shapeDimensions: Array<{prop: string, val: number, description: string}>;
 
-  angles: DropdownOption[] = [0, 90, 180, 270].map(angle => new DropdownOption(angle, `На ${angle} градусів`));
+  kinds: DropdownOption[];
+  selectedKind: DropdownOption;
 
-  // objectPropDefs = new Map<GGOKindType, Array<[string, string, number]>>([
-  //   ["kutyk", GGOKind.kutyk.requiredFieldDefs],
-  //   ["plate", GGOKind.plate.requiredFieldDefs],
-  //   ["shveller", GGOKind.shveller.requiredFieldDefs],
-  //   ["dvotavr", GGOKind.dvotavr.requiredFieldDefs]
-  // ]);
+  angles: DropdownOption[];
+  selectedAngle: DropdownOption;
 
-  objectProps: Array<{prop: string, val: number}>;
-  objectAngle: number = 0;
-
-  // kindProps = {
-  //   `${GGOKind.all}`: {}
-  // };
-  //
   constructor() {
-    this.reset("kutyk")
+    this.kinds = [GGOKind.kutyk, GGOKind.plate, GGOKind.shveller, GGOKind.dvotavr].map(ut => new DropdownOption(ut.id, ut.name));
+    this.selectedKind = this.kinds[0];
+
+    this.angles = [0, 90, 180, 270].map(angle => new DropdownOption(angle, `На ${angle} градусів`));
+    this.selectedAngle = this.angles[0];
+
+    this.shapeDimensions = [];
+
+    this.reset(this.availableGgoKinds[0])
   }
 
-  reset(kind: GGOKindType) {
-    const id = GeogebraObjectUtils.nextId();
-    this.objectAngle = 0;
-    const ds: GeogebraObjectSettings = {
-      isLabelVisible: true
+  reset(kind: GGOKind) {
+    this.shapeDimensions.length = 0;
+    kind.requiredFieldDefs.forEach(f => {
+      const [fName, fDescription, fDefaultValue] = f;
+      this.shapeDimensions.push({ prop: fName, val: fDefaultValue, description: fDescription })
+    });
+    this.shapeJson = {
+      id: -1,
+      name: "",
+      rotationAngle: 0,
+      shapeType: kind.shapeType,
+      root: XY(0, 0),
+      dimensions: {},
+      sizeDirections: {},
+      settings: {},
+      props: {}
     };
-    const prop = (prop: string, val: number) => {return {prop: prop, val: val}};
-    switch (kind) {
-      case "kutyk":
-        const kutyk = new KutykGGO(id,"Кутик1", XY(0, 0), 20, 3, ds);
-        this.objectProps = [
-          prop("b", kutyk.b),
-          prop("t", kutyk.t)
-        ];
-        this.object = kutyk;
-        break;
-      case "plate":
-        const plate = new PlateGGO(id, "Пластина1", XY(0, 0), 20, 5, ds);
-        this.objectProps = [
-          prop("b", plate.b),
-          prop("h", plate.h)
-        ];
-        this.object = plate;
-        break;
-      case "shveller":
-        const shveller = new ShvellerGGO(id, "Швеллер1", XY(0, 0), 5, ds);
-        this.objectProps = [
-          prop("n", shveller.n)
-        ];
-        this.object = shveller;
-        break;
-      case "dvotavr":
-        const dvotavr = new DvotavrGGO(id, "Двотавр1", XY(0, 0), 10, ds);
-        this.objectProps = [
-          prop("n", dvotavr.n)
-        ];
-        this.object = dvotavr;
-        break;
-      default:
-        throw new Error("Unhandled object kind " + this.object.kind)
-    }
   }
 
   ngOnInit() {
   }
 
   kindChanged(option: DropdownOption) {
-    this.object.kind = GGOKind.withId(option.id).id;
-    this.reset(this.object.kind)
+    this.selectedKind = option;
+    const kind = GGOKind.withId(option.id);
+    this.shapeJson.shapeType = GGOKind.withId(option.id).shapeType;
+    this.reset(kind)
   }
 
   angleChanged(option: DropdownOption) {
-    this.objectAngle = option.id
+    this.selectedAngle = option;
+    this.shapeJson.rotationAngle = option.id
   }
 
   save() {
     try {
-      this.objectProps.forEach(prop => {
-        this.object[prop.prop] = prop.val
-      });
-      this.onSaved.emit(this.object.copy().rotate(new Angle(this.objectAngle), this.object.root));
-      // this.reset(this.object.kind)
+      this.shapeJson.dimensions = this.shapeDimensions.reduce((acc, d) => {
+        acc[d.prop] = d.val;
+        return acc;
+      }, {});
+      this.shapeJson.rotationPoint = this.shapeJson.root;
+      this.onSaved.emit(this.shapeJson);
+      this.reset(GGOKind.withId(this.selectedKind.id))
     } catch (e) {
       alert(e.message);
       console.error(e)

@@ -6,9 +6,7 @@ import {CurrentSession} from "../current-session";
 import {UserComponentConfig} from "./components/user/user.component";
 import {ExamResult} from "../exam/components/exam-results/exam-results.component";
 import {
-  IProblemConf,
-  IProblemConfWithVariants,
-  IProblemVariantConf
+  ProblemConfWithVariants,
 } from "./components/problem-conf/problem-conf.component";
 import {ITestEditDto} from "../exam/data/test-set.api-protocol";
 import {TestEdit} from "./components/edit-test-conf/edit-test-conf.component";
@@ -27,6 +25,8 @@ import { UserDefaults } from "./userDefaults";
 import { AfterViewInit } from "@angular/core/src/metadata/lifecycle_hooks";
 import { GoogleAnalyticsUtils } from "../utils/GoogleAnalyticsUtils";
 import { RMU } from "../utils/utils";
+import { ProblemConf, ProblemVariantConf } from "../steps/exam.task-flow-step";
+import { ExamService } from "../exam/data/exam-service.service";
 
 interface ITestGroupConfWithTestConfs extends ITestGroupConfWithChildren {
   testConfs: ITestEditDto[]
@@ -35,7 +35,8 @@ interface ITestGroupConfWithTestConfs extends ITestGroupConfWithChildren {
 @Component({
   selector: 'admin',
   templateUrl: './admin.component.html',
-  styleUrls: ['./admin.component.css']
+  styleUrls: ['./admin.component.css'],
+  providers: [ExamService]
 })
 export class AdminComponent implements OnInit, AfterViewInit {
 
@@ -57,14 +58,14 @@ export class AdminComponent implements OnInit, AfterViewInit {
   students: UserData[];
 
   examConfs: IExamConf[];
-  problemConfs: IProblemConf[];
+  problemConfs: ProblemConf[];
 
   testsGroupConfs: ITestGroupConfWithChildren[];
   testsGroupConfsFlat: ITestGroupConfWithChildren[];
 
   workspaceData: WorkspaceData;
 
-  constructor(private router: Router, private api: ApiService, private tcService: TestConfService) { }
+  constructor(private router: Router, private api: ApiService, private tcService: TestConfService, private examService: ExamService) { }
 
   ngAfterViewInit(): void {
     RMU.safe(() => {
@@ -130,7 +131,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     this.api.get("/student-groups/" + group.id + "/students").subscribe({
       next: (students: any[]) => {
         let mappedStudents = students.map(UserData.fromApi);
-        this.workspaceData = new GroupStudentsWorkspaceData(mappedStudents, group, this.api);
+        this.workspaceData = new GroupStudentsWorkspaceData(mappedStudents, group, this.api, this.examService);
       },
       error: err => {
         this.errorMessage = err.toString()
@@ -138,12 +139,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     })
   }
 
-  loadStudentResults(student: UserData) {
-    // let studentGroup = this.studentGroups.find(group => group.id === student.studentGroupId);
-    // this.api.get("/user-exams/results?userId=" + student.id).subscribe((results: IUserExamResult[]) => {
-    //   this.workspaceData = new ExamResultWorkspaceData(results.map(r => ExamResult.create(r)));
-    // }, err => alert(err));
-    this.workspaceData = new StudentExamsWorkspaceData(student);
+  loadStudentResults(student: UserData, sourceGroup: StudentGroup) {
+    this.workspaceData = new StudentExamsWorkspaceData(student, sourceGroup);
   }
 
   loadGroups() {
@@ -195,7 +192,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
 
   loadProblemConfs() {
     this.api.get("/problem-confs").subscribe({
-      next: (problemConfs: IProblemConf[]) => {
+      next: (problemConfs: ProblemConf[]) => {
         this.problemConfs = problemConfs
       },
       error: err => {
@@ -206,18 +203,10 @@ export class AdminComponent implements OnInit, AfterViewInit {
   }
 
   loadProblemConf(problemConfId: number) {
+    this.workspaceData = undefined;
     this.api.get("/problem-confs/" + problemConfId + "/with-variants").subscribe({
-      next: (problemConfWithVariants: any) => {
-        let pc: IProblemConf = problemConfWithVariants.problemConf;
-        let variants: IProblemVariantConf[] = problemConfWithVariants.variants;
-        let pcwv: IProblemConfWithVariants = {
-          id: pc.id,
-          name: pc.name,
-          problemType: pc.problemType,
-          inputVariableConfs: pc.inputVariableConfs,
-          variants: variants
-        };
-        this.workspaceData = new ProblemWorkspaceData(pcwv)
+      next: (problemConfWithVariants: ProblemConfWithVariants) => {
+        this.workspaceData = new ProblemWorkspaceData(problemConfWithVariants)
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -354,6 +343,7 @@ class WorkspaceDataTypes {
   static editTestConf = "edit_test_conf";
   static addTestGroup = "add_test_group";
   static articles = "articles";
+  static loading = "loading";
 }
 
 abstract class WorkspaceData {
@@ -523,7 +513,7 @@ class GroupStudentsWorkspaceData extends WorkspaceData {
     mutateInput: true
   };
 
-  constructor(public data: UserData[], public group: StudentGroup, private api: ApiService) {
+  constructor(public data: UserData[], public group: StudentGroup, private api: ApiService, private examService: ExamService) {
     super();
     this.loadSelectableArticles();
     RMU.safe(() => {
@@ -576,6 +566,38 @@ class GroupStudentsWorkspaceData extends WorkspaceData {
       }
     })
   }
+
+  addExamForAllStudents(ec: IExamConf) {
+    if(window.confirm(`Ви дійсно хочете додати роботу '${ec.name}' для всіх студентів в групі '${this.group.name}'?`)) {
+      alert("Не закривайте сторінку поки не отримаєте повідомлення про закінчення операції!");
+      Observable.forkJoin(this.data.map(student => {
+        return this.examService.createExamForStudent(ec.id, student.id)
+          .map(res => {
+            RMU.safe(() => {
+              GoogleAnalyticsUtils.event("Admin", `Added exam ${ec.id} for student ${student.id}`, "AddExamForStudent", ec.id);
+            });
+            return res;
+          })
+          .catch(error => {
+            alert(`Не вийшло додати роботу '${ec.name}' для студента '${student.firstName} ${student.lastName}', причина: ${JSON.stringify(error)}`)
+            return Observable.empty<any>();
+          })
+      })).subscribe(results => {
+        alert("Успішно додано");
+      });
+    }
+  }
+
+  deleteExamForAllStudents(ec: IExamConf) {
+    if(window.confirm(`Ви дійсно хочете ВИДАЛИТИ роботу '${ec.name}' для всіх студентів в групі '${this.group.name}'?`)) {
+      this.examService.deleteExamForAllStudentsInGroup(ec.id, this.group.id).subscribe(created => {
+        RMU.safe(() => {
+          GoogleAnalyticsUtils.event("Admin", `Deleted exam ${ec.id} for all students in group ${this.group.id}`, "DeleteExamForAllStudentsInGroup", this.group.id);
+        });
+        alert("Успішно видалено");
+      }, error => alert(`Не вийшло видалити роботу '${ec.name}' для всіх студентів групи, причина: ${JSON.stringify(error)}`));
+    }
+  }
 }
 
 class ExamResultWorkspaceData extends WorkspaceData {
@@ -614,17 +636,17 @@ class ExamWorkspaceData extends WorkspaceData {
 
 class ProblemWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.problem;
-  constructor(public data: IProblemConfWithVariants) {
+  constructor(public data: ProblemConfWithVariants) {
     super();
     RMU.safe(() => {
-      GoogleAnalyticsUtils.pageView(`/admin/problems/${this.data.id}`, `Адмінка :: Задача "${this.data.name}"`)
+      GoogleAnalyticsUtils.pageView(`/admin/problems/${this.data.problemConf.id}`, `Адмінка :: Задача "${this.data.problemConf.name}"`)
     });
   }
 }
 
 class StudentExamsWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.studentExams;
-  constructor(public data: UserData) {
+  constructor(public data: UserData, public sourceGroup: StudentGroup) {
     super();
     RMU.safe(() => {
       GoogleAnalyticsUtils.pageView(`/admin/students/${this.data.id}/exams`, `Адмінка :: Роботи студента ${this.data.id}`)

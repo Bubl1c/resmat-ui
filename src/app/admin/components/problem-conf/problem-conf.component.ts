@@ -6,13 +6,15 @@ import { Modal, BSModalContext } from 'angular2-modal/plugins/bootstrap';
 import { CustomModal } from "../custom-modal/custom-modal.component";
 import { overlayConfigFactory } from "angular2-modal";
 import { ErrorResponse } from "../../../utils/HttpUtils";
-
-export interface IProblemConf {
-  id: number;
-  name: string;
-  problemType: string;
-  inputVariableConfs: IProblemInputVariableConf[]
-}
+import {
+  InputVariableValuesProblemInputConf, InputVariableValuesProblemVariantInputData,
+  ProblemConf, ProblemInputVariableConf,
+  ProblemVariantConf,
+  ProblemVariantInputData,
+  ProblemVariantSchemaType
+} from "../../../steps/exam.task-flow-step";
+import { GeogebraObject } from "../../../components/geogebra/custom-objects/geogebra-object";
+import { GeometryShapeJson } from "../../../components/geogebra/custom-objects/geometry-shape";
 
 export interface IProblemInputVariableConf {
   id: number;
@@ -22,26 +24,19 @@ export interface IProblemInputVariableConf {
   showInExam: boolean
 }
 
-export interface IProblemConfWithVariants extends IProblemConf {
-  variants: IProblemVariantConf[]
+export interface ProblemConfWithVariants {
+  problemConf: ProblemConf
+  variants: ProblemVariantConfWithCalculatedData[]
 }
 
-export interface IProblemVariantConf {
-  id: number
-  problemConfId: number
-  schemaUrl: string
-  inputVariableValues: IProblemInputVariableValue[]
+export interface ProblemVariantConfWithCalculatedData extends ProblemVariantConf {
   calculatedData: any
 }
 
-export interface IProblemInputVariableValue {
-  variableConfId: number
-  value: number
-}
-
-export interface INewVariantConf {
-  schemaUrl: string
-  inputVariableValues: IProblemInputVariableValue[]
+export interface NewProblemVariantConfDto {
+  schemaType: ProblemVariantSchemaType;
+  schemaUrl: string;
+  inputData: ProblemVariantInputData
 }
 
 @Component({
@@ -51,13 +46,10 @@ export interface INewVariantConf {
 })
 export class ProblemConfComponent implements OnInit {
   @Input()
-  problemConf: IProblemConfWithVariants;
-
-  @Input()
-  variants: IProblemVariantConf[];
+  problemConfWithVariants: ProblemConfWithVariants;
 
   @Output()
-  onCreate = new EventEmitter<INewVariantConf>();
+  onCreate = new EventEmitter<NewProblemVariantConfDto>();
 
   problemConfInfo: any;
 
@@ -65,27 +57,33 @@ export class ProblemConfComponent implements OnInit {
 
   variableConfs: { [key:string]:IProblemInputVariableConf; } = {};
 
-  newVariant: IProblemVariantConf = {} as IProblemVariantConf;
+  newVariant: ProblemVariantConf = {} as ProblemVariantConf;
   newVariantVariables: InputSetData;
   showInputSet = true;
+
+  //for Cross section
+  newVariantObjects: GeogebraObject[] = [];
 
   constructor(private api: ApiService, public modal: Modal) { }
 
   ngOnInit() {
 
-    this.problemConf.inputVariableConfs.forEach(iv => {
-      iv.name = MathSymbolConverter.convertString(iv.name)
-    });
+    this.problemConfInfo = JSON.parse(JSON.stringify(this.problemConfWithVariants.problemConf));
 
-    this.problemConfInfo = {
-      id: this.problemConf.id,
-      name: this.problemConf.name,
-      problemType: this.problemConf.problemType,
-      inputVariableConfs: this.problemConf.inputVariableConfs
-    };
-
-    for(let v of this.problemConf.inputVariableConfs) {
-      this.variableConfs[v.id] = v
+    const problemType = this.problemConfWithVariants.problemConf.problemType;
+    switch (problemType) {
+      case "ring-plate":
+        const inputVariableConfs = (this.problemConfWithVariants.problemConf.inputConf as InputVariableValuesProblemInputConf)
+          .InputVariableValuesProblemInputConf.inputVariableConfs;
+        for(let v of inputVariableConfs) {
+          v.name = MathSymbolConverter.convertString(v.name);
+          this.variableConfs[v.id] = v
+        }
+        break;
+      case "cross-section":
+        break;
+      default:
+        throw new Error(`Unsupported ProblemType ${problemType} in ProblemConf ${JSON.stringify(this.problemConfWithVariants.problemConf)}`)
     }
 
     this.reset()
@@ -96,44 +94,71 @@ export class ProblemConfComponent implements OnInit {
       alert("Необхідно заповнити посилання на схему");
       return;
     }
-    let variantToSave = {
+    const variantToSave: NewProblemVariantConfDto = {
       schemaUrl: this.newVariant.schemaUrl,
-      inputVariableValues: variables.inputAnswers.map(v => {
-        return {
-          variableConfId: v.id,
-          value: v.value
+      schemaType: "img-url",
+      inputData: {
+        InputVariableValuesProblemVariantInputData: {
+          inputVariableValues: variables.inputAnswers.map(v => {
+            return {
+              variableConfId: v.id,
+              value: v.value
+            }
+          })
         }
-      })
+      }
     };
+    this.saveVariant(variantToSave)
+  }
 
-    this.api.post("/problem-confs/" + this.problemConf.id + "/variants", variantToSave).subscribe(saved => {
-      this.variants.unshift(saved);
-      this.reset()
+  shapesSubmitted(objects: GeogebraObject[]) {
+    const shapeJsons = objects.map(o => o.invert().toJson());
+    const variantToSave: NewProblemVariantConfDto = {
+      schemaUrl: JSON.stringify(shapeJsons),
+      schemaType: "geogebra",
+      inputData: {
+        GeometryShapesProblemVariantInputData: {
+          shapes: shapeJsons
+        }
+      }
+    };
+    this.saveVariant(variantToSave)
+  }
+
+  private saveVariant(variant: NewProblemVariantConfDto): void {
+    this.api.post("/problem-confs/" + this.problemConfWithVariants.problemConf.id + "/variants", variant).subscribe(saved => {
+      this.problemConfWithVariants.variants.unshift(saved);
+      this.reset();
       alert("Успішно збережено")
     }, error => alert(JSON.stringify(error)))
   }
 
-  loadCalculatedData(v: IProblemVariantConf) {
+  loadCalculatedData(v: ProblemVariantConfWithCalculatedData) {
     this.modal.open(CustomModal,  overlayConfigFactory({ custom_json: v.calculatedData }, BSModalContext));
   }
 
-  deleteVariant(v: IProblemVariantConf) {
+  loadInputData(v: ProblemVariantConfWithCalculatedData) {
+    this.modal.open(CustomModal,  overlayConfigFactory({ custom_json: v.inputData }, BSModalContext));
+  }
+
+  deleteVariant(v: ProblemVariantConfWithCalculatedData) {
     let that = this;
     function onDeleted() {
-      var index = that.variants.findIndex(vinarr => vinarr.id === v.id);
+      var index = that.problemConfWithVariants.variants.findIndex(vinarr => vinarr.id === v.id);
       if (index > -1) {
-        that.variants.splice(index, 1);
+        that.problemConfWithVariants.variants.splice(index, 1);
       }
     }
 
     if(window.confirm("Ви дійсно хочете видалити варіант " + v.id + "?")) {
-      this.api.delete("/problem-confs/" + this.problemConf.id + "/variants/" + v.id).subscribe(() => {
+      const problemConfId = this.problemConfWithVariants.problemConf.id;
+      this.api.delete("/problem-confs/" + problemConfId + "/variants/" + v.id).subscribe(() => {
         onDeleted();
         alert("Успішно видалено")
       }, (error: ErrorResponse) => {
         if(error.status === 424) {
           if(window.confirm("Цей варіант вже використовується, видалити разом з усіма сутностями які його використовують?")) {
-            this.api.delete("/problem-confs/" + this.problemConf.id + "/variants/" + v.id + "?force=true").subscribe(() => {
+            this.api.delete("/problem-confs/" + problemConfId + "/variants/" + v.id + "?force=true").subscribe(() => {
               onDeleted();
               alert("Успішно видалено")
             }, (error: ErrorResponse) => alert("Не вдалося видалити: " + JSON.stringify(error)))
@@ -148,12 +173,22 @@ export class ProblemConfComponent implements OnInit {
   reset() {
     this.showInputSet = false;
     this.newVariant.schemaUrl = null;
-    this.newVariantVariables = new InputSetData(-1, -1, "", this.problemConf.inputVariableConfs.map(vc => {
-      return new InputVariable(vc.id, vc.name, "", vc.units, "", true)
-    }), []);
+    this.resetVariableValues();
     setTimeout(() => {
       this.showInputSet = true;
     });
+
+    this.newVariantObjects.length = 0;
+  }
+
+  resetVariableValues() {
+    if (this.problemConfWithVariants.problemConf.problemType === "ring-plate") {
+      const inputVariableConfs = (this.problemConfWithVariants.problemConf.inputConf as InputVariableValuesProblemInputConf)
+        .InputVariableValuesProblemInputConf.inputVariableConfs;
+      this.newVariantVariables = new InputSetData(-1, -1, "", inputVariableConfs.map(vc => {
+        return new InputVariable(vc.id, vc.name, "", vc.units, "", true)
+      }), []);
+    }
   }
 
 }

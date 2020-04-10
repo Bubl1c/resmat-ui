@@ -171,9 +171,9 @@ export class EllipseGGO implements GeogebraObject {
         xR: this.xR,
         yR: this.yR
       },
-      sizeDirections: undefined,
+      sizeDirections: {},
       settings: this.settings,
-      props: undefined
+      props: {}
     }
   }
 

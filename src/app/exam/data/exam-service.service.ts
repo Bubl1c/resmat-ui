@@ -59,6 +59,10 @@ export class ExamService {
     return this.api.delete("/user-exams/" + examId);
   }
 
+  deleteExamForAllStudentsInGroup(examConfId: number, studentGroupId: number): Observable<void> {
+    return this.api.delete(`/user-exams/deleteAll?groupId=${studentGroupId}&examConfId=${examConfId}`);
+  }
+
   lockExam(examId: number, hoursAmount: number): Observable<IExamDto> {
     return this.api.put("/user-exams/" + examId + "/lock?hoursAmount=" + hoursAmount, {}).map(this.mapUserExamDto);
   }

@@ -19,12 +19,12 @@ const appRoutes: Routes = [
   { path: 'users/:id/exams', component: MyExamsComponent },
   { path: 'users/:id/study', component: StudentArticlesComponent },
   { path: 'users/:id/exams/:examId', component: ExamComponent },
-  { path: 'admin', component: AdminComponent },
   { path: 'blog', component: ArticleEditorComponent },
   { path: 'articles', component: ArticleListComponent },
   { path: 'articles/:articleId', component: ArticleWrapperComponent },
   { path: 'components', component: DummyForTestingComponent },
   { path: 'playground', component: PlaygroundComponent },
+  { path: 'admin', component: AdminComponent }
 ];
 
 @NgModule({

@@ -81,9 +81,11 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
 
   iterableDiffer: IterableDiffer;
 
+  customAxes: CustomAxesGGO;
+
   constructor(iterableDiffers: IterableDiffers) {
     this.editorId = `geogebra-component-identifier-${Math.random().toString(36).substring(7)}`;
-    this.iterableDiffer = iterableDiffers.find([]).create(null);
+    this.iterableDiffer = iterableDiffers.find([]).create(undefined);
   }
 
   ngOnInit() {
@@ -111,7 +113,6 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   private prepare(): void {
-    this.iterableDiffer = this.iterableDiffer.diff(this.objects);
     if (!this.settings) {
       this.settings = new GeogebraComponentSettings();
     }
@@ -172,22 +173,31 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   private prepareView(api: GGB.API) {
-    const maxCoords = this.objects.map(o => o.maxCoord());
-    const maxXY = maxCoords.reduce((c, p) => ({ x: Math.max(c.x, p.x), y: Math.max(c.y, p.y) }));
-    const minCoords = this.objects.map(o => o.minCoord());
-    const minXY = minCoords.reduce((c, p) => ({ x: Math.min(c.x, p.x), y: Math.min(c.y, p.y) }));
-    let min = Math.min(minXY.x, minXY.y);
-    let max = Math.max(maxXY.x, maxXY.y);
-    const avg = Math.abs(min + max) / 2;
-    min = Math.floor(min - 1);
-    max = Math.ceil(max + 1);
-    console.log(`Zoom (${minXY.x},${minXY.y},${maxXY.x},${maxXY.y}) (${min},${min},${max},${max})`);
+    let min: number;
+    let max: number;
+    if (this.objects.length) {
+      const maxCoords = this.objects.map(o => o.maxCoord());
+      const maxXY = maxCoords.reduce((c, p) => ({ x: Math.max(c.x, p.x), y: Math.max(c.y, p.y) }));
+      const minCoords = this.objects.map(o => o.minCoord());
+      const minXY = minCoords.reduce((c, p) => ({ x: Math.min(c.x, p.x), y: Math.min(c.y, p.y) }));
+      min = Math.min(minXY.x, minXY.y);
+      max = Math.max(maxXY.x, maxXY.y);
+      // const avg = Math.abs(min + max) / 2;
+      min = Math.floor(min - 1);
+      max = Math.ceil(max + 1);
+    } else {
+      min = -10;
+      max = 10;
+    }
     api.evalCommand(`ZoomIn(${min},${min},${max},${max})`);
     const axesSize = Math.max(Math.abs(min), Math.abs(max));
     this.renderCustomAxesIfDefined(api, axesSize, axesSize);
   }
 
   private renderCustomAxesIfDefined(api: GGB.API, xSize: number, ySize: number) {
+    if (this.customAxes) {
+      this.deleteObject(api, this.customAxes);
+    }
     if (this.settings.customAxesSettings) {
       api.setAxesVisible(false, false);
       const ca = new CustomAxesGGO(
@@ -205,6 +215,7 @@ export class GeogebraComponent implements OnInit, AfterViewInit, DoCheck {
         undefined,
         true
       );
+      this.customAxes = ca;
       this.addObject(api, this.settings.isInverted ? ca.invert() : ca);
     }
   }

@@ -1,0 +1,14 @@
+.object-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.object-list-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.object-workspace {
+  display: flex;
+}

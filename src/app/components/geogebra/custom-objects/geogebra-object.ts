@@ -1,13 +1,13 @@
 import { Angle, XYCoordsJson } from "../../../utils/geometryUtils";
 import { GGB } from "../geogebra-definitions";
-import { GeometryShapeJson } from "./geometry-shape";
+import { GeometryShapeJson, GeometryShapeType } from "./geometry-shape";
 
 export class GGOKind {
   static all: GGOKind[] = [];
   static ids: GGOKindType[] = [];
 
-  static make(id: GGOKindType, name: string, requiredFieldDefs: Array<[string, string, number]> = []): GGOKind {
-    const k = new GGOKind(id, name, requiredFieldDefs);
+  static make(id: GGOKindType, name: string, requiredFieldDefs: Array<[string, string, number]> = [], shapeType?: GeometryShapeType): GGOKind {
+    const k = new GGOKind(id, name, requiredFieldDefs, shapeType);
     GGOKind.all.push(k);
     GGOKind.ids.push(k.id);
     return k
@@ -18,18 +18,18 @@ export class GGOKind {
   static vector = GGOKind.make("vector", "Вектор");
   static segment = GGOKind.make("segment", "Відрізок");
   static custom_axes = GGOKind.make("custom_axes", "Осі координат");
-  static ellipse = GGOKind.make("ellipse", "Еліпс");
-  static kutyk = GGOKind.make("kutyk", "Рівнобічний кутик", [["b", "Ширина", 20], ["t", "Товщина", 3]]);
-  static plate = GGOKind.make("plate", "Пластина", [["b", "Ширина", 20], ["h", "Висота", 5]]);
-  static shveller = GGOKind.make("shveller", "Швеллер", [["n", "Номер в сортаменті", 5]]);
-  static dvotavr = GGOKind.make("dvotavr", "Двотавр", [["n", "Номер в сортаменті", 10]]);
+  static ellipse = GGOKind.make("ellipse", "Еліпс", [["xR", "Радіус по осі X", 10], ["yR", "Радіус по осі Y", 5]], "Ellipse");
+  static kutyk = GGOKind.make("kutyk", "Рівнобічний кутик", [["b", "Ширина", 10], ["t", "Товщина", 0.7]], "Kutyk");
+  static plate = GGOKind.make("plate", "Пластина", [["b", "Ширина", 10], ["h", "Висота", 5]], "Plastyna");
+  static shveller = GGOKind.make("shveller", "Швеллер", [["n", "Номер в сортаменті", 10]], "Shveller");
+  static dvotavr = GGOKind.make("dvotavr", "Двотавр", [["n", "Номер в сортаменті", 10]], "Dvotavr");
   static size = GGOKind.make("size", "Розмір");
 
   static withId(id: string): GGOKind | undefined {
     return GGOKind.all.find(ut => ut.id === id)
   }
 
-  constructor(public id: GGOKindType, public name: string, public requiredFieldDefs: Array<[string, string, number]>) {
+  constructor(public id: GGOKindType, public name: string, public requiredFieldDefs: Array<[string, string, number]>, public shapeType?: GeometryShapeType) {
   }
 }
 
@@ -69,7 +69,7 @@ export interface GeogebraObjectSettings {
 }
 
 export interface GeogebraObjectJson {
-  readonly id: number
+  id: number
   kind: GGOKindType
   root: XYCoordsJson
   name: string

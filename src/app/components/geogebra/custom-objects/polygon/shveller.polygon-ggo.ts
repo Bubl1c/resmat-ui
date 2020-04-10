@@ -148,7 +148,7 @@ export class ShvellerGGO extends PolygonGGO {
       },
       sizeDirections: this.sizeDirections,
       settings: this.actualJsonSettings,
-      props: undefined
+      props: {}
     }
   }
 

@@ -157,18 +157,6 @@ export class TaskFlowComponent implements OnInit {
     }
   }
 
-  getTaskVariantData(): TaskVariantData {
-    return {
-      id: this.task.problemVariantConfId,
-      name: this.task.problemName,
-      schemaType: this.task.schemaType,
-      schemaUrl: this.task.schemaUrl,
-      schemaVars: this.task.schemaVars,
-      description: this.task.description,
-      problemConf: this.task.problemConf
-    }
-  }
-
 }
 
 abstract class TaskFlowStep {

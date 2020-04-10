@@ -29,8 +29,8 @@ export class GeogebraObjectUtils {
         color: settings.styles && settings.styles.color
       } || ds,
       outerPoints: {
-        isVisible: settings && settings.outerPoints && settings.outerPoints.isVisible || false,
-        isLabelsVisible: settings && settings.outerPoints && settings.outerPoints.isLabelsVisible || false,
+        isVisible: settings && settings.outerPoints && settings.outerPoints.isVisible || true,
+        isLabelsVisible: settings && settings.outerPoints && settings.outerPoints.isLabelsVisible || true,
         labelMode: settings && settings.outerPoints && settings.outerPoints.labelMode || GGB.LabelMode.Value,
       },
       lineThickness: settings && settings.lineThickness || 4,
