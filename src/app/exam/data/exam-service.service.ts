@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Http } from "@angular/http";
 import { Observable } from "rxjs/Rx";
-import { IExamDto, IExamStepWithData } from "./exam.api-protocol";
+import { IExamConf, IExamDto, IExamStepWithData } from "./exam.api-protocol";
 import { IExamTaskFlowStepData, ITaskFlowStepDto, IVerifiedTaskFlowStepAnswer } from "./task-flow.api-protocol";
 import { TestAnswer, TestSingleInputSubmittedAnswerDto } from "../components/test/test.component";
 import { ExamResult } from "../components/exam-results/exam-results.component";
@@ -22,6 +22,17 @@ export class VerifiedTestAnswer {
       func(result)
     }
   }
+}
+
+interface UserExamDtoJson {
+  userExam: { id: number, lockedUntil?: string, userId: number, status: string },
+  currentStepPreview: {
+    sequence: number
+    stepType: string
+    description: string
+  }
+  examConf: IExamConf
+  result?: IUserExamResult
 }
 
 @Injectable()
@@ -175,8 +186,8 @@ export class ExamService {
     });
   }
 
-  private mapUserExamDto(responseData: any): IExamDto {
-    let userExam = responseData.userExam as { id: number, lockedUntil?: string, userId: number, status: string };
+  private mapUserExamDto(responseData: UserExamDtoJson): IExamDto {
+    let userExam = responseData.userExam;
     let currentStepPreview = responseData.currentStepPreview;
     let examConf = responseData.examConf;
     return {
@@ -190,7 +201,8 @@ export class ExamService {
         sequence: currentStepPreview.sequence,
         type: currentStepPreview.stepType,
         description: currentStepPreview.description
-      }
+      },
+      result: responseData.result
     }
   }
 }

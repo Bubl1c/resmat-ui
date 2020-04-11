@@ -101,11 +101,11 @@
     <span class="header1 resmat-light">Робота:&nbsp;&nbsp;</span>
     <div class="mui-dropdown">
       <a data-mui-toggle="dropdown" class="header1 resmat-regular">
-        {{ selectedExamConf ? selectedExamConf.name : 'виберіть роботу' }} <span class="mui-caret"></span>
+        {{ workspaceData.selectedExamConf ? workspaceData.selectedExamConf.name : 'виберіть роботу' }} <span class="mui-caret"></span>
       </a>
       <ul class="mui-dropdown__menu">
         <li *ngFor="let ec of workspaceData.examConfs">
-          <a (click)="loadUserExamsByExamConf(ec)">
+          <a (click)="workspaceData.loadUserExamsByExamConf(ec)">
             {{ ec.name }}
           </a>
         </li>
@@ -114,7 +114,7 @@
   </div>
   <br>
   <div class="flex-container flex-column">
-    <student-exam-list [exams]="studentExams" [conf]="studentExamsConf"></student-exam-list>
+    <student-exam-list [exams]="workspaceData.studentExams" [conf]="workspaceData.studentExamsConf"></student-exam-list>
   </div>
 </div>
 

@@ -1,5 +1,5 @@
 import { SelectableItem } from "../../../components/item-selector/item-selector.component";
-import { StudentGroup, UserData } from "../../../user/user.models";
+import { StudentGroup, UserData, UserType } from "../../../user/user.models";
 import { ApiService } from "../../../api.service";
 import { ExamService } from "../../../exam/data/exam-service.service";
 import { RMU } from "../../../utils/utils";
@@ -8,6 +8,11 @@ import { Observable } from "rxjs/Observable";
 import { ArticleDto } from "../../components/article-editor/article-editor.component";
 import { IExamConf } from "../../../exam/data/exam.api-protocol";
 import { WorkspaceData, WorkspaceDataTypes } from "../workspace-data";
+import {
+  StudentExamListComponentConf,
+  StudentUserExam
+} from "../../components/student-exams/student-exam-list/student-exam-list.component";
+import { CurrentSession } from "../../../current-session";
 
 export class GroupStudentsWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.groupStudents;
@@ -16,12 +21,29 @@ export class GroupStudentsWorkspaceData extends WorkspaceData {
     mutateInput: true
   };
 
+  currentUser: UserData;
+
   students: UserData[];
 
-  constructor(public data: StudentGroup, public examConfs: IExamConf[], private api: ApiService, public examService: ExamService) {
+  studentExams: StudentUserExam[];
+  studentExamsConf: StudentExamListComponentConf;
+
+  constructor(public data: StudentGroup,
+              public examConfs: IExamConf[],
+              private api: ApiService,
+              public examService: ExamService,
+              public selectedExamConf?: IExamConf) {
     super();
+    this.currentUser = CurrentSession.user;
+    this.studentExamsConf = {
+      deletable: this.currentUser.userType.rate >= UserType.instructor.rate,
+      showStudentInfoInsteadOfExam: true
+    };
     this.loadStudentsByGroup();
     this.loadSelectableArticles();
+    if (this.selectedExamConf) {
+      this.loadUserExamsByExamConf(this.selectedExamConf)
+    }
     RMU.safe(() => {
       GoogleAnalyticsUtils.pageView(`/admin/student-groups/${this.data.id}`, `Адмінка :: Група студентів "${this.data.name}"`)
     });
@@ -98,6 +120,27 @@ export class GroupStudentsWorkspaceData extends WorkspaceData {
         this.loadStudentsByGroup()
       }, err => alert(err.toString()))
     }
+  }
+
+  loadUserExamsByExamConf(exmConf: IExamConf) {
+    this.selectedExamConf = exmConf;
+    this.examService.findByExamConfAndStudentGroup(exmConf.id, this.data.id).subscribe(response => {
+      this.studentExams = response.map(ue => {
+        let student: UserData;
+        if (this.students) {
+          student = this.students.find(s => s.id === ue.userId);
+        } else {
+          student = UserData.empty();
+          student.id = ue.userId;
+          student.firstName = "Невідомий";
+          student.lastName = "Студент"
+        }
+        return {
+          exam: ue,
+          student: student
+        }
+      });
+    }, error => alert(error))
   }
 
   private loadSelectableArticles() {

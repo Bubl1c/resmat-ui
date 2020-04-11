@@ -19,7 +19,7 @@ import { GoogleAnalyticsUtils } from "../utils/GoogleAnalyticsUtils";
 import { RMU } from "../utils/utils";
 import { ProblemConf } from "../steps/exam.task-flow-step";
 import { ExamService } from "../exam/data/exam-service.service";
-import { WorkspaceData } from "./workspaces/workspace-data";
+import { WorkspaceData, WorkspaceDataTypes } from "./workspaces/workspace-data";
 import { UserWorkspaceData } from "./workspaces/user-workspace-data";
 import { ArticlesWorkspaceData } from "./workspaces/articles-workspace-data";
 import { GroupStudentsWorkspaceData } from "./workspaces/group-students/group-students-workspace-data";
@@ -288,6 +288,11 @@ export class AdminComponent implements OnInit, AfterViewInit {
   }
 
   loadGroupStudentsWorkspace(group: StudentGroup) {
-    this.workspaceData = new GroupStudentsWorkspaceData(group, this.examConfs, this.api, this.examService);
+    if (this.workspaceData && this.workspaceData.type === WorkspaceDataTypes.groupStudents) {
+      const current = this.workspaceData as GroupStudentsWorkspaceData;
+      this.workspaceData = new GroupStudentsWorkspaceData(group, this.examConfs, this.api, this.examService, current.selectedExamConf);
+    } else {
+      this.workspaceData = new GroupStudentsWorkspaceData(group, this.examConfs, this.api, this.examService);
+    }
   }
 }

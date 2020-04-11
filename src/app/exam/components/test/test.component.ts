@@ -91,10 +91,15 @@ export class TestComponent implements OnInit {
   }
 
   submit() {
-    this.test.status = TestStatus.Verifying;
-    this.onSubmitted.emit(
-      new TestAnswer(this.test.id, this.test.type, this.test.options.filter(o => o.checked))
-    )
+    const checkedOptions = this.test.options.filter(o => o.checked);
+    if (checkedOptions.length > 0) {
+      this.test.status = TestStatus.Verifying;
+      this.onSubmitted.emit(
+        new TestAnswer(this.test.id, this.test.type, checkedOptions)
+      )
+    } else {
+      console.log("Nothing to submit", this.test)
+    }
   }
 
   doContinue() {

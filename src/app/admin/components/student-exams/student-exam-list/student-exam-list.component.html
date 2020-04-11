@@ -24,7 +24,7 @@
         Крок № {{ sue.exam.currentStep.sequence }} - {{ sue.exam.currentStep.description }}
       </div>
       <div class="success" *ngIf="sue.exam.status === 'success'">
-        Завершено успішно
+        Завершено успішно!&nbsp; {{ sue.exam.result ? 'Оцінка - ' + sue.exam.result.score + '/' + sue.exam.result.maxScore : '' }}
         <a (click)="loadExamResult(sue)">Переглянути результати</a>
       </div>
       <div class="fail" *ngIf="sue.exam.status === 'failed'">

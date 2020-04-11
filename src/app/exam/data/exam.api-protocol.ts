@@ -1,5 +1,7 @@
 import { ITestSetConfDto } from "./test-set.api-protocol";
 import { ITaskFlowConfDto } from "./task-flow.api-protocol";
+import { ExamResult } from "../components/exam-results/exam-results.component";
+import { IUserExamResult } from "../../steps/exam.results-step";
 
 export type ExamStepType = 'test-set' | 'task-flow' | 'results'
 
@@ -39,6 +41,7 @@ export interface IExamDto {
   status: string;
   lockedUntil: Date;
   currentStep: IExamStepPreview;
+  result?: IUserExamResult
 }
 
 export interface IExamStepPreview {

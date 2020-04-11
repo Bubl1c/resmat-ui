@@ -33,7 +33,6 @@ export class NavigationComponent implements OnInit {
   }
 
   submit() {
-    this.disableSubmit = true;
     this.onSubmit.emit();
   }
 

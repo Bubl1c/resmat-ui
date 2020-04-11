@@ -30,16 +30,7 @@ export class GroupStudentsComponent implements OnInit {
   };
   activeTab: string = this.tabs.students;
 
-  studentExams: StudentUserExam[];
-  studentExamsConf: StudentExamListComponentConf;
-  selectedExamConf?: IExamConf;
-
-  constructor(private api: ApiService) {
-    this.studentExamsConf = {
-      deletable: this.deletable,
-      showStudentInfoInsteadOfExam: true
-    };
-  }
+  constructor(private api: ApiService) {}
 
   ngOnInit() {
   }
@@ -83,27 +74,6 @@ export class GroupStudentsComponent implements OnInit {
         alert("Успішно зазблоковано")
       }, error => alert(error))
     }
-  }
-
-  loadUserExamsByExamConf(exmConf: IExamConf) {
-    this.selectedExamConf = exmConf;
-    this.workspaceData.examService.findByExamConfAndStudentGroup(exmConf.id, this.workspaceData.data.id).subscribe(response => {
-      this.studentExams = response.map(ue => {
-        let student: UserData;
-        if (this.workspaceData.students) {
-          student = this.workspaceData.students.find(s => s.id === ue.userId);
-        } else {
-          student = UserData.empty();
-          student.id = ue.userId;
-          student.firstName = "Невідомий";
-          student.lastName = "Студент"
-        }
-        return {
-          exam: ue,
-          student: student
-        }
-      });
-    }, error => alert(error))
   }
 
 }
