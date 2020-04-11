@@ -8,13 +8,17 @@ declare var MathJax: {
 
 @Component({
   selector: 'mathjax',
-  template: '{{ data }}'
+  template: '<span [hidden]="containsMathJax" [innerHTML]="data"></span>{{ containsMathJax && data || "" }}'
 })
 export class MathJaxComponent implements OnInit {
   @Input()
   data: string;
 
-  constructor(private el: ElementRef) { }
+  containsMathJax: boolean;
+
+  constructor(private el: ElementRef) {
+    this.containsMathJax = this.data && this.data.indexOf("$") !== -1;
+  }
 
   ngOnInit() {
     setTimeout(() => {

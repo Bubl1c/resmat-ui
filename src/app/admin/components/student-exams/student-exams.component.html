@@ -1,50 +1,15 @@
-<div class="mui-container" [hidden]="showExamResult">
-  <div class="flex-container">
-    <div class="mui-dropdown flex-1">
-      <button class="mui-btn mui-btn--primary" data-mui-toggle="dropdown">
-        Додати роботу
-        <span class="mui-caret"></span>
-      </button>
-      <ul class="mui-dropdown__menu">
-        <li *ngFor="let ec of examConfs"><a (click)="addExamForConf(ec)">{{ ec.name }}</a></li>
-      </ul>
-    </div>
-    <div>
-      <a (click)="emitBackToGroup()">Назад до групи</a>
-    </div>
+<div class="flex-container flex-justify-space-between">
+  <div class="mui-dropdown flex-1">
+    <button class="mui-btn mui-btn--primary" data-mui-toggle="dropdown">
+      Додати роботу
+      <span class="mui-caret"></span>
+    </button>
+    <ul class="mui-dropdown__menu">
+      <li *ngFor="let ec of examConfs"><a (click)="addExamForConf(ec)">{{ ec.name }}</a></li>
+    </ul>
   </div>
-  <div *ngFor="let exam of exams" class="mui-panel relative">
-    <div class="relative">
-      <border-sticky-btn (onClick)="deleteExam(exam)" positionH="right" positionV="top" *ngIf="deletable">
-        <i style="color: red;" class="material-icons">clear</i>
-      </border-sticky-btn>
-      <border-sticky-btn (onClick)="toggleLock(exam)" positionH="right" positionV="bottom">
-        <i style="color: #a000c3;" class="material-icons" [hidden]="exam.lockedUntil">lock_outline</i>
-        <i class="material-icons" [hidden]="!exam.lockedUntil">lock_open</i>
-      </border-sticky-btn>
-      <div class="exam-name">{{ exam.name }}</div>
-      <span class="mui--text-dark-secondary">{{ exam.description }}</span>
-      <div *ngIf="exam.status === 'in-progress'">
-        <span class="mui--text-dark-secondary">Прогрес:</span>
-        Крок № {{ exam.currentStep.sequence }} - {{ exam.currentStep.description }}
-      </div>
-      <div class="success" *ngIf="exam.status === 'success'">
-        Завершено успішно
-        <a (click)="loadExamResult(exam)">Переглянути результати</a>
-      </div>
-      <div class="fail" *ngIf="exam.status === 'failed'">
-        Провалено на кроці № {{ exam.currentStep.sequence }} - {{ exam.currentStep.description }}
-      </div>
-      <div class="locked" *ngIf="exam.lockedUntil">
-        Заблоковано до {{ exam.lockedUntil.toLocaleString() }}
-      </div>
-    </div>
+  <div>
+    <a (click)="onBackToGroup.emit()">Назад до групи</a>
   </div>
 </div>
-<div *ngIf="showExamResult">
-  <div class="flex-container" style="justify-content: flex-end">
-    <a (click)="hideExamResult()">Назад до робіт студента</a>
-  </div>
-  <br>
-  <exam-results [data]="examResult"></exam-results>
-</div>
+<student-exam-list [exams]="exams" [conf]="studentExamListConf"></student-exam-list>

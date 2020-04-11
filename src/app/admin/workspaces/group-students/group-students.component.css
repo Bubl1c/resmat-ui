@@ -1,0 +1,13 @@
+.controls {
+  width: 1em;
+}
+
+.student-exam {
+  display: flex;
+  justify-content: space-around;
+  padding: 5px;
+}
+
+.tab {
+  min-width: 100px;
+}

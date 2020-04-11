@@ -17,6 +17,18 @@ body {
   text-overflow: ellipsis; /* Добавляем многоточие */
 }
 
+.link-with-icon {
+  display: flex !important;
+  align-items: center !important;
+}
+.link-with-icon:focus, .link-with-icon:hover {
+  text-decoration: unset;
+}
+.link-with-icon i.material-icons {
+  margin-right: 5px;
+}
+
+
 .relative {
   position: relative;
 }
@@ -64,6 +76,10 @@ body {
 
 .resmat-regular, .resmat-regular:hover {
   color: rgba(0,0,0,.87);
+}
+
+.resmat-light, .resmat-light:hover {
+  color: rgba(0,0,0,.54);
 }
 
 .resmat-success {
@@ -159,6 +175,9 @@ a {
 .flex-justify-center {
   justify-content: center;
 }
+.flex-justify-space-between {
+  justify-content: space-between;
+}
 
 /* OVERRIDE MUI*/
 .material-icons {
@@ -170,5 +189,9 @@ a {
   background-color: transparent;
   opacity: 1;
   color: grey;
+}
+
+.mui-tabs__bar>li>a {
+  cursor: pointer;
 }
 /* OVERRIDE MUI END*/

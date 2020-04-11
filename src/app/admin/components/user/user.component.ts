@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import { UserData, UserType } from "../../../user/user.models";
+import { StudentGroup, UserData, UserType } from "../../../user/user.models";
 import { DropdownOption } from "../../../components/dropdown/dropdown.component";
 import { NgForm } from "@angular/forms";
 
@@ -15,10 +15,9 @@ export class UserComponentConfig {
 export class UserComponent implements OnInit {
 
   @Input() user: UserData;
+  @Input() config: UserComponentConfig;
 
   @Output() onSaved = new EventEmitter<UserData>();
-
-  @Input() config: UserComponentConfig;
 
   userTypes = UserType.all.map(ut => new DropdownOption(ut.id, ut.name));
 

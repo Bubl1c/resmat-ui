@@ -21,7 +21,7 @@ export class MyExamsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.examService.getAvailableExamsForUser().subscribe(fetchedExams => {
-      this.exams = fetchedExams;
+      this.exams = fetchedExams.sort((e1, e2) => e2.id - e1.id);
       this.loading = false;
     });
   }

@@ -28,7 +28,7 @@
           </a>
         </div>
         <ul>
-          <li *ngFor="let group of studentGroups"><a (click)="loadStudentsByGroup(group)">{{ group.name }}</a></li>
+          <li *ngFor="let group of studentGroups"><a (click)="loadGroupStudentsWorkspace(group)">{{ group.name }}</a></li>
         </ul>
       </li>
       <li *ngIf="userPermission >= permissions.Admin">
@@ -70,62 +70,18 @@
             (onSaved)="workspaceData.save($event)"></user>
 
       <div *ngIf="workspaceData.type === 'group-students'">
-        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-          <editable-text class="resmat-header resmat-regular flex-1"
-                         [text]="workspaceData.group.name"
-                         inputPlaceholder="Введіть назву групи"
-                         (onSave)="workspaceData.saveGroupName($event)"></editable-text>
-          <div>
-            <a (click)="lockAllInGroup(workspaceData.group)">Заблокувати всі роботи в групі</a>
-            <br>
-            <a (click)="unlockAllInGroup(workspaceData.group)">Розблокувати всі роботи в групі</a>
-          </div>
-        </div>
-        <div class="flex-container flex-row" style="justify-content: space-between">
-          <button class="mui-btn mui-btn--primary" style="min-width: 190px;" (click)="addUserToCurrentGroup(workspaceData.group)">
-            Додати студента
-          </button>
-          <div class="flex-container flex-column">
-            <div class="mui-dropdown">
-              <button class="mui-btn mui-btn--primary" data-mui-toggle="dropdown">
-                Додати роботу всім студентам в групі
-                <span class="mui-caret"></span>
-              </button>
-              <ul class="mui-dropdown__menu">
-                <li *ngFor="let ec of examConfs"><a (click)="workspaceData.addExamForAllStudents(ec)">{{ ec.name }}</a></li>
-              </ul>
-            </div>
-            <div class="mui-dropdown">
-              <button class="mui-btn mui-btn--danger" data-mui-toggle="dropdown">
-                Видалити роботу всім студентам в групі
-                <span class="mui-caret"></span>
-              </button>
-              <ul class="mui-dropdown__menu">
-                <li *ngFor="let ec of examConfs"><a (click)="workspaceData.deleteExamForAllStudents(ec)">{{ ec.name }}</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
         <group-students
-          [students]="workspaceData.data"
+          [workspaceData]="workspaceData"
           [deletable]="userPermission >= permissions.Instructor"
-          (onResultsRequested)="loadStudentResults($event, workspaceData.group)"
-          (onEditRequested)="loadEditUser($event, true)"
-          (onDeleteRequested)="deleteStudent($event)"></group-students>
+          (onResultsRequested)="loadStudentResults($event, workspaceData.data)"
+          (onEditRequested)="loadEditUser($event, true, workspaceData.data)"
+          (onAddUserToCurrentGroup)="addUserToCurrentGroup($event)"
+        ></group-students>
         <br>
-        <div class="resmat-header">Доступні навчальні матеріали</div>
-        <div class="mui-panel">
-          <div [hidden]="workspaceData.selectableArticles.length > 0">Немає доступних матеріалів</div>
-          <item-selector *ngIf="workspaceData.selectableArticles.length > 0"
-                         [items]="workspaceData.selectableArticles"
-                         [config]="workspaceData.itemSelectorConfig"
-                         class="header4"></item-selector>
-        </div>
-        <button class="mui-btn mui-btn--primary" (click)="workspaceData.saveSelectedArticles()">Зберегти вибрані навчальні матеріали</button>
       </div>
 
       <student-exams *ngIf="workspaceData.type === 'student_exams'"
-                     (onBackToGroup)="loadStudentsByGroup(workspaceData.sourceGroup)"
+                     (onBackToGroup)="loadGroupStudentsWorkspace(workspaceData.sourceGroup)"
                      [student]="workspaceData.data"
                      [examConfs]="examConfs"
                      [deletable]="userPermission >= permissions.Instructor"
@@ -140,13 +96,6 @@
           <input [(ngModel)]="workspaceData.data" placeholder="Введіть ім'я групи">
         </div>
         <button class="mui-btn mui-btn--primary" (click)="workspaceData.save()">Зберегти</button>
-      </div>
-
-      <div *ngIf="workspaceData.type === 'exam-results'">
-        <div *ngFor="let result of workspaceData.data" class="exam-result">
-          <exam-results [data]="result"></exam-results>
-          <div class="mui-divider"></div>
-        </div>
       </div>
 
       <div *ngIf="workspaceData.type === 'edit-exam'">

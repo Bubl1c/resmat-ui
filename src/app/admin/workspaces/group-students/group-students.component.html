@@ -1,0 +1,133 @@
+<div class="flex-container">
+  <span class="resmat-header resmat-label">Група:&nbsp;&nbsp;</span>
+  <editable-text class="resmat-header resmat-regular mui--text-center"
+                 [text]="workspaceData.data.name"
+                 inputPlaceholder="Введіть назву групи"
+                 (onSave)="workspaceData.saveGroupName($event)"></editable-text>
+</div>
+
+
+<ul class="mui-tabs__bar mui-tabs__bar--justified" style="margin-top: -10px">
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.students }" class="tab">
+    <a (click)="switchTab(tabs.students)">Студенти</a>
+  </li>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.operations }" class="tab">
+    <a (click)="switchTab(tabs.operations)">Групові дії</a>
+  </li>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.exams }" class="tab">
+    <a (click)="switchTab(tabs.exams)">Прогрес</a>
+  </li>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.learningMaterials }" class="tab">
+    <a (click)="switchTab(tabs.learningMaterials)">Матеріали</a>
+  </li>
+</ul>
+
+<!--------------------- STUDENTS ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.students }">
+  <table class="mui-table mui-table--bordered">
+    <thead>
+    <tr>
+      <th>Ім'я</th>
+      <th>Прізвище</th>
+      <th>Ключ доступу</th>
+      <th colspan="3" class="mui--text-center"><a (click)="addUserToCurrentGroup()" class="link-with-icon"><i class="material-icons">playlist_add</i>Додати</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let student of workspaceData.students">
+      <td>{{ student.firstName }}</td>
+      <td>{{ student.lastName }}</td>
+      <td>{{ student.accessKey }}</td>
+      <td class="controls"><a (click)="delete(student)" *ngIf="deletable"><i class="material-icons">delete_forever</i></a></td>
+      <td class="controls"><a (click)="edit(student)"><i class="material-icons">mode_edit</i></a></td>
+      <td class="controls"><a (click)="results(student)"><i class="material-icons">insert_chart</i></a></td>
+    </tr>
+    <tr *ngIf="workspaceData.students && workspaceData.students.length === 0">
+      <td colspan="5">В групі студентів немає</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!--------------------- OPERATIONS ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.operations }">
+  <div class="flex-container flex-justify-space-between">
+    <div class="flex-container flex-column">
+      <br>
+      <a (click)="unlockAllInGroup(workspaceData.data)" class="link-with-icon"><i class="material-icons">lock_open</i> Розблокувати всі роботи в групі</a>
+      <br>
+      <a (click)="lockAllInGroup(workspaceData.data)" style="color: red;" class="link-with-icon"> <i class="material-icons">lock_outline</i> Заблокувати всі роботи в групі</a>
+    </div>
+    <div class="flex-container flex-column">
+      <br>
+      <div class="mui-dropdown">
+        <a data-mui-toggle="dropdown" class="link-with-icon">
+          <i class="material-icons">playlist_add</i> Додати роботу всім студентам в групі <span class="mui-caret"></span>
+        </a>
+        <ul class="mui-dropdown__menu">
+          <li *ngFor="let ec of workspaceData.examConfs">
+            <a (click)="workspaceData.addExamForAllStudents(ec)" class="link-with-icon">
+              <i class="material-icons">playlist_add</i>
+              {{ ec.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+      <br>
+      <div class="mui-dropdown">
+        <a data-mui-toggle="dropdown" style="color: red;" class="link-with-icon">
+          <i class="material-icons">delete_forever</i> Видалити роботу всім студентам в групі<span class="mui-caret"></span>
+        </a>
+        <ul class="mui-dropdown__menu">
+          <li *ngFor="let ec of workspaceData.examConfs">
+            <a (click)="workspaceData.deleteExamForAllStudents(ec)" class="link-with-icon" style="color: red;">
+              <i class="material-icons">delete_forever</i>
+              {{ ec.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--------------------- EXAMS ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.exams }">
+  <br>
+  <div class="flex-container">
+    <span class="header1 resmat-light">Робота:&nbsp;&nbsp;</span>
+    <div class="mui-dropdown">
+      <a data-mui-toggle="dropdown" class="header1 resmat-regular">
+        {{ selectedExamConf ? selectedExamConf.name : 'виберіть роботу' }} <span class="mui-caret"></span>
+      </a>
+      <ul class="mui-dropdown__menu">
+        <li *ngFor="let ec of workspaceData.examConfs">
+          <a (click)="loadUserExamsByExamConf(ec)">
+            {{ ec.name }}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <br>
+  <div class="flex-container flex-column">
+    <student-exam-list [exams]="studentExams" [conf]="studentExamsConf"></student-exam-list>
+  </div>
+</div>
+
+<!--------------------- MATERIALS ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.learningMaterials }">
+  <div class="resmat-header">Доступні навчальні матеріали</div>
+  <div class="mui-panel">
+    <div [hidden]="workspaceData.selectableArticles.length > 0">Немає доступних матеріалів</div>
+    <item-selector *ngIf="workspaceData.selectableArticles.length > 0"
+                   [items]="workspaceData.selectableArticles"
+                   [config]="workspaceData.itemSelectorConfig"
+                   class="header4"></item-selector>
+  </div>
+  <button class="mui-btn mui-btn--primary" (click)="workspaceData.saveSelectedArticles()">Зберегти вибрані навчальні матеріали</button>
+</div>

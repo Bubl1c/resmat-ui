@@ -1,0 +1,25 @@
+.user-exam-panel {
+  padding: 10px;
+  margin-bottom: 5px;
+}
+
+.exam-name {
+  font-size: 1.5em;
+}
+
+.success {
+  color: green;
+}
+
+.fail {
+  color: #F50057;
+}
+
+.locked {
+  color: #F50057;
+}
+
+.warn {
+  color: #d65600;
+}
+

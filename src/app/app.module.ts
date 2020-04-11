@@ -29,7 +29,7 @@ import { Ng2PageScrollModule } from "ng2-page-scroll";
 import { ApiService } from "./api.service";
 import { AdminComponent } from "./admin/admin.component";
 import { UserComponent } from "./admin/components/user/user.component";
-import { GroupStudentsComponent } from "./admin/components/group-students/group-students.component";
+import { GroupStudentsComponent } from "./admin/workspaces/group-students/group-students.component";
 import { MyExamsComponent } from './exam/components/my-exams/my-exams.component';
 import { MathJaxComponent } from './components/math-jax/math-jax.component';
 import { EditExamConfComponent } from './admin/components/edit-exam-conf/edit-exam-conf.component';
@@ -72,6 +72,7 @@ import { DummyForTestingComponent } from './components/dummy-for-testing/dummy-f
 import { GeogebraCreateObjectComponent } from './components/geogebra-create-object/geogebra-create-object.component';
 import { PlaygroundComponent } from './components/playground/playground.component';
 import { NewCrossSectionProblemVariantComponent } from './admin/components/problem-conf/new-cross-section-problem-variant/new-cross-section-problem-variant.component';
+import { StudentExamListComponent } from './admin/components/student-exams/student-exam-list/student-exam-list.component';
 
 @NgModule({
   declarations: [
@@ -133,7 +134,8 @@ import { NewCrossSectionProblemVariantComponent } from './admin/components/probl
     DummyForTestingComponent,
     GeogebraCreateObjectComponent,
     PlaygroundComponent,
-    NewCrossSectionProblemVariantComponent
+    NewCrossSectionProblemVariantComponent,
+    StudentExamListComponent
   ],
   imports: [
     BrowserModule,

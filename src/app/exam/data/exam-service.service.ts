@@ -9,6 +9,7 @@ import { HttpUtils } from "../../utils/HttpUtils";
 import { ApiService } from "../../api.service";
 import { TestType } from "./test-set.api-protocol";
 import { Error } from "tslint/lib/error";
+import { IUserExamResult } from "../../steps/exam.results-step";
 
 export class VerifiedTestAnswer {
   constructor(public testId: number,
@@ -38,6 +39,13 @@ export class ExamService {
       .map((responseData: any[]) => {
         return responseData.map(this.mapUserExamDto)
     });
+  }
+
+  findByExamConfAndStudentGroup(examConfId: number, studentGroupId: number): Observable<IExamDto[]> {
+    return this.api.get(`/user-exams/find?examConfId=${examConfId}&studentGroupId=${studentGroupId}`)
+      .map((responseData: any[]) => {
+        return responseData.map(this.mapUserExamDto)
+      });
   }
 
   startAndGetExam(examId: number): Observable<IExamDto> {
@@ -161,19 +169,20 @@ export class ExamService {
       '/steps/' + taskFlowStepId + '/verify', JSON.stringify(answer))
   }
 
-  getResults(examId: number): Observable<ExamResult> {
-    return this.http.get(this.withBase('/exam_results/' + examId))
-      .map(HttpUtils.extractData)
-      .catch(HttpUtils.handleError)
+  getUserExamResult(userExamId: number): Observable<ExamResult> {
+    return this.api.get(`/user-exams/${userExamId}/result`).map((result: IUserExamResult) => {
+      return ExamResult.create(result);
+    });
   }
 
   private mapUserExamDto(responseData: any): IExamDto {
-    let userExam = responseData.userExam;
+    let userExam = responseData.userExam as { id: number, lockedUntil?: string, userId: number, status: string };
     let currentStepPreview = responseData.currentStepPreview;
     let examConf = responseData.examConf;
     return {
       id: userExam.id,
       name: examConf.name,
+      userId: userExam.userId,
       description: examConf.description,
       status: userExam.status,
       lockedUntil: userExam.lockedUntil ? new Date(userExam.lockedUntil) : null,

@@ -34,6 +34,7 @@ export interface IUserDto {
 export interface IExamDto {
   id: number;
   name: string;
+  userId: number;
   description: string;
   status: string;
   lockedUntil: Date;
