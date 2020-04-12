@@ -97,20 +97,25 @@
 
 <div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.exams }">
   <br>
-  <div class="flex-container">
-    <span class="header1 resmat-light">Робота:&nbsp;&nbsp;</span>
-    <div class="mui-dropdown">
-      <a data-mui-toggle="dropdown" class="header1 resmat-regular">
-        {{ workspaceData.selectedExamConf ? workspaceData.selectedExamConf.name : 'виберіть роботу' }} <span class="mui-caret"></span>
-      </a>
-      <ul class="mui-dropdown__menu">
-        <li *ngFor="let ec of workspaceData.examConfs">
-          <a (click)="workspaceData.loadUserExamsByExamConf(ec)">
-            {{ ec.name }}
-          </a>
-        </li>
-      </ul>
+  <div class="flex-container flex-justify-space-between">
+    <div class="flex-container">
+      <span class="header1 resmat-light">Робота:&nbsp;&nbsp;</span>
+      <div class="mui-dropdown">
+        <a data-mui-toggle="dropdown" class="header1 resmat-regular">
+          {{ workspaceData.selectedExamConf ? workspaceData.selectedExamConf.name : 'виберіть роботу' }} <span class="mui-caret"></span>
+        </a>
+        <ul class="mui-dropdown__menu">
+          <li *ngFor="let ec of workspaceData.examConfs">
+            <a (click)="workspaceData.loadUserExamsByExamConf(ec)">
+              {{ ec.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
+    <a (click)="workspaceData.loadUserExamsByExamConf(workspaceData.selectedExamConf)" class="link-with-icon">
+      <i class="material-icons">sync</i> Оновити
+    </a>
   </div>
   <br>
   <div class="flex-container flex-column">
