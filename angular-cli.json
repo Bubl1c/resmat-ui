@@ -21,6 +21,7 @@
         "styles.css"
       ],
       "scripts": [
+        "../node_modules/docx4js/dist/docx4js.js",
         "../node_modules/tinymce/tinymce.js",
         "../node_modules/tinymce/themes/modern/theme.js",
         "../node_modules/tinymce/plugins/autoresize/plugin.js",

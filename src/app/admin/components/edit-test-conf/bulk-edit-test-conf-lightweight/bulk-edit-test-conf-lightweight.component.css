@@ -1,0 +1,15 @@
+.selected-page {
+  color: #2196F3;
+  font-size: 1.5em;
+  text-decoration: underline;
+}
+
+.page {
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.add-page-btn {
+  display: block;
+  margin-bottom: -15px;
+}

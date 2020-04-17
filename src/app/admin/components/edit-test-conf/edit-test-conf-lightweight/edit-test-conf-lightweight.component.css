@@ -1,0 +1,37 @@
+.question {
+  margin-bottom: 10px;
+}
+.question label {
+  font-size: inherit;
+}
+.question textarea {
+  min-height: 1.5em;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.option-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2em;
+}
+.option-value-container {
+  flex: 1;
+  margin: 0 1em;
+}
+.option-words-value {
+  margin-bottom: 5px;
+  padding-top: 5px;
+}
+.option-words-value-textarea {
+  min-height: 1.5em;
+}
+
+.section-name {
+  color: rgba(0,0,0,.54);
+}

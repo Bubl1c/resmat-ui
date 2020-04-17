@@ -40,6 +40,7 @@ import { StudentExamsComponent } from './admin/components/student-exams/student-
 import { UploadComponent } from './components/upload/upload.component';
 import { TestConfPreviewComponent } from './admin/components/test-conf-preview/test-conf-preview.component';
 import { EditTestConfComponent } from './admin/components/edit-test-conf/edit-test-conf.component';
+import { EditTestConfLightweightComponent } from './admin/components/edit-test-conf/edit-test-conf-lightweight/edit-test-conf-lightweight.component';
 import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { TextareaAutosizeDirective } from './components/textarea-autosize.directive';
 import { EditableTextComponent } from './components/editable-text/editable-text.component';
@@ -73,6 +74,8 @@ import { GeogebraCreateObjectComponent } from './components/geogebra-create-obje
 import { PlaygroundComponent } from './components/playground/playground.component';
 import { NewCrossSectionProblemVariantComponent } from './admin/components/problem-conf/new-cross-section-problem-variant/new-cross-section-problem-variant.component';
 import { StudentExamListComponent } from './admin/components/student-exams/student-exam-list/student-exam-list.component';
+import { Docx4jsTestComponent } from './components/docx4js-test/docx4js-test.component';
+import { BulkEditTestConfLightweightComponent } from './admin/components/edit-test-conf/bulk-edit-test-conf-lightweight/bulk-edit-test-conf-lightweight.component';
 
 @NgModule({
   declarations: [
@@ -105,6 +108,7 @@ import { StudentExamListComponent } from './admin/components/student-exams/stude
     UploadComponent,
     TestConfPreviewComponent,
     EditTestConfComponent,
+    EditTestConfLightweightComponent,
     DropdownComponent,
     TextareaAutosizeDirective,
     EditableTextComponent,
@@ -135,7 +139,9 @@ import { StudentExamListComponent } from './admin/components/student-exams/stude
     GeogebraCreateObjectComponent,
     PlaygroundComponent,
     NewCrossSectionProblemVariantComponent,
-    StudentExamListComponent
+    StudentExamListComponent,
+    Docx4jsTestComponent,
+    BulkEditTestConfLightweightComponent
   ],
   imports: [
     BrowserModule,

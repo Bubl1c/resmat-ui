@@ -5,6 +5,7 @@ import {
 import {DropdownOption} from "../../../components/dropdown/dropdown.component";
 import {Test} from "../../../exam/components/test/test.component";
 import { UserDefaults } from "../../userDefaults";
+import { SimpleTextTestData } from "../../../utils/docx-models";
 
 export class TestEdit implements ITestEditDto {
   id: number = -1;
@@ -28,6 +29,23 @@ export class TestEdit implements ITestEditDto {
       this.precision = other.precision;
     }
   }
+
+  static fromSimple(groupId: number, id: number, other?: SimpleTextTestData): TestEdit {
+    const created = new TestEdit();
+    if(other && Object.keys(other).length > 0) {
+      created.id = id;
+      created.groupId = groupId;
+      created.question = other.question;
+      created.options = other.options.map((o, i) => ({
+        id: i + 1,
+        value: o,
+        correct: i === 0,
+        valueType: TestOptionValueType.Words
+      }));
+      created.testType = TestType.Radio;
+    }
+    return created
+  }
 }
 
 @Component({
@@ -39,6 +57,7 @@ export class EditTestConfComponent implements OnInit {
 
   @Input() isSaving: boolean = false;
   @Input() testToUpdate: ITestEditDto;
+  @Input() isLightView: boolean = false;
   @Output() onSave = new EventEmitter<ITestEditDto>();
   @Output() onBackToGroup = new EventEmitter<void>();
 

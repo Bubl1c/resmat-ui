@@ -13,7 +13,9 @@ export class UploadComponent implements OnInit {
   @Input() path: string;
   @Input() auto: boolean;
   @Input() onlyImages: boolean = true;
+  @Input() addToQueueWhenAdded: boolean = true;
 
+  @Output() onAdded = new EventEmitter<File>();
   @Output() onUploaded = new EventEmitter<string>();
   @Output() onUploadFailed = new EventEmitter<string>();
 
@@ -30,15 +32,21 @@ export class UploadComponent implements OnInit {
       options.allowedMimeType = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/svg+xml', 'image/tiff', 'image/vnd.microsoft.icon', 'image/vnd.wap.wbmp', 'image/webp',]
     }
     this.uploader = new FileUploader(options);
-    this.uploader.onAfterAddingFile = (file: FileItem) => {
+    this.uploader.onAfterAddingFile = (file: FileItem): void => {
+      this.errorMessage = '';
+      if (this.onAdded) {
+        this.onAdded.emit(file._file);
+      }
       if(this.auto) {
         this.uploadFile(file)
       }
-      this.errorMessage = '';
+      if (!this.addToQueueWhenAdded) {
+        this.uploader.clearQueue();
+      }
       if(this.uploader.queue.length > 1) {
         this.uploader.removeFromQueue(this.uploader.queue[0])
       }
-    };
+    }
     this.uploader.onWhenAddingFileFailed = (file: any, filter: any, options: any) => {
       if(filter && filter.name === 'mimeType') {
         alert("Завантажувати можна лише зображення")

@@ -1,0 +1,36 @@
+<div>
+  <div class="flex-container flex-align-center" [hidden]="!pages.length">
+    <span>Сторінки:&nbsp;&nbsp;</span>
+    <a *ngFor="let pageNumber of pages" (click)="recalculatePages(pageNumber)"
+       [ngClass]="{ 'selected-page': currentPage.id === pageNumber }"
+       class="page header3 resmat-regular">{{ pageNumber }}</a>
+    <span>&nbsp;&nbsp;(всього тестів {{ tests.length }} - по {{ pageSize }} на сторінці)</span>
+    <div class="flex-container flex-1" style="justify-content: flex-end">
+      <button [disabled]="isSaving" class="mui-btn mui-btn--primary" (click)="save()">
+        {{ isSaving ? 'Збереження' : 'Зберегти' }}
+      </button>
+    </div>
+  </div>
+  <div *ngFor="let test of currentPage.tests; trackBy: trackTest" style="margin-bottom: -15px;">
+    <a class="header1 add-page-btn" (click)="addTest(test.originalIndex)">+</a>
+    <div class="mui-panel">
+      <edit-test-conf-lightweight
+        [index]="test.originalIndex"
+        [testToUpdate]="test.test"
+        (onDelete)="deleteTest(test.originalIndex)"
+      ></edit-test-conf-lightweight>
+    </div>
+  </div>
+  <div class="flex-container flex-align-center" [hidden]="!pages.length">
+    <span>Сторінки:&nbsp;&nbsp;</span>
+    <a *ngFor="let pageNumber of pages" (click)="recalculatePages(pageNumber)"
+       [ngClass]="{ 'selected-page': currentPage.id === pageNumber }"
+       class="page header3 resmat-regular">{{ pageNumber }}</a>
+    <span>&nbsp;&nbsp;(всього тестів {{ tests.length }} - по {{ pageSize }} на сторінці)</span>
+    <div class="flex-container flex-1" style="justify-content: flex-end">
+      <button [disabled]="isSaving" class="mui-btn mui-btn--primary" (click)="save()">
+        {{ isSaving ? 'Збереження' : 'Зберегти' }}
+      </button>
+    </div>
+  </div>
+</div>

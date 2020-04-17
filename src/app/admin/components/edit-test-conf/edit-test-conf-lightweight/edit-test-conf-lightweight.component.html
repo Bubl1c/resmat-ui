@@ -1,0 +1,52 @@
+<div class="flex-container" style="flex-wrap: nowrap">
+<!--  <div style="width: 30px; margin-left: -10px; margin-right: 10px; display: flex; align-items: center; justify-content: center">-->
+<!--    <a [hidden]="preview" (click)="showPreview()"><i class="material-icons">remove_red_eye</i></a>-->
+<!--    <a [hidden]="!preview" (click)="backFromPreview()"><i class="material-icons">keyboard_backspace</i></a>-->
+<!--  </div>-->
+<!--  <div class="flex-1" [hidden]="!preview">-->
+<!--    <app-test-->
+<!--      *ngIf="preview"-->
+<!--      [test]="preview"-->
+<!--      (onContinue)="previewStub()"-->
+<!--      (onSubmitted)="previewStub()"></app-test>-->
+<!--  </div>-->
+<!--  <div class="flex-1" [hidden]="preview">-->
+  <div class="flex-1" [hidden]="preview">
+
+    <div class="flex-container flex-align-center">
+      <div class="mui-textfield question flex-1">
+        <!--      <textarea rows="1" autosize [(ngModel)]="updated.question" required></textarea>-->
+        <textarea rows="1" autosize [value]="updated.question" required></textarea>
+        <label>Запитання {{ (index + 1) || '' }}</label>
+      </div>
+      <a (click)="onDelete.emit()" style="color: rgba(178,0,0,0.62)"><i class="material-icons">delete_forever</i></a>
+    </div>
+
+    <p class="section-name">Варіанти відповіді:</p>
+
+    <div class="options-container">
+      <div class="option-container" *ngFor="let opt of updated.options">
+        <div class="option-check">
+          <input type="radio" name="radiogroup-{{index}}-{{opt.id}}"
+                 [checked]="opt.correct"
+                 [value]="opt.id"
+                 (change)="onOptionCheckChanged(opt)">
+        </div>
+        <div class="option-value-container">
+          <div class="mui-textfield option-words-value">
+          <textarea autosize
+                    rows="1"
+                    name="option-value-{{opt.id}}"
+                    [value]="opt.value"
+                    placeholder="Введіть текст або формулу"
+                    class="option-words-value-textarea" required></textarea>
+          </div>
+        </div>
+        <a (click)="deleteOption(opt)"><i class="material-icons">delete_forever</i></a>
+      </div>
+      <a style="margin-bottom: -15px; margin-left: -2px;" (click)="addBlankOption()">
+        <i class="material-icons">playlist_add</i>
+      </a>
+    </div>
+  </div>
+</div>

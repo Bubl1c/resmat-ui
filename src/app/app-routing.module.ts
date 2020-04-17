@@ -10,6 +10,7 @@ import {ArticleWrapperComponent} from "./components/article-wrapper/article-wrap
 import {StudentArticlesComponent} from "./exam/components/student-articles/student-articles.component";
 import { DummyForTestingComponent } from "./components/dummy-for-testing/dummy-for-testing.component";
 import { PlaygroundComponent } from "./components/playground/playground.component";
+import { Docx4jsTestComponent } from "./components/docx4js-test/docx4js-test.component";
 
 //Keep in mind that GoogleAnalytics is bound to these routes
 const appRoutes: Routes = [
@@ -24,7 +25,8 @@ const appRoutes: Routes = [
   { path: 'articles/:articleId', component: ArticleWrapperComponent },
   { path: 'components', component: DummyForTestingComponent },
   { path: 'playground', component: PlaygroundComponent },
-  { path: 'admin', component: AdminComponent }
+  { path: 'admin', component: AdminComponent },
+  { path: 'docx-test', component: Docx4jsTestComponent }
 ];
 
 @NgModule({

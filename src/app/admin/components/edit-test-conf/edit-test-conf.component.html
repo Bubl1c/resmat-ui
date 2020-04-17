@@ -1,7 +1,7 @@
 <div style="display: flex; justify-content: space-between;">
   <a [hidden]="preview" (click)="showPreview()">Попередній перегляд</a>
   <a [hidden]="!preview" (click)="backFromPreview()">Назад до редагування</a>
-  <a (click)="backToTestGroup()">Назад до групи</a>
+  <a (click)="backToTestGroup()" [hidden]="isLightView">Назад до групи</a>
 </div>
 
 <app-test *ngIf="preview" [test]="preview" (onContinue)="previewStub()" (onSubmitted)="previewStub()"></app-test>

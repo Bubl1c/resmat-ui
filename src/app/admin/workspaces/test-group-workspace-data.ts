@@ -3,9 +3,21 @@ import { ITestGroupConf, ITestGroupConfWithChildren } from "../components/test-g
 import { TestConfService } from "../data/test-conf.service";
 import { RMU } from "../../utils/utils";
 import { GoogleAnalyticsUtils } from "../../utils/GoogleAnalyticsUtils";
-import { ITestEditDto } from "../../exam/data/test-set.api-protocol";
+import { ITestEditDto, TestOptionValueType, TestType } from "../../exam/data/test-set.api-protocol";
 import { AdminComponent } from "../admin.component";
 import { WorkspaceData, WorkspaceDataTypes } from "./workspace-data";
+
+interface EditingMode {
+  id: "detailed" | "lightweight"
+  text: string
+}
+
+class EditingModes {
+  static Detailed: EditingMode = { id: "detailed", text: "Стандартний" };
+  static Lightweight = { id: "lightweight", text: "Спрощений" };
+
+  static all = [EditingModes.Detailed, EditingModes.Lightweight]
+}
 
 export interface ITestGroupConfWithTestConfs extends ITestGroupConfWithChildren {
   testConfs: ITestEditDto[]
@@ -41,11 +53,17 @@ export abstract class TestGroupWorkspaceData extends WorkspaceData {
 export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
   type = WorkspaceDataTypes.testGroup;
 
+  selectedEditingMode: DropdownOption = new DropdownOption(-1, "Не вибрано");
+  editingModes: DropdownOption[];
+
   constructor(public data: ITestGroupConfWithTestConfs, tcService: TestConfService, adminComponent: AdminComponent) {
     super(data, tcService, adminComponent);
     RMU.safe(() => {
       GoogleAnalyticsUtils.pageView(`/admin/test-groups/${this.data.id}/edit`, `Адмінка :: Редагування групи тестів "${this.data.name}"`)
     });
+    this.editingModes = EditingModes.all.map(em => new DropdownOption(em.id, em.text));
+
+    this.selectedEditingMode = this.editingModes[0];
   }
 
   save(name: string, parentGroupId: number = this.selectedParentGroupId) {
@@ -98,6 +116,39 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
         this.save(this.data.name, option.id);
       }
     }
+  }
+
+  changeEditingMode(em: DropdownOption) {
+    if (em.id === EditingModes.Lightweight.id) {
+      const isPossible = this.isLightweightEditingModePossible();
+      if (!isPossible) {
+        alert("Спрощений режим редагування доступний лише для тестів з 1 варіантом відповіді. Зображення не підтримуються.")
+        return;
+      }
+    }
+    this.selectedEditingMode = em;
+  }
+
+  isLightweightEditingModePossible() {
+    let isLightweightEditingModePossible = true;
+    for(let i = 0; i < this.data.testConfs.length; i++) {
+      const tc = this.data.testConfs[i];
+      if ([TestType.Checkbox, TestType.SingleInput].indexOf(tc.testType) > -1) {
+        isLightweightEditingModePossible = false;
+        break;
+      }
+      const optSupport = tc.options.map(o => {
+        if ([TestOptionValueType.Img, TestOptionValueType.Number].indexOf(o.valueType) > -1) {
+          return false
+        }
+        return true;
+      });
+      if (optSupport.indexOf(false) > -1) {
+        isLightweightEditingModePossible = false;
+        break;
+      }
+    }
+    return isLightweightEditingModePossible;
   }
 
 }

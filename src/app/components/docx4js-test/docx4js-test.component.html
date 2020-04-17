@@ -1,0 +1,21 @@
+<div class="mui-container-fluid">
+  <upload
+    [path]="''"
+    [auto]="false"
+    [onlyImages]="false"
+    [addToQueueWhenAdded]="false"
+    (onAdded)="fileAdded($event)"></upload>
+
+<!--  <div class="mui-panel">-->
+<!--    <edit-test-conf-lightweight-->
+<!--      [testToUpdate]="emptyTest"></edit-test-conf-lightweight>-->
+<!--  </div>-->
+
+<!--  <div class="mui-panel" *ngFor="let test of editableTests; trackBy: trackTest">-->
+<!--    <edit-test-conf-lightweight-->
+<!--      [testToUpdate]="test"></edit-test-conf-lightweight>-->
+<!--  </div>-->
+
+  <bulk-edit-test-conf-lightweight [tests]="editableTests"></bulk-edit-test-conf-lightweight>
+
+</div>
