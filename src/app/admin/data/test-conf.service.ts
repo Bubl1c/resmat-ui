@@ -65,6 +65,12 @@ export class TestConfService {
     )
   }
 
+  bulkUpdateTestConfs(testGroupConfId: number, data: ITestEditDto[]): Observable<ITestEditDto[]> {
+    return this.api.put(
+      "/test-groups/" + testGroupConfId + "/tests", data
+    )
+  }
+
   deleteTestConf(testGroupConfId: number, testConfId: number): Observable<void> {
     return this.api.delete(`/test-groups/${testGroupConfId}/tests/${testConfId}`)
   }

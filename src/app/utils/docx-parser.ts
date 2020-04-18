@@ -77,6 +77,9 @@ export namespace DocxParser {
     switch (c.type) {
       case "list":
         const numbering = numberingMap.get(c.props.numId);
+        if (!numbering) {
+          return false
+        }
         const numberingLevel = numbering.lvls[c.props.level];
         return numberingLevel.format === "decimal";
       case "p":
@@ -104,9 +107,9 @@ export namespace DocxParser {
         const lvlText = lvl.children.find(c => c.type === "lvlText");
         parsedLvls[lvlIdStr] = {
           id: lvlId,
-          start: Number(start.props.node.attribs["w:val"]),
-          format: parseLvlFormat(format.props.node.attribs["w:val"]),
-          lvlText: lvlText.props.node.attribs["w:val"]
+          start: start && Number(start.props.node.attribs["w:val"]),
+          format: format && parseLvlFormat(format.props.node.attribs["w:val"]),
+          lvlText: lvlText && lvlText.props.node.attribs["w:val"]
         }
       });
       map.set(n.props.id, {

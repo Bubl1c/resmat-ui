@@ -1,17 +1,18 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
   ITestEditDto, ITestOptionWithCorrectDto, TestOptionValueType, TestType
 } from "../../../../exam/data/test-set.api-protocol";
 import {DropdownOption} from "../../../../components/dropdown/dropdown.component";
 import {Test} from "../../../../exam/components/test/test.component";
 import { UserDefaults } from "../../../userDefaults";
+import { HtmlUtils } from "../../../../utils/html-utils";
 
 @Component({
   selector: 'edit-test-conf-lightweight',
   templateUrl: './edit-test-conf-lightweight.component.html',
   styleUrls: ['./edit-test-conf-lightweight.component.css']
 })
-export class EditTestConfLightweightComponent implements OnInit {
+export class EditTestConfLightweightComponent implements OnInit, AfterViewInit {
 
   @Input() index: number;
   @Input() testToUpdate: ITestEditDto;
@@ -21,13 +22,17 @@ export class EditTestConfLightweightComponent implements OnInit {
   updated: ITestEditDto;
   preview: Test;
 
-  constructor() { }
+  constructor(private elRef:ElementRef) { }
 
   ngOnInit() {
     this.updated = this.testToUpdate;
     if(this.updated.options.length === 0) {
       this.addBlankOption(true);
     }
+  }
+
+  ngAfterViewInit(): void {
+    HtmlUtils.autosizeTextArea(this.elRef.nativeElement.querySelectorAll("textarea.option-words-value-textarea"));
   }
 
   onOptionCheckChanged(option: ITestOptionWithCorrectDto) {

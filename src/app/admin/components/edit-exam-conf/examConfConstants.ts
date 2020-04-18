@@ -80,7 +80,8 @@ export const newTaskFlowConfDto = (): ITaskFlowConfDto => ({
           value: "",
           correct: true,
           valueType: 'words'
-        }]
+        }],
+        sequence: 1
       },
       correctOptionIdsMapping: undefined
     } as ITaskFlowTestConf)

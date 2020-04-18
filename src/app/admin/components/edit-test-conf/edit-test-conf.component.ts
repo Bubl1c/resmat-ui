@@ -16,6 +16,7 @@ export class TestEdit implements ITestEditDto {
   help: string = null;
   testType: TestType = UserDefaults.EditTestConf.testType;
   precision?: number = UserDefaults.EditTestConf.precision;
+  sequence: number = 1;
 
   constructor(other?: TestEdit) {
     if(other && Object.keys(other).length > 0) {
@@ -27,10 +28,11 @@ export class TestEdit implements ITestEditDto {
       this.help = other.help;
       this.testType = other.testType;
       this.precision = other.precision;
+      this.sequence = other.sequence;
     }
   }
 
-  static fromSimple(groupId: number, id: number, other?: SimpleTextTestData): TestEdit {
+  static fromSimple(groupId: number, id: number, sequence: number, other?: SimpleTextTestData): TestEdit {
     const created = new TestEdit();
     if(other && Object.keys(other).length > 0) {
       created.id = id;
@@ -43,6 +45,7 @@ export class TestEdit implements ITestEditDto {
         valueType: TestOptionValueType.Words
       }));
       created.testType = TestType.Radio;
+      created.sequence = sequence;
     }
     return created
   }

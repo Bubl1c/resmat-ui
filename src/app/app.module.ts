@@ -76,6 +76,7 @@ import { NewCrossSectionProblemVariantComponent } from './admin/components/probl
 import { StudentExamListComponent } from './admin/components/student-exams/student-exam-list/student-exam-list.component';
 import { Docx4jsTestComponent } from './components/docx4js-test/docx4js-test.component';
 import { BulkEditTestConfLightweightComponent } from './admin/components/edit-test-conf/bulk-edit-test-conf-lightweight/bulk-edit-test-conf-lightweight.component';
+import { EditTestGroupConfComponent } from './admin/workspaces/edit-test-group-conf/edit-test-group-conf.component';
 
 @NgModule({
   declarations: [
@@ -141,7 +142,8 @@ import { BulkEditTestConfLightweightComponent } from './admin/components/edit-te
     NewCrossSectionProblemVariantComponent,
     StudentExamListComponent,
     Docx4jsTestComponent,
-    BulkEditTestConfLightweightComponent
+    BulkEditTestConfLightweightComponent,
+    EditTestGroupConfComponent
   ],
   imports: [
     BrowserModule,

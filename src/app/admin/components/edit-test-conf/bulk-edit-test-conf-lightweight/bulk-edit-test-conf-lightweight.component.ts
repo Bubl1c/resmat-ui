@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   DoCheck,
   EventEmitter,
@@ -10,6 +11,9 @@ import {
 } from '@angular/core';
 import { TestEdit } from "../edit-test-conf.component";
 import { GeogebraObject } from "../../../../components/geogebra/custom-objects/geogebra-object";
+import { HtmlUtils } from "../../../../utils/html-utils";
+import { DocxParser } from "../../../../utils/docx-parser";
+import { error } from "util";
 
 export interface PagedTest {
   test: TestEdit
@@ -28,9 +32,11 @@ export interface PageWithTests {
   templateUrl: './bulk-edit-test-conf-lightweight.component.html',
   styleUrls: ['./bulk-edit-test-conf-lightweight.component.css']
 })
-export class BulkEditTestConfLightweightComponent implements OnInit, DoCheck {
+export class BulkEditTestConfLightweightComponent implements OnInit, DoCheck, AfterViewInit {
 
+  @Input() groupId: number;
   @Input() tests: TestEdit[];
+  @Input() isSaving: boolean;
 
   @Output() onSaved = new EventEmitter<TestEdit[]>();
 
@@ -38,8 +44,6 @@ export class BulkEditTestConfLightweightComponent implements OnInit, DoCheck {
 
   currentPage: PageWithTests;
   pages: number[];
-
-  isSaving: boolean = false;
 
   private iterableDiffer: IterableDiffer;
 
@@ -51,12 +55,36 @@ export class BulkEditTestConfLightweightComponent implements OnInit, DoCheck {
     this.recalculatePages()
   }
 
+  ngAfterViewInit(): void {
+  }
+
   ngDoCheck() {
     let changes = this.iterableDiffer.diff(this.tests);
     if (changes) {
       this.recalculatePages(this.currentPage && this.currentPage.id)
     }
   }
+
+  fileAdded(file: File) {
+    const groupId = this.groupId;
+    this.isSaving = true;
+    DocxParser.loadFileAndParseOutTests(file).then(tests => {
+      if (tests.length < 1) {
+        alert("В вибраному файлі не знайдено жодного тесту");
+        return;
+      }
+      const tes = tests.map((t, i) => {
+        return TestEdit.fromSimple(groupId, -1, -1, t)
+      });
+      this.tests.unshift(...tes);
+      this.recalculatePages(1);
+      alert(`Завантажені тести успішно додані під номерами 1 - ${tes.length}. Але НЕ ЗБЕРЕЖЕНІ, натисніть ЗБЕРЕГТИ щоб підтвердити додані тести.`);
+    }, error => {
+      alert("Не вдалося завантажити тести з файлу. Причина: " + JSON.stringify(error))
+    }).then(() => {
+      this.isSaving = false;
+    })
+  };
 
   deleteTest(index: number) {
     const test = this.tests[index];
@@ -68,7 +96,8 @@ export class BulkEditTestConfLightweightComponent implements OnInit, DoCheck {
 
   addTest(index: number) {
     const newTest = new TestEdit();
-    this.tests.splice(index, 0, newTest)
+    newTest.groupId = this.groupId;
+    this.tests.splice(index, 0, newTest);
     this.recalculatePages(this.currentPage.id)
   }
 

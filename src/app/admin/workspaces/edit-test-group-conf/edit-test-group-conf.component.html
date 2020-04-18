@@ -1,0 +1,57 @@
+<div style="display: flex; justify-content: space-between; align-items: baseline;">
+  <editable-text class="resmat-header resmat-regular" style="flex: 5"
+                 [text]="workspaceData.data.name"
+                 inputPlaceholder="Введіть назву групи"
+                 (onSave)="workspaceData.saveTestGroup($event)"></editable-text>
+  <div class="mui-dropdown">
+    <a data-mui-toggle="dropdown" class="resmat-regular">
+      Режим редагування <span class="mui-caret"></span>
+    </a>
+    <ul class="mui-dropdown__menu">
+      <li *ngFor="let em of workspaceData.editingModes">
+        <a (click)="workspaceData.changeEditingMode(em)"
+           [ngClass]="{ 'selected-test-group-editing-mode': workspaceData.selectedEditingMode.id === em.id }"
+           class="resmat-regular">
+          {{ em.text }}
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<div class="flex-container flex-justify-space-between">
+  <div class="mui-textfield parent-group-dropdown">
+    <dropdown
+      [options]="workspaceData.parentGroupOptions"
+      [selectedOptionId]="workspaceData.selectedParentGroupId"
+      [maxWidthPx]="1000"
+      (onSelected)="workspaceData.parentGroupChanged($event)"></dropdown>
+    <label>Батьківська група</label>
+  </div>
+  <a [hidden]="workspaceData.selectedEditingMode.id === 'lightweight'"
+     style="flex: 1; text-align: right;" (click)="editTestConf()"
+     class="resmat-primary">Додати тест</a>
+</div>
+<div class="mui-textfield" *ngIf="workspaceData.data.childGroups.length">
+  <p style="margin-bottom: 0.5em"></p>
+  <test-group-list
+    [groups]="workspaceData.data.childGroups"
+    (onGroupClicked)="onLoadTestGroupConf.emit($event)"></test-group-list>
+  <label>Підгрупи:</label>
+</div>
+<div *ngIf="workspaceData.selectedEditingMode.id === 'lightweight'" class="flex-container flex-column">
+  <bulk-edit-test-conf-lightweight [isSaving]="workspaceData.isBulkSaving"
+                                   [groupId]="workspaceData.data.id"
+                                   [tests]="workspaceData.data.testConfs"
+                                   (onSaved)="workspaceData.bulkUpdateTestConfs()"></bulk-edit-test-conf-lightweight>
+</div>
+<table *ngIf="workspaceData.selectedEditingMode.id === 'detailed'"
+       class="mui-table mui-table--bordered"
+       [hidden]="workspaceData.data.testConfs.length === 0">
+  <tr *ngFor="let t of workspaceData.data.testConfs">
+    <td>
+      <test-conf-preview [test]="t"
+                         (onEdit)="editTestConf($event.id)"
+                         (onDelete)="deleteTestConf($event.id)"></test-conf-preview>
+    </td>
+  </tr>
+</table>

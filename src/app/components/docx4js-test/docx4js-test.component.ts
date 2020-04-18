@@ -18,7 +18,7 @@ export class Docx4jsTestComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.editableTests = Docx4jsTestComponent.tests.map((t, i) => TestEdit.fromSimple(1, i + 1, t));
+    this.editableTests = Docx4jsTestComponent.tests.map((t, i) => TestEdit.fromSimple(1, i + 1, i+1, t));
   }
 
   saveTest(test: TestEdit) {
@@ -28,7 +28,7 @@ export class Docx4jsTestComponent implements OnInit {
   fileAdded = (file: File) => {
     console.log(file.name);
     DocxParser.loadFileAndParseOutTests(file).then(tests => {
-      this.editableTests = tests.map((t, i) => TestEdit.fromSimple(1, i + 1, t));
+      this.editableTests = tests.map((t, i) => TestEdit.fromSimple(1, i + 1, i + 1, t));
       console.log(JSON.stringify(tests));
     })
   };

@@ -36,6 +36,7 @@ interface ITestWithoutOptions {
   help: string;
   testType: TestType;
   precision?: number;
+  sequence: number;
 }
 
 export interface ITestDto extends ITestWithoutOptions {

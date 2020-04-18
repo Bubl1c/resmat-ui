@@ -53,20 +53,24 @@ export abstract class TestGroupWorkspaceData extends WorkspaceData {
 export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
   type = WorkspaceDataTypes.testGroup;
 
-  selectedEditingMode: DropdownOption = new DropdownOption(-1, "Не вибрано");
+  selectedEditingMode: DropdownOption;
   editingModes: DropdownOption[];
+
+  isBulkSaving: boolean = false;
 
   constructor(public data: ITestGroupConfWithTestConfs, tcService: TestConfService, adminComponent: AdminComponent) {
     super(data, tcService, adminComponent);
     RMU.safe(() => {
       GoogleAnalyticsUtils.pageView(`/admin/test-groups/${this.data.id}/edit`, `Адмінка :: Редагування групи тестів "${this.data.name}"`)
     });
-    this.editingModes = EditingModes.all.map(em => new DropdownOption(em.id, em.text));
-
-    this.selectedEditingMode = this.editingModes[0];
+    const lightweightEditingDO = new DropdownOption(EditingModes.Lightweight.id, EditingModes.Lightweight.text);
+    const detailedEditingDO = new DropdownOption(EditingModes.Detailed.id, EditingModes.Detailed.text);
+    this.editingModes = [detailedEditingDO, lightweightEditingDO];
+    const isLightweightEditingPossible = this.isLightweightEditingModePossible();
+    this.selectedEditingMode = isLightweightEditingPossible ? lightweightEditingDO : detailedEditingDO;
   }
 
-  save(name: string, parentGroupId: number = this.selectedParentGroupId) {
+  saveTestGroup(name: string, parentGroupId: number = this.selectedParentGroupId) {
     let requestBody: ITestGroupConf = {
       id: this.data.id,
       name: name,
@@ -84,6 +88,21 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
         this.errorMessage = err.toString();
         alert("Помилка під час збереження: " + JSON.stringify(err))
       }
+    })
+  }
+
+  bulkUpdateTestConfs() {
+    this.isBulkSaving = true;
+    this.data.testConfs.forEach((tc, i) => {
+      tc.sequence = i + 1;
+    });
+    this.tcService.bulkUpdateTestConfs(this.data.id, this.data.testConfs).subscribe(testConfs => {
+      this.data.testConfs = testConfs;
+      alert("Успішно збережено!");
+      this.isBulkSaving = false;
+    }, error => {
+      alert("Не вдалося зберегти. Причина:" + JSON.stringify(error));
+      this.isBulkSaving = false;
     })
   }
 
@@ -113,12 +132,15 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
         question = `Ви дійсно хочете перемістити групу '${this.data.name}' в групу '${option.text}' ? `
       }
       if(window.confirm(question)) {
-        this.save(this.data.name, option.id);
+        this.saveTestGroup(this.data.name, option.id);
       }
     }
   }
 
   changeEditingMode(em: DropdownOption) {
+    if (em.id === this.selectedEditingMode.id) {
+      return;
+    }
     if (em.id === EditingModes.Lightweight.id) {
       const isPossible = this.isLightweightEditingModePossible();
       if (!isPossible) {

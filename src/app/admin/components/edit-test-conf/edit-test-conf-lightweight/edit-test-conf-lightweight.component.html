@@ -15,8 +15,7 @@
 
     <div class="flex-container flex-align-center">
       <div class="mui-textfield question flex-1">
-        <!--      <textarea rows="1" autosize [(ngModel)]="updated.question" required></textarea>-->
-        <textarea rows="1" autosize [value]="updated.question" required></textarea>
+        <textarea rows="1" autosize [(ngModel)]="updated.question" required></textarea>
         <label>Запитання {{ (index + 1) || '' }}</label>
       </div>
       <a (click)="onDelete.emit()" style="color: rgba(178,0,0,0.62)"><i class="material-icons">delete_forever</i></a>
@@ -37,7 +36,7 @@
           <textarea autosize
                     rows="1"
                     name="option-value-{{opt.id}}"
-                    [value]="opt.value"
+                    [(ngModel)]="opt.value"
                     placeholder="Введіть текст або формулу"
                     class="option-words-value-textarea" required></textarea>
           </div>
