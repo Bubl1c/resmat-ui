@@ -1,14 +1,6 @@
 import { Response } from "@angular/http";
 import { Observable } from "rxjs";
 
-interface IAPIConfig {
-  host: string
-  port: number
-  version: string
-}
-
-declare var APIConfig: IAPIConfig;
-
 export class ErrorResponse {
   constructor(public status: number,
               public statusText: string,
@@ -21,7 +13,7 @@ export class ErrorResponse {
 }
 
 export class HttpUtils {
-  static baseUrl = "http://" + APIConfig.host + ":" + APIConfig.port + "/" + APIConfig.version;
+  static baseUrl = "http://" + ResmatConfig.api.host + ":" + ResmatConfig.api.port + "/" + ResmatConfig.api.version;
 
   static withBase(path: string): string { return this.baseUrl + path }
 

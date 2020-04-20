@@ -46,11 +46,18 @@ export class TestConfService {
     return this.api.put(`/test-groups/${id}`, data)
   }
 
-  getTestGroupConfs(reload: boolean = false): Observable<ITestGroupConf[]> {
-    return this.cachedTestGroups.getOrLoad(
-      () => this.api.get("/test-groups"),
-      reload
-    )
+  getTestGroupConfs(reload: boolean = false, isArchived?: boolean): Observable<ITestGroupConf[]> {
+    if (typeof isArchived !== "undefined") {
+      return this.cachedTestGroups.getOrLoad(
+        () => this.api.get(`/test-groups?isArchived=${isArchived}`),
+        reload
+      )
+    } else {
+      return this.cachedTestGroups.getOrLoad(
+        () => this.api.get(`/test-groups`),
+        reload
+      )
+    }
   }
 
   createTestConf(testGroupConfId: number, data: ITestEditDto): Observable<ITestEditDto> {

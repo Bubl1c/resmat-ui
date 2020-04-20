@@ -26,7 +26,7 @@ export class GroupStudentsComponent implements OnInit {
     students: "students",
     learningMaterials: "learning-materials",
     operations: "operations",
-    exams: "exams"
+    progress: "progress"
   };
   activeTab: string = this.tabs.students;
 

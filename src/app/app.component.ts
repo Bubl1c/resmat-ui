@@ -11,7 +11,8 @@ import { Overlay } from 'angular2-modal';
   providers: [LoginService]
 })
 export class AppComponent implements OnInit {
-  title = '';
+  title = ResmatConfig.app.topBarHeader;
+  logoSrc = ResmatConfig.app.icon;
   showLogout = true;
 
   constructor(private loginService: LoginService, private router: Router, overlay: Overlay, vcRef: ViewContainerRef) {

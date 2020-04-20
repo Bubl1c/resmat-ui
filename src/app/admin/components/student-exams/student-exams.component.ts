@@ -37,7 +37,7 @@ export class StudentExamsComponent implements OnInit {
       this.exams = fetchedExams.map(e => ({
         exam: e,
         student: this.student
-      }));
+      })).sort((a, b) => b.exam.id - a.exam.id);
       this.loading = false;
     })
   }

@@ -48,5 +48,5 @@ export class UserUpdateData {
 }
 
 export class StudentGroup {
-  constructor(public id: number, public name: string) {}
+  constructor(public id: number, public name: string, public isArchived: boolean) {}
 }

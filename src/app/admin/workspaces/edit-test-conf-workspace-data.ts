@@ -4,12 +4,13 @@ import { TestConfService } from "../data/test-conf.service";
 import { RMU } from "../../utils/utils";
 import { GoogleAnalyticsUtils } from "../../utils/GoogleAnalyticsUtils";
 import { UserDefaults } from "../userDefaults";
+import { AdminComponent } from "../admin.component";
 
 export class EditTestConfWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.editTestConf;
   isSaving = false;
 
-  constructor(public data: ITestEditDto, private tcService: TestConfService) {
+  constructor(public data: ITestEditDto, private tcService: TestConfService, private adminComponent: AdminComponent) {
     super();
     RMU.safe(() => {
       if (this.data.id > 0) {
@@ -36,7 +37,8 @@ export class EditTestConfWorkspaceData extends WorkspaceData {
             GoogleAnalyticsUtils.event("Admin", `Created test ${result.id}`, "CreateTestConf", result.id);
           }
         });
-        alert("Успішно збережено")
+        alert("Успішно збережено");
+        this.adminComponent.loadTestGroupConfById(result.groupId)
       },
       error: err => {
         this.isSaving = false;

@@ -35,6 +35,7 @@ import { AddStudentWorkspaceData } from "./workspaces/add-student-workspace-data
 import { AddStudentGroupWorkspaceData } from "./workspaces/add-student-group-workspace-data";
 import { EditTestConfWorkspaceData } from "./workspaces/edit-test-conf-workspace-data";
 import { UserComponentConfig } from "./components/user/user.component";
+import { ArchiveWorkspaceData } from "./workspaces/archive-workspace/archive-workspace-data";
 
 @Component({
   selector: 'admin',
@@ -107,6 +108,10 @@ export class AdminComponent implements OnInit, AfterViewInit {
         this.errorMessage = err.toString()
       }
     })
+  }
+
+  emptyWorkspace() {
+    this.workspaceData = undefined;
   }
 
   loadCreateUser() {
@@ -239,7 +244,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
       id: undefined,
       name: "",
       parentGroupId: undefined,
-      childGroups: []
+      childGroups: [],
+      isArchived: false
     };
     this.workspaceData = new AddTestGroupWorkspaceData(empty, this.tcService, this)
   }
@@ -266,7 +272,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
       testConf = new TestEdit();
       testConf.groupId = groupId;
     }
-    this.workspaceData = new EditTestConfWorkspaceData(testConf, this.tcService)
+    this.workspaceData = new EditTestConfWorkspaceData(testConf, this.tcService, this)
   }
 
   addUserToCurrentGroup(group: StudentGroup) {
@@ -290,9 +296,13 @@ export class AdminComponent implements OnInit, AfterViewInit {
   loadGroupStudentsWorkspace(group: StudentGroup) {
     if (this.workspaceData && this.workspaceData.type === WorkspaceDataTypes.groupStudents) {
       const current = this.workspaceData as GroupStudentsWorkspaceData;
-      this.workspaceData = new GroupStudentsWorkspaceData(group, this.examConfs, this.api, this.examService, current.selectedExamConf);
+      this.workspaceData = new GroupStudentsWorkspaceData(group, this.examConfs, this.api, this.examService, this, current.selectedExamConf);
     } else {
-      this.workspaceData = new GroupStudentsWorkspaceData(group, this.examConfs, this.api, this.examService);
+      this.workspaceData = new GroupStudentsWorkspaceData(group, this.examConfs, this.api, this.examService, this);
     }
+  }
+
+  loadArchiveWorkspace() {
+    this.workspaceData = new ArchiveWorkspaceData(null, this.api, this.tcService, this);
   }
 }

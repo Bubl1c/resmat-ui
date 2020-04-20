@@ -1,25 +1,10 @@
 <div [hidden]="isSaving">
-  <div class="flex-container">
-    <upload
-      [path]="''"
-      [auto]="false"
-      [onlyImages]="false"
-      [addToQueueWhenAdded]="false"
-      (onAdded)="fileAdded($event)" class="flex-1"></upload>
-    <div>
-      <span>Тести можна завантажити із файлу .docx (Microsoft Word).</span>
-      <span>Система розпізнає текст за наступними правилами:</span>
-      <span>Запитання тесту може бути або елементом нумерованого списку (числа) або абзацем який починається з ЧИСЛА з дужкою або крапкою.</span>
-      <span>Варіант відповіді може бути або елементом нумерованого списку (букви) або абзацем який починається з БУКВИ з дужкою або крапкою.</span>
-      <span>Решта документу ігнорується</span>
-      <a href="https://drive.google.com/file/d/1G6t6-OfoGgPWy5WgmypFycgKNTRLTghb/view?usp=sharing" target="_blank">Приклад</a>
-    </div>
-  </div>
-  <div class="flex-container flex-align-center" [hidden]="!pages.length">
+  <div class="flex-container flex-align-center">
     <span>Сторінки:&nbsp;&nbsp;</span>
     <a *ngFor="let pageNumber of pages" (click)="recalculatePages(pageNumber)"
        [ngClass]="{ 'selected-page': currentPage.id === pageNumber }"
        class="page header3 resmat-regular">{{ pageNumber }}</a>
+    <a class="page header3 resmat-regular" [hidden]="pages.length">0</a>
     <span>&nbsp;&nbsp;(всього тестів {{ tests.length }} - по {{ pageSize }} на сторінці)</span>
     <div class="flex-container flex-1" style="justify-content: flex-end">
       <button [disabled]="isSaving" class="mui-btn mui-btn--primary" (click)="save()">
@@ -27,8 +12,9 @@
       </button>
     </div>
   </div>
-  <div *ngFor="let test of currentPage.tests; trackBy: trackTest" style="margin-bottom: -15px;">
-    <a class="header1 add-page-btn" (click)="addTest(test.originalIndex)">+</a>
+  <a class="header1 add-page-btn" (click)="addTest(0)">+</a>
+  <div *ngFor="let test of currentPage.tests; let idx = index; trackBy: trackTest" style="margin-bottom: -15px;">
+    <a class="header1 add-page-btn" (click)="addTest(test.originalIndex)" [hidden]="idx === 0">+</a>
     <div class="mui-panel">
       <edit-test-conf-lightweight
         [index]="test.originalIndex"

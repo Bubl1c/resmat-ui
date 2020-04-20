@@ -12,13 +12,15 @@ import { RMU } from "../utils/utils";
   providers: [LoginService]
 })
 export class LoginComponent implements OnInit {
+  consent: string = ResmatConfig.app.consent;
+
   errorMessage: string;
   isStudent: boolean = true;
 
   constructor(private router: Router, private loginService: LoginService) { }
 
   ngOnInit() {
-    this.login("admin", "root");
+    // this.login("admin", "root");
     // this.login("1");
   }
 

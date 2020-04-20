@@ -8,16 +8,16 @@
 
 
 <ul class="mui-tabs__bar mui-tabs__bar--justified" style="margin-top: -10px">
-  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.students }" class="tab">
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.students }" class="tab resmat-tab">
     <a (click)="switchTab(tabs.students)">Студенти</a>
   </li>
-  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.operations }" class="tab">
-    <a (click)="switchTab(tabs.operations)">Групові дії</a>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.operations }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.operations)">Дії</a>
   </li>
-  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.exams }" class="tab">
-    <a (click)="switchTab(tabs.exams)">Прогрес</a>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.progress }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.progress)">Прогрес</a>
   </li>
-  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.learningMaterials }" class="tab">
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.learningMaterials }" class="tab resmat-tab">
     <a (click)="switchTab(tabs.learningMaterials)">Матеріали</a>
   </li>
 </ul>
@@ -91,11 +91,15 @@
       </div>
     </div>
   </div>
+  <br>
+  <div>
+    <button class="mui-btn mui-btn--success" (click)="workspaceData.archiveGroup()">Заархівувати групу</button>
+  </div>
 </div>
 
-<!--------------------- EXAMS ---------------------->
+<!--------------------- PROGRESS ---------------------->
 
-<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.exams }">
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.progress }">
   <br>
   <div class="flex-container flex-justify-space-between">
     <div class="flex-container">

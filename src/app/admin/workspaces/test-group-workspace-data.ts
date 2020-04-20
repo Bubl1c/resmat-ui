@@ -6,17 +6,18 @@ import { GoogleAnalyticsUtils } from "../../utils/GoogleAnalyticsUtils";
 import { ITestEditDto, TestOptionValueType, TestType } from "../../exam/data/test-set.api-protocol";
 import { AdminComponent } from "../admin.component";
 import { WorkspaceData, WorkspaceDataTypes } from "./workspace-data";
+import { UserDefaults } from "../userDefaults";
 
-interface EditingMode {
+export interface TestGroupEditingMode {
   id: "detailed" | "lightweight"
   text: string
 }
 
-class EditingModes {
-  static Detailed: EditingMode = { id: "detailed", text: "Стандартний" };
-  static Lightweight = { id: "lightweight", text: "Спрощений" };
+class TestGroupEditingModes {
+  static Detailed: TestGroupEditingMode = { id: "detailed", text: "Стандартний" };
+  static Lightweight: TestGroupEditingMode = { id: "lightweight", text: "Спрощений" };
 
-  static all = [EditingModes.Detailed, EditingModes.Lightweight]
+  static all = [TestGroupEditingModes.Detailed, TestGroupEditingModes.Lightweight]
 }
 
 export interface ITestGroupConfWithTestConfs extends ITestGroupConfWithChildren {
@@ -63,17 +64,23 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
     RMU.safe(() => {
       GoogleAnalyticsUtils.pageView(`/admin/test-groups/${this.data.id}/edit`, `Адмінка :: Редагування групи тестів "${this.data.name}"`)
     });
-    const lightweightEditingDO = new DropdownOption(EditingModes.Lightweight.id, EditingModes.Lightweight.text);
-    const detailedEditingDO = new DropdownOption(EditingModes.Detailed.id, EditingModes.Detailed.text);
+    const lightweightEditingDO = new DropdownOption(TestGroupEditingModes.Lightweight.id, TestGroupEditingModes.Lightweight.text);
+    const detailedEditingDO = new DropdownOption(TestGroupEditingModes.Detailed.id, TestGroupEditingModes.Detailed.text);
     this.editingModes = [detailedEditingDO, lightweightEditingDO];
     const isLightweightEditingPossible = this.isLightweightEditingModePossible();
-    this.selectedEditingMode = isLightweightEditingPossible ? lightweightEditingDO : detailedEditingDO;
+    const userPreferred = UserDefaults.EditTestGroupConf.getEditingMode(this.data.id);
+    if (userPreferred) {
+      this.selectedEditingMode = userPreferred.id === "lightweight" && isLightweightEditingPossible ? lightweightEditingDO : detailedEditingDO
+    } else {
+      this.selectedEditingMode = isLightweightEditingPossible ? lightweightEditingDO : detailedEditingDO;
+    }
   }
 
   saveTestGroup(name: string, parentGroupId: number = this.selectedParentGroupId) {
     let requestBody: ITestGroupConf = {
       id: this.data.id,
       name: name,
+      isArchived: this.data.isArchived,
       parentGroupId: parentGroupId === this.notSelectedParentGroupOption.id ? undefined : parentGroupId
     };
     this.tcService.updateTestGroupConf(this.data.id, requestBody).subscribe({
@@ -87,6 +94,25 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
       error: err => {
         this.errorMessage = err.toString();
         alert("Помилка під час збереження: " + JSON.stringify(err))
+      }
+    })
+  }
+
+  archiveTestGroup() {
+    this.data.isArchived = true;
+    this.tcService.updateTestGroupConf(this.data.id, this.data).subscribe({
+      next: (updated: ITestGroupConf) => {
+        RMU.safe(() => {
+          GoogleAnalyticsUtils.event("Admin", `Archived test group ${this.data.id}`, "ArchiveTestGroup", this.data.id);
+        });
+        alert("Заархівовано успішно");
+        this.adminComponent.testsGroupConfs = this.adminComponent.testsGroupConfs.filter(sg => sg.id !== this.data.id);
+        this.adminComponent.emptyWorkspace();
+      },
+      error: err => {
+        this.data.isArchived = false;
+        this.errorMessage = err.toString();
+        alert("Не вдалося заархівувати групу: " + JSON.stringify(err))
       }
     })
   }
@@ -141,7 +167,7 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
     if (em.id === this.selectedEditingMode.id) {
       return;
     }
-    if (em.id === EditingModes.Lightweight.id) {
+    if (em.id === TestGroupEditingModes.Lightweight.id) {
       const isPossible = this.isLightweightEditingModePossible();
       if (!isPossible) {
         alert("Спрощений режим редагування доступний лише для тестів з 1 варіантом відповіді. Зображення не підтримуються.")
@@ -149,6 +175,7 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
       }
     }
     this.selectedEditingMode = em;
+    UserDefaults.EditTestGroupConf.setEditingMode(this.data.id, em);
   }
 
   isLightweightEditingModePossible() {
@@ -193,6 +220,7 @@ export class AddTestGroupWorkspaceData extends TestGroupWorkspaceData {
     let requestBody: ITestGroupConf = {
       id: -1,
       name: this.data.name,
+      isArchived: this.data.isArchived,
       parentGroupId: this.selectedParentGroupId === this.notSelectedParentGroupOption.id
         ? undefined
         : this.selectedParentGroupId

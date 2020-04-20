@@ -7,7 +7,7 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 
 ## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive/pipe/service/class`.
+Run `ng g c component-name` to generate a new component. You can also use `ng generate directive/pipe/service/class`.
 
 ## Build
 
@@ -26,6 +26,20 @@ Before running the tests make sure you are serving the app via `ng serve`.
 
 Run `ng github-pages:deploy` to deploy to Github Pages.
 
-## Further help
+# AWS
+```
+ng build
 
-To get more help on the `angular-cli` use `ng --help` or go check out the [Angular-CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+//doesnot work
+ng build --target=production --aot=false
+
+sudo systemctl status nginx
+sudo systemctl restart nginx
+
+scp -i ~/.ssh/aws_key_pair.pem -r dist/* ubuntu@ec2-3-120-209-125.eu-central-1.compute.amazonaws.com:~/hosted
+
+scp -i ~/.ssh/aws_key_pair.pem -r environment ubuntu@ec2-52-57-195-49.eu-central-1.compute.amazonaws.com:~/hosted
+
+scp -i ~/.ssh/aws_key_pair.pem -r config ubuntu@ec2-3-120-209-125.eu-central-1.compute.amazonaws.com:~/hosted
+scp -i ~/.ssh/aws_key_pair.pem -r img/zmi ubuntu@ec2-3-120-209-125.eu-central-1.compute.amazonaws.com:~/hosted/img
+```

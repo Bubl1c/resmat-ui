@@ -1,8 +1,8 @@
 <!doctype html>
 <html>
 <head>
-  <title>Опір матеріалів. КНУБА.</title>
-  <link rel="icon" type="image/x-icon" href="../img/knuba_logo.gif">
+  <title>Resmat</title>
+  <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
 
   <base href="/">
 
@@ -33,22 +33,44 @@
     });
   </script>
   <script type="text/javascript" src="../lib/mathjax/MathJax.js"></script>
-
+  
+  <script src="../environment/environment.js"></script>
   <script src="../config/app_config.js"></script>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125813714-1"></script>
+<!--  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125813714-1"></script>-->
+  <!-- Global site tag (gtag.js) - Google Analytics -->
   <script>
-    //disable analytics for development
-    if (window.location.href.indexOf(APPConfig.productionHostname) === -1) {
-      var gaDisableWindowProperty = 'ga-disable-' + GoogleAnalyticsConfig.trackingId;
-      window[gaDisableWindowProperty] = true;
+    //include Google Analytics script
+    (function() {
+      if (ResmatConfig.googleAnalytics.trackingId) {
+        const gaScript = document.createElement('script');
+        const scriptSrc = "https://www.googletagmanager.com/gtag/js?id=" + ResmatConfig.googleAnalytics.trackingId;
+        gaScript.setAttribute('src',scriptSrc);
+        document.head.appendChild(gaScript);
+      }
+    })();
+  </script>
+  <script>
+    //Configure Google Analytics
+    if (ResmatConfig.googleAnalytics.trackingId) {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', ResmatConfig.googleAnalytics.trackingId);
     }
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
 
-    gtag('config', GoogleAnalyticsConfig.trackingId);
+    //configure page
+    (function() {
+      //set icon
+      var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.type = 'image/x-icon';
+      link.rel = 'shortcut icon';
+      link.href = ResmatConfig.app.icon;
+      document.getElementsByTagName('head')[0].appendChild(link);
+      // set title
+      document.title = ResmatConfig.app.title;
+    })();
   </script>
 
 </head>

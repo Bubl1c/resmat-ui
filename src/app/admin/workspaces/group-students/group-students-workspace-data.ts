@@ -13,6 +13,7 @@ import {
   StudentUserExam
 } from "../../components/student-exams/student-exam-list/student-exam-list.component";
 import { CurrentSession } from "../../../current-session";
+import { AdminComponent } from "../../admin.component";
 
 export class GroupStudentsWorkspaceData extends WorkspaceData {
   type = WorkspaceDataTypes.groupStudents;
@@ -32,6 +33,7 @@ export class GroupStudentsWorkspaceData extends WorkspaceData {
               public examConfs: IExamConf[],
               private api: ApiService,
               public examService: ExamService,
+              private adminComponent: AdminComponent,
               public selectedExamConf?: IExamConf) {
     super();
     this.currentUser = CurrentSession.user;
@@ -80,6 +82,27 @@ export class GroupStudentsWorkspaceData extends WorkspaceData {
         alert("Не вдалося оновити ім'я групи: " + JSON.stringify(e))
       }
     })
+  }
+
+  archiveGroup() {
+    if (window.confirm(`Ви дійсно хочете ЗААРХІВУВАТИ групу '${this.data.name}'? її можна буде розархувавти пізніше.`)) {
+      const prevIsArchived = this.data.isArchived;
+      this.data.isArchived = true;
+      this.api.put(`/student-groups/${this.data.id}`, this.data).subscribe({
+        next: () => {
+          RMU.safe(() => {
+            GoogleAnalyticsUtils.event("Admin", `Archived student group ${this.data.id}`, "ArchiveStudentGroup", this.data.id);
+          });
+          alert("Заархівовано успішно");
+          this.adminComponent.studentGroups = this.adminComponent.studentGroups.filter(sg => !sg.isArchived);
+          this.adminComponent.emptyWorkspace();
+        },
+        error: e => {
+          this.data.isArchived = prevIsArchived;
+          alert("Не вдалося заархівувати групу: " + JSON.stringify(e))
+        }
+      })
+    }
   }
 
   addExamForAllStudents(ec: IExamConf) {

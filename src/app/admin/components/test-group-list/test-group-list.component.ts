@@ -4,6 +4,7 @@ export interface ITestGroupConf {
   id: number
   name: string
   parentGroupId?: number
+  isArchived: boolean
 }
 
 export interface ITestGroupConfWithChildren extends ITestGroupConf {

@@ -102,6 +102,10 @@ body {
   white-space: nowrap;
 }
 
+.resmat-tab {
+  background-color: #00000014;
+}
+
 @media print
 {
   .no-print, .no-print *

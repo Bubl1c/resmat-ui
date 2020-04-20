@@ -1,0 +1,53 @@
+<div class="flex-container flex-column">
+  <div class="flex-container flex-justify-center resmat-header">Архів</div>
+
+  <ul class="mui-tabs__bar mui-tabs__bar--justified" style="margin-top: -10px">
+    <li [ngClass]="{ 'mui--is-active': activeTab === tabs.studentGroups }" class="tab resmat-tab">
+      <a (click)="switchTab(tabs.studentGroups)">Групи студентів</a>
+    </li>
+    <li [ngClass]="{ 'mui--is-active': activeTab === tabs.testGroups }" class="tab resmat-tab">
+      <a (click)="switchTab(tabs.testGroups)">Групи тестів</a>
+    </li>
+  </ul>
+
+  <!--------------------- STUDENT GROUPS ---------------------->
+
+  <div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.studentGroups }">
+    <table class="mui-table mui-table--bordered">
+      <tbody>
+      <tr>
+        <td class="resmat-label">Назва</td>
+        <td style="width: 140px;"></td>
+      </tr>
+      <tr *ngFor="let sg of workspaceData.studentGroups; let idx = index;">
+        <td class="resmat-regular">{{ sg.name }}</td>
+        <td><a (click)="workspaceData.unarchiveStudentGroup(sg, idx)">Розархівувавти</a></td>
+      </tr>
+      <tr class="mui--text-center" [hidden]="workspaceData.studentGroups.length">
+        <td colspan="2">Немає заархівованих груп</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!--------------------- TEST GROUPS ---------------------->
+
+  <div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.testGroups }">
+    <table class="mui-table mui-table--bordered">
+      <tbody>
+      <tr>
+        <td class="resmat-label">Назва</td>
+        <td style="width: 140px;"></td>
+      </tr>
+      <tr *ngFor="let sg of workspaceData.testGroups; let idx = index;">
+        <td class="resmat-regular">{{ sg.name }}</td>
+        <td><a (click)="workspaceData.unarchiveTestGroup(sg, idx)">Розархівувавти</a></td>
+      </tr>
+      <tr class="mui--text-center" [hidden]="workspaceData.testGroups.length">
+        <td colspan="2">Немає заархівованих груп</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

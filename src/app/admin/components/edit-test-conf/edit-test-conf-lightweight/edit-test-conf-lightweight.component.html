@@ -26,7 +26,7 @@
     <div class="options-container">
       <div class="option-container" *ngFor="let opt of updated.options">
         <div class="option-check">
-          <input type="radio" name="radiogroup-{{index}}-{{opt.id}}"
+          <input type="radio" name="radiogroup-{{updated.id}}"
                  [checked]="opt.correct"
                  [value]="opt.id"
                  (change)="onOptionCheckChanged(opt)">

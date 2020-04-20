@@ -10,6 +10,7 @@ export class WorkspaceDataTypes {
   static editTestConf = "edit_test_conf";
   static addTestGroup = "add_test_group";
   static articles = "articles";
+  static archive = "archive";
   static loading = "loading";
 }
 

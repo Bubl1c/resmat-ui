@@ -77,6 +77,7 @@ import { StudentExamListComponent } from './admin/components/student-exams/stude
 import { Docx4jsTestComponent } from './components/docx4js-test/docx4js-test.component';
 import { BulkEditTestConfLightweightComponent } from './admin/components/edit-test-conf/bulk-edit-test-conf-lightweight/bulk-edit-test-conf-lightweight.component';
 import { EditTestGroupConfComponent } from './admin/workspaces/edit-test-group-conf/edit-test-group-conf.component';
+import { ArchiveWorkspaceComponent } from './admin/workspaces/archive-workspace/archive-workspace.component';
 
 @NgModule({
   declarations: [
@@ -143,7 +144,8 @@ import { EditTestGroupConfComponent } from './admin/workspaces/edit-test-group-c
     StudentExamListComponent,
     Docx4jsTestComponent,
     BulkEditTestConfLightweightComponent,
-    EditTestGroupConfComponent
+    EditTestGroupConfComponent,
+    ArchiveWorkspaceComponent
   ],
   imports: [
     BrowserModule,

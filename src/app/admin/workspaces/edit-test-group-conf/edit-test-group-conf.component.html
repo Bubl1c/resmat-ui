@@ -1,8 +1,11 @@
 <div style="display: flex; justify-content: space-between; align-items: baseline;">
-  <editable-text class="resmat-header resmat-regular" style="flex: 5"
-                 [text]="workspaceData.data.name"
-                 inputPlaceholder="Введіть назву групи"
-                 (onSave)="workspaceData.saveTestGroup($event)"></editable-text>
+  <div class="flex-container">
+    <span class="resmat-header resmat-label">Група тестів:&nbsp;&nbsp;</span>
+    <editable-text class="resmat-header resmat-regular" style="flex: 5"
+                   [text]="workspaceData.data.name"
+                   inputPlaceholder="Введіть назву групи"
+                   (onSave)="workspaceData.saveTestGroup($event)"></editable-text>
+  </div>
   <div class="mui-dropdown">
     <a data-mui-toggle="dropdown" class="resmat-regular">
       Режим редагування <span class="mui-caret"></span>
@@ -18,7 +21,73 @@
     </ul>
   </div>
 </div>
-<div class="flex-container flex-justify-space-between">
+
+<ul class="mui-tabs__bar mui-tabs__bar--justified" style="margin-top: -10px">
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.tests }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.tests)">Тести</a>
+  </li>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.upload }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.upload)">Завантажити файл</a>
+  </li>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.hierarchy }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.hierarchy)">Ієрархія груп</a>
+  </li>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.operations }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.operations)">Дії</a>
+  </li>
+</ul>
+
+<!--------------------- TESTS ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.tests }" class="tab-content-container">
+  <a [hidden]="workspaceData.selectedEditingMode.id === 'lightweight'"
+     style="flex: 1; text-align: right;" (click)="editTestConf()"
+     class="resmat-primary">Додати тест</a>
+  <div *ngIf="workspaceData.selectedEditingMode.id === 'lightweight'" class="flex-container flex-column">
+    <bulk-edit-test-conf-lightweight [isSaving]="workspaceData.isBulkSaving"
+                                     [groupId]="workspaceData.data.id"
+                                     [tests]="workspaceData.data.testConfs"
+                                     (onSaved)="workspaceData.bulkUpdateTestConfs()"></bulk-edit-test-conf-lightweight>
+  </div>
+  <table *ngIf="workspaceData.selectedEditingMode.id === 'detailed'"
+         class="mui-table mui-table--bordered"
+         [hidden]="workspaceData.data.testConfs.length === 0">
+    <tr *ngFor="let t of workspaceData.data.testConfs">
+      <td>
+        <test-conf-preview [test]="t"
+                           (onEdit)="editTestConf($event.id)"
+                           (onDelete)="deleteTestConf($event.id)"></test-conf-preview>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!--------------------- UPLOAD ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.upload }" class="tab-content-container">
+  <div class="flex-container flex-column">
+    <upload
+      [path]="''"
+      [auto]="false"
+      [onlyImages]="false"
+      [addToQueueWhenAdded]="false"
+      (onAdded)="fileAdded($event)" class="flex-1"></upload>
+    <div>
+      <span>Тести можна завантажити із файлу .docx (Microsoft Word).</span>
+      <span>Система розпізнає текст за наступними правилами:</span>
+      <span>Запитання тесту може бути або елементом нумерованого списку (числа) або абзацем який починається з ЧИСЛА з дужкою або крапкою.</span>
+      <span>Варіант відповіді може бути або елементом нумерованого списку (букви) або абзацем який починається з БУКВИ з дужкою або крапкою.</span>
+      <span>Решта документу ігнорується</span>
+      <a href="https://drive.google.com/file/d/1G6t6-OfoGgPWy5WgmypFycgKNTRLTghb/view?usp=sharing" target="_blank">Приклад</a>
+      <br>
+      <span>Зверніть увагу - документи які містять зображення і формули не підримуються і можуть видавати неочікувані результати.</span>
+    </div>
+  </div>
+</div>
+
+<!--------------------- HIERARCHY ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.hierarchy }" class="tab-content-container">
   <div class="mui-textfield parent-group-dropdown">
     <dropdown
       [options]="workspaceData.parentGroupOptions"
@@ -27,31 +96,19 @@
       (onSelected)="workspaceData.parentGroupChanged($event)"></dropdown>
     <label>Батьківська група</label>
   </div>
-  <a [hidden]="workspaceData.selectedEditingMode.id === 'lightweight'"
-     style="flex: 1; text-align: right;" (click)="editTestConf()"
-     class="resmat-primary">Додати тест</a>
+  <div class="mui-textfield" *ngIf="workspaceData.data.childGroups.length">
+    <p style="margin-bottom: 0.5em"></p>
+    <test-group-list
+      [groups]="workspaceData.data.childGroups"
+      (onGroupClicked)="onLoadTestGroupConf.emit($event)"></test-group-list>
+    <label>Підгрупи:</label>
+  </div>
 </div>
-<div class="mui-textfield" *ngIf="workspaceData.data.childGroups.length">
-  <p style="margin-bottom: 0.5em"></p>
-  <test-group-list
-    [groups]="workspaceData.data.childGroups"
-    (onGroupClicked)="onLoadTestGroupConf.emit($event)"></test-group-list>
-  <label>Підгрупи:</label>
+
+<!--------------------- OPERATIONS ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.operations }" class="tab-content-container">
+  <div>
+    <button class="mui-btn mui-btn--success" (click)="workspaceData.archiveTestGroup()">Заархівувати групу</button>
+  </div>
 </div>
-<div *ngIf="workspaceData.selectedEditingMode.id === 'lightweight'" class="flex-container flex-column">
-  <bulk-edit-test-conf-lightweight [isSaving]="workspaceData.isBulkSaving"
-                                   [groupId]="workspaceData.data.id"
-                                   [tests]="workspaceData.data.testConfs"
-                                   (onSaved)="workspaceData.bulkUpdateTestConfs()"></bulk-edit-test-conf-lightweight>
-</div>
-<table *ngIf="workspaceData.selectedEditingMode.id === 'detailed'"
-       class="mui-table mui-table--bordered"
-       [hidden]="workspaceData.data.testConfs.length === 0">
-  <tr *ngFor="let t of workspaceData.data.testConfs">
-    <td>
-      <test-conf-preview [test]="t"
-                         (onEdit)="editTestConf($event.id)"
-                         (onDelete)="deleteTestConf($event.id)"></test-conf-preview>
-    </td>
-  </tr>
-</table>

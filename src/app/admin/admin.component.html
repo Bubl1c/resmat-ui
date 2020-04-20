@@ -59,6 +59,9 @@
           <test-group-list [groups]="testsGroupConfs" (onGroupClicked)="loadTestGroupConf($event)"></test-group-list>
         </ul>
       </li>
+      <li>
+        <strong><a class="resmat-regular" (click)="loadArchiveWorkspace()">Архів</a></strong>
+      </li>
     </ul>
   </div>
   <div class="workspace mui-container-fluid mui-panel">
@@ -131,8 +134,10 @@
       </div>
 
       <div *ngIf="workspaceData.type === 'edit_test_conf'">
-        <edit-test-conf [isSaving]="workspaceData.isSaving" [testToUpdate]="workspaceData.data"
-                        (onSave)="workspaceData.save($event)" (onBackToGroup)="loadTestGroupConfById(workspaceData.data.groupId)"></edit-test-conf>
+        <edit-test-conf [isSaving]="workspaceData.isSaving"
+                        [testToUpdate]="workspaceData.data"
+                        (onSave)="workspaceData.save($event)"
+                        (onBackToGroup)="loadTestGroupConfById(workspaceData.data.groupId)"></edit-test-conf>
       </div>
 
       <div *ngIf="workspaceData.type === 'add_student_group'">
@@ -175,6 +180,10 @@
                    [header]="workspaceData.articleToShow.header"
                    [bodyText]="workspaceData.articleToShow.body"></article>
         </div>
+      </div>
+
+      <div *ngIf="workspaceData.type === 'archive'">
+        <archive-workspace [workspaceData]="workspaceData"></archive-workspace>
       </div>
     </div>
 

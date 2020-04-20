@@ -14,6 +14,7 @@ import { GeogebraObject } from "../../../../components/geogebra/custom-objects/g
 import { HtmlUtils } from "../../../../utils/html-utils";
 import { DocxParser } from "../../../../utils/docx-parser";
 import { error } from "util";
+import { NumberUtils } from "../../../../utils/NumberUtils";
 
 export interface PagedTest {
   test: TestEdit
@@ -61,43 +62,24 @@ export class BulkEditTestConfLightweightComponent implements OnInit, DoCheck, Af
   ngDoCheck() {
     let changes = this.iterableDiffer.diff(this.tests);
     if (changes) {
-      this.recalculatePages(this.currentPage && this.currentPage.id)
+      this.recalculatePages(1)
     }
   }
 
-  fileAdded(file: File) {
-    const groupId = this.groupId;
-    this.isSaving = true;
-    DocxParser.loadFileAndParseOutTests(file).then(tests => {
-      if (tests.length < 1) {
-        alert("В вибраному файлі не знайдено жодного тесту");
-        return;
-      }
-      const tes = tests.map((t, i) => {
-        return TestEdit.fromSimple(groupId, -1, -1, t)
-      });
-      this.tests.unshift(...tes);
-      this.recalculatePages(1);
-      alert(`Завантажені тести успішно додані під номерами 1 - ${tes.length}. Але НЕ ЗБЕРЕЖЕНІ, натисніть ЗБЕРЕГТИ щоб підтвердити додані тести.`);
-    }, error => {
-      alert("Не вдалося завантажити тести з файлу. Причина: " + JSON.stringify(error))
-    }).then(() => {
-      this.isSaving = false;
-    })
-  };
-
   deleteTest(index: number) {
-    const test = this.tests[index];
-    if (!test.question && test.options.length < 2 || window.confirm("Ви дійсно хочете видалити тест із запитанням '" + test.question + "'?")) {
-      this.tests.splice(index, 1);
-      this.recalculatePages(this.currentPage.id)
-    }
+    this.tests.splice(index, 1);
+    this.recalculatePages(this.currentPage.id)
   }
 
   addTest(index: number) {
     const newTest = new TestEdit();
+    newTest.id = NumberUtils.getRandomInt(-9900000, -50);
     newTest.groupId = this.groupId;
-    this.tests.splice(index, 0, newTest);
+    if (index === 0) {
+      this.tests.unshift(newTest)
+    } else {
+      this.tests.splice(index, 0, newTest);
+    }
     this.recalculatePages(this.currentPage.id)
   }
 

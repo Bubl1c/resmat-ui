@@ -1,13 +1,12 @@
 declare let gtag: Function;
 
-declare namespace GoogleAnalyticsConfig {
-  export const trackingId: string;
-}
-
 export class GoogleAnalyticsUtils {
 
+  private static isEnabled: boolean = !!ResmatConfig.googleAnalytics.trackingId;
+
   public static pageView(pagePath: string, pageTitle: string): void {
-    gtag('config', GoogleAnalyticsConfig.trackingId, {
+    if (!GoogleAnalyticsUtils.isEnabled) { return; }
+    gtag('config', ResmatConfig.googleAnalytics.trackingId, {
       'page_title' : pageTitle,
       'page_path': pagePath
     });
@@ -17,6 +16,7 @@ export class GoogleAnalyticsUtils {
                       eventAction: string,
                       eventLabel: string = null,
                       eventValue: number = null): void {
+    if (!GoogleAnalyticsUtils.isEnabled) { return; }
     gtag('event', eventAction, {
       event_category: eventCategory,
       event_label: eventLabel,
@@ -25,6 +25,7 @@ export class GoogleAnalyticsUtils {
   }
 
   public static setUserId(userId: number): void {
+    if (!GoogleAnalyticsUtils.isEnabled) { return; }
     gtag('set', {'user_id': `${userId}`});
   }
 
