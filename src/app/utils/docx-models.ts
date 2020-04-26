@@ -121,3 +121,9 @@ export interface SimpleTextTestData {
   question: string
   options: string[]
 }
+
+export interface SimpleUserData {
+  name: string
+  surname: string
+  accessKey?: string
+}

@@ -7,7 +7,7 @@
 </div>
 
 
-<ul class="mui-tabs__bar mui-tabs__bar--justified" style="margin-top: -10px">
+<ul class="mui-tabs__bar mui-tabs__bar--justified no-print" style="margin-top: -10px">
   <li [ngClass]="{ 'mui--is-active': activeTab === tabs.students }" class="tab resmat-tab">
     <a (click)="switchTab(tabs.students)">Студенти</a>
   </li>
@@ -16,6 +16,9 @@
   </li>
   <li [ngClass]="{ 'mui--is-active': activeTab === tabs.progress }" class="tab resmat-tab">
     <a (click)="switchTab(tabs.progress)">Прогрес</a>
+  </li>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.upload }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.upload)">Завантажити файл</a>
   </li>
   <li [ngClass]="{ 'mui--is-active': activeTab === tabs.learningMaterials }" class="tab resmat-tab">
     <a (click)="switchTab(tabs.learningMaterials)">Матеріали</a>
@@ -117,13 +120,78 @@
         </ul>
       </div>
     </div>
-    <a (click)="workspaceData.loadUserExamsByExamConf(workspaceData.selectedExamConf)" class="link-with-icon">
+    <a (click)="workspaceData.loadUserExamsByExamConf(workspaceData.selectedExamConf)" class="link-with-icon no-print">
       <i class="material-icons">sync</i> Оновити
     </a>
   </div>
   <br>
   <div class="flex-container flex-column">
     <student-exam-list [exams]="workspaceData.studentExams" [conf]="workspaceData.studentExamsConf"></student-exam-list>
+  </div>
+</div>
+
+<!--------------------- UPLOAD ---------------------->
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.upload }">
+  <br>
+  <div class="flex-container flex-column">
+    <upload
+      [path]="''"
+      [auto]="false"
+      [onlyImages]="false"
+      [addToQueueWhenAdded]="false"
+      (onAdded)="fileAdded($event)" class="flex-1"></upload>
+    <div>
+      <p>Студентів можна завантажити із файлу .docx (Microsoft Word).</p>
+      <p>Система розпізнає текст за наступними правилами:</p>
+      <ol>
+        <li>Список студентів може бути будь яким набором абзаців, включаючи нумеровані, буквенні і маркерні списки</li>
+        <li>
+          З кожного абзаца система спробує витягнути <b>Прізвище, Ім'я і Kлюч доступу студента в такій же послідовності.</b>
+          Ключ доступу опціональний, у разі відсутності система згенерує його автоматично у вигляді "Група-Прізвище"
+          (у випадку наявності дублікатів ключів "-1" буде додано в кінці ключа доступу).
+        </li>
+        <li>Система ділить кожен абзац по пробілам, тому <b>ні Прізвище студента ні Ім'я ні Ключ не повинні містити в собі пробілів</b>.</li>
+      </ol>
+      <a href="https://drive.google.com/file/d/154FKFXVH18X1f44loiPo7UFGfh_lXIth/view?usp=sharing" target="_blank">Приклад</a>
+      <p>Зверніть увагу - документи які містять зображення і формули не підримуються і можуть видавати неочікувані результати.</p>
+    </div>
+    <div class="flex-container flex-column" *ngIf="parsedStudents && parsedStudents.length" [hidden]="isSavingParsedStudents">
+      <div>
+        <h2 style="text-align: center;">Список завантажених студентів</h2>
+        <div class="flex-container flex-justify-space-between">
+          <button class="mui-btn mui-btn--primary" (click)="saveParsedStudents(false)">
+            {{ 'Додати студентів до групи' }}
+          </button>
+          <button class="mui-btn mui-btn--danger" (click)="saveParsedStudents(true)">
+            {{ 'Замінити всіх існуючих студентів завантаженими' }}
+          </button>
+        </div>
+      </div>
+      <table class="mui-table mui-table--bordered">
+        <tbody>
+          <tr>
+            <td></td>
+            <td class="resmat-label">Прізвище</td>
+            <td class="resmat-label">Ім'я</td>
+            <td class="resmat-label">Ключ доступу</td>
+            <td></td>
+          </tr>
+          <tr *ngFor="let parsedStudent of parsedStudents; let i = index">
+            <td>{{ i + 1 }}.&nbsp;</td>
+            <td>{{ parsedStudent.lastName }}</td>
+            <td>{{ parsedStudent.firstName }}</td>
+            <td>{{ parsedStudent.accessKey }}</td>
+            <td>
+              <a (click)="deleteFromParsedStudents(i)"><i class="material-icons">delete_forever</i></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="flex-container flex-justify-center flex-align-center" [hidden]="!parsedStudents || !isSavingParsedStudents">
+      <h2>Зберігання...</h2>
+    </div>
   </div>
 </div>
 

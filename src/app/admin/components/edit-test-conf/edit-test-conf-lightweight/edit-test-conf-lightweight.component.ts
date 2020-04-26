@@ -81,6 +81,18 @@ export class EditTestConfLightweightComponent implements OnInit, AfterViewInit {
     }
   }
 
+  showPreview() {
+    this.preview = new Test(this.updated, 1)
+  }
+
+  backFromPreview() {
+    this.preview = null;
+  }
+
+  previewStub() {
+    alert("Кнопка не працює в режимі попереднього перегляду")
+  }
+
   private validate(): boolean {
     const obj: ITestEditDto = this.updated;
     const errors: string[] = [];

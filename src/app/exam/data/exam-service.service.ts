@@ -25,7 +25,7 @@ export class VerifiedTestAnswer {
 }
 
 interface UserExamDtoJson {
-  userExam: { id: number, lockedUntil?: string, userId: number, status: string },
+  userExam: { id: number, lockedUntil?: string, userId: number, status: string, started?: string, finished?: string },
   currentStepPreview: {
     sequence: number
     stepType: string
@@ -202,7 +202,9 @@ export class ExamService {
         type: currentStepPreview.stepType,
         description: currentStepPreview.description
       },
-      result: responseData.result
+      result: responseData.result,
+      started: userExam.started && new Date(userExam.started),
+      finished: userExam.finished && new Date(userExam.finished)
     }
   }
 }

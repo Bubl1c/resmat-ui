@@ -20,7 +20,7 @@ export class AddStudentGroupWorkspaceData extends WorkspaceData {
       return;
     }
     this.api.post(
-      "/student-groups", {id: -1, name: this.data}
+      "/student-groups", {id: -1, name: this.data, isArchived: false}
     ).subscribe({
       next: (result: StudentGroup) => {
         this.adminComponent.loadGroups();

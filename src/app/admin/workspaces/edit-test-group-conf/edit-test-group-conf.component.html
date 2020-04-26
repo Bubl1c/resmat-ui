@@ -11,9 +11,9 @@
       Режим редагування <span class="mui-caret"></span>
     </a>
     <ul class="mui-dropdown__menu">
-      <li *ngFor="let em of workspaceData.editingModes">
-        <a (click)="workspaceData.changeEditingMode(em)"
-           [ngClass]="{ 'selected-test-group-editing-mode': workspaceData.selectedEditingMode.id === em.id }"
+      <li *ngFor="let em of editingModes">
+        <a (click)="changeEditingMode(em)"
+           [ngClass]="{ 'selected-test-group-editing-mode': selectedEditingMode.id === em.id }"
            class="resmat-regular">
           {{ em.text }}
         </a>
@@ -26,7 +26,9 @@
   <li [ngClass]="{ 'mui--is-active': activeTab === tabs.tests }" class="tab resmat-tab">
     <a (click)="switchTab(tabs.tests)">Тести</a>
   </li>
-  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.upload }" class="tab resmat-tab">
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.upload }"
+      class="tab resmat-tab"
+      *ngIf="selectedEditingMode.id === 'lightweight'">
     <a (click)="switchTab(tabs.upload)">Завантажити файл</a>
   </li>
   <li [ngClass]="{ 'mui--is-active': activeTab === tabs.hierarchy }" class="tab resmat-tab">
@@ -40,19 +42,20 @@
 <!--------------------- TESTS ---------------------->
 
 <div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.tests }" class="tab-content-container">
-  <a [hidden]="workspaceData.selectedEditingMode.id === 'lightweight'"
+  <a [hidden]="selectedEditingMode.id === 'lightweight'"
      style="flex: 1; text-align: right;" (click)="editTestConf()"
      class="resmat-primary">Додати тест</a>
-  <div *ngIf="workspaceData.selectedEditingMode.id === 'lightweight'" class="flex-container flex-column">
+  <div *ngIf="selectedEditingMode.id === 'lightweight'" class="flex-container flex-column">
     <bulk-edit-test-conf-lightweight [isSaving]="workspaceData.isBulkSaving"
                                      [groupId]="workspaceData.data.id"
                                      [tests]="workspaceData.data.testConfs"
                                      (onSaved)="workspaceData.bulkUpdateTestConfs()"></bulk-edit-test-conf-lightweight>
   </div>
-  <table *ngIf="workspaceData.selectedEditingMode.id === 'detailed'"
+  <table *ngIf="selectedEditingMode.id === 'detailed'"
          class="mui-table mui-table--bordered"
          [hidden]="workspaceData.data.testConfs.length === 0">
-    <tr *ngFor="let t of workspaceData.data.testConfs">
+    <tr *ngFor="let t of workspaceData.data.testConfs; let idx = index;">
+      <td style="width: 5px">{{ idx + 1 }}.</td>
       <td>
         <test-conf-preview [test]="t"
                            (onEdit)="editTestConf($event.id)"
@@ -73,14 +76,15 @@
       [addToQueueWhenAdded]="false"
       (onAdded)="fileAdded($event)" class="flex-1"></upload>
     <div>
-      <span>Тести можна завантажити із файлу .docx (Microsoft Word).</span>
-      <span>Система розпізнає текст за наступними правилами:</span>
-      <span>Запитання тесту може бути або елементом нумерованого списку (числа) або абзацем який починається з ЧИСЛА з дужкою або крапкою.</span>
-      <span>Варіант відповіді може бути або елементом нумерованого списку (букви) або абзацем який починається з БУКВИ з дужкою або крапкою.</span>
-      <span>Решта документу ігнорується</span>
+      <p>Тести можна завантажити із файлу .docx (Microsoft Word).</p>
+      <p>Система розпізнає текст за наступними правилами:</p>
+      <ol>
+        <li><b>Запитання</b> тесту може бути або елементом нумерованого списку <b>(числа)</b> або абзацем який починається з <b>ЧИСЛА</b> з дужкою або крапкою.</li>
+        <li><b>Варіант відповіді</b> може бути або елементом нумерованого списку <b>(букви)</b> або абзацем який починається з <b>БУКВИ</b> з дужкою або крапкою.</li>
+      </ol>
+      <p>Решта документу ігнорується</p>
       <a href="https://drive.google.com/file/d/1G6t6-OfoGgPWy5WgmypFycgKNTRLTghb/view?usp=sharing" target="_blank">Приклад</a>
-      <br>
-      <span>Зверніть увагу - документи які містять зображення і формули не підримуються і можуть видавати неочікувані результати.</span>
+      <p>Зверніть увагу - документи які містять зображення і формули не підримуються і можуть видавати неочікувані результати.</p>
     </div>
   </div>
 </div>

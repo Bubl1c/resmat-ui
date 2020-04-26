@@ -1,5 +1,5 @@
 import { TestOptionValueType, TestType } from "../exam/data/test-set.api-protocol";
-import { TestGroupEditingMode } from "./workspaces/test-group-workspace-data";
+import { TestGroupEditingModeType } from "./workspaces/edit-test-group-conf/edit-test-group-conf.component";
 
 export namespace UserDefaults {
 
@@ -13,14 +13,20 @@ export namespace UserDefaults {
   }
 
   export namespace EditTestGroupConf {
-    let savedEditingModes: {[key:number]: TestGroupEditingMode} = {};
-
-    export function getEditingMode(groupId: number): TestGroupEditingMode | undefined {
-      return savedEditingModes[groupId]
+    const editingModeKey = (groupId: number) => `EditTestGroupConf_editingMode_groupId=${groupId}`;
+    export function getEditingMode(groupId: number): TestGroupEditingModeType | undefined {
+      return localStorage.getItem(editingModeKey(groupId)) as TestGroupEditingModeType
+    }
+    export function setEditingMode(groupId: number, editingModeId: TestGroupEditingModeType): void {
+      return localStorage.setItem(editingModeKey(groupId), editingModeId);
     }
 
-    export function setEditingMode(groupId: number, em: TestGroupEditingMode): void {
-      return savedEditingModes[groupId] = JSON.parse(JSON.stringify(em));
+    const selectedTabKey = (groupId: number) => `EditTestGroupConf_selectedTab_groupId=${groupId}`;
+    export function getSelectedTab(groupId: number): string | undefined {
+      return localStorage.getItem(selectedTabKey(groupId))
+    }
+    export function setSelectedTab(groupId: number, selectedTab: string): void {
+      return localStorage.setItem(selectedTabKey(groupId), selectedTab);
     }
   }
 

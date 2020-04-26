@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { StudentGroup, UserData, UserType } from "../../../user/user.models";
 import { DropdownOption } from "../../../components/dropdown/dropdown.component";
-import { NgForm } from "@angular/forms";
 
 export class UserComponentConfig {
   constructor(public isSaving: boolean = false) {}

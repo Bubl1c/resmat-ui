@@ -1,10 +1,26 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { EditTestGroupWorkspaceData } from "../test-group-workspace-data";
-import { ITestDto, ITestEditDto } from "../../../exam/data/test-set.api-protocol";
+import { ITestDto, ITestEditDto, TestOptionValueType, TestType } from "../../../exam/data/test-set.api-protocol";
 import { ITestGroupConfWithChildren } from "../../components/test-group-list/test-group-list.component";
 import { DocxParser } from "../../../utils/docx-parser";
 import { TestEdit } from "../../components/edit-test-conf/edit-test-conf.component";
 import { NumberUtils } from "../../../utils/NumberUtils";
+import { DropdownOption } from "../../../components/dropdown/dropdown.component";
+import { UserDefaults } from "../../userDefaults";
+
+export type TestGroupEditingModeType = "detailed" | "lightweight"
+
+export interface TestGroupEditingMode {
+  id: TestGroupEditingModeType
+  text: string
+}
+
+class TestGroupEditingModes {
+  static Detailed: TestGroupEditingMode = { id: "detailed", text: "Стандартний" };
+  static Lightweight: TestGroupEditingMode = { id: "lightweight", text: "Спрощений" };
+
+  static all = [TestGroupEditingModes.Detailed, TestGroupEditingModes.Lightweight]
+}
 
 @Component({
   selector: 'edit-test-group-conf',
@@ -13,7 +29,17 @@ import { NumberUtils } from "../../../utils/NumberUtils";
 })
 export class EditTestGroupConfComponent implements OnInit {
 
-  @Input() workspaceData: EditTestGroupWorkspaceData;
+  _workspaceData: EditTestGroupWorkspaceData;
+
+  @Input() set workspaceData(value: EditTestGroupWorkspaceData) {
+    this._workspaceData = value;
+    this.initialiseEditingMode();
+    this.initialiseActiveTab();
+  };
+
+  get workspaceData(): EditTestGroupWorkspaceData {
+    return this._workspaceData;
+  };
 
   @Output() onEditTestConf = new EventEmitter<{
     groupId: number,
@@ -27,15 +53,20 @@ export class EditTestGroupConfComponent implements OnInit {
     hierarchy: "hierarchy",
     operations: "operations"
   };
-  activeTab: string = this.tabs.tests;
+  activeTab: string;
+
+  selectedEditingMode: DropdownOption;
+  editingModes: DropdownOption[];
 
   constructor() { }
 
   ngOnInit() {
+    this.initialiseEditingMode()
   }
 
   switchTab(tab: string) {
     this.activeTab = tab;
+    UserDefaults.EditTestGroupConf.setSelectedTab(this.workspaceData.data.id, this.activeTab);
   }
 
   editTestConf(testId?: number) {
@@ -73,6 +104,62 @@ export class EditTestGroupConfComponent implements OnInit {
       this.workspaceData.isBulkSaving = false;
     })
   };
+
+  private initialiseActiveTab() {
+    this.switchTab(UserDefaults.EditTestGroupConf.getSelectedTab(this.workspaceData.data.id) || this.tabs.tests);
+  }
+
+  private initialiseEditingMode() {
+    const lightweightEditingDO = new DropdownOption(TestGroupEditingModes.Lightweight.id, TestGroupEditingModes.Lightweight.text);
+    const detailedEditingDO = new DropdownOption(TestGroupEditingModes.Detailed.id, TestGroupEditingModes.Detailed.text);
+    this.editingModes = [detailedEditingDO, lightweightEditingDO];
+    const isLightweightEditingPossible = this.isLightweightEditingModePossible();
+    const userPreferredEMId = UserDefaults.EditTestGroupConf.getEditingMode(this.workspaceData.data.id);
+    if (userPreferredEMId) {
+      this.changeEditingMode(userPreferredEMId === "lightweight" && isLightweightEditingPossible ? lightweightEditingDO : detailedEditingDO)
+    } else {
+      this.changeEditingMode(isLightweightEditingPossible ? lightweightEditingDO : detailedEditingDO);
+    }
+  }
+
+  changeEditingMode(em: DropdownOption) {
+    if (this.selectedEditingMode && em.id === this.selectedEditingMode.id) {
+      return;
+    }
+    if (em.id === TestGroupEditingModes.Lightweight.id) {
+      const isPossible = this.isLightweightEditingModePossible();
+      if (!isPossible) {
+        alert("Спрощений режим редагування доступний лише для тестів з 1 варіантом відповіді. Зображення не підтримуються.")
+        return;
+      }
+    } else if(em.id === TestGroupEditingModes.Detailed.id && this.activeTab === this.tabs.upload) {
+      this.switchTab(this.tabs.tests);
+    }
+    this.selectedEditingMode = em;
+    UserDefaults.EditTestGroupConf.setEditingMode(this.workspaceData.data.id, em.id);
+  }
+
+  private isLightweightEditingModePossible() {
+    let isLightweightEditingModePossible = true;
+    for(let i = 0; i < this.workspaceData.data.testConfs.length; i++) {
+      const tc = this.workspaceData.data.testConfs[i];
+      if ([TestType.Checkbox, TestType.SingleInput].indexOf(tc.testType) > -1) {
+        isLightweightEditingModePossible = false;
+        break;
+      }
+      const optSupport = tc.options.map(o => {
+        if ([TestOptionValueType.Img, TestOptionValueType.Number].indexOf(o.valueType) > -1) {
+          return false
+        }
+        return true;
+      });
+      if (optSupport.indexOf(false) > -1) {
+        isLightweightEditingModePossible = false;
+        break;
+      }
+    }
+    return isLightweightEditingModePossible;
+  }
 
   private findTest(id: number): ITestEditDto {
     return this.workspaceData.data.testConfs.find(tc => tc.id === id)

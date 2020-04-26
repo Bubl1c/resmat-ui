@@ -2,10 +2,10 @@
   <div class="mui--text-center full-width" [hidden]="exams && exams.length > 0">Немає даних для відображення</div>
   <div *ngFor="let sue of exams" class="mui-panel relative user-exam-panel">
     <div class="relative">
-      <border-sticky-btn (onClick)="deleteExam(sue)" positionH="right" positionV="top" *ngIf="conf.deletable">
+      <border-sticky-btn (onClick)="deleteExam(sue)" positionH="right" positionV="top" *ngIf="conf.deletable" class="no-print">
         <i style="color: red;" class="material-icons">clear</i>
       </border-sticky-btn>
-      <border-sticky-btn (onClick)="toggleLock(sue)" positionH="right" positionV="bottom">
+      <border-sticky-btn (onClick)="toggleLock(sue)" positionH="right" positionV="bottom" class="no-print">
         <i style="color: #a000c3;" class="material-icons" [hidden]="sue.exam.lockedUntil">lock_outline</i>
         <i class="material-icons" [hidden]="!sue.exam.lockedUntil">lock_open</i>
       </border-sticky-btn>
@@ -24,8 +24,8 @@
         Крок № {{ sue.exam.currentStep.sequence }} - {{ sue.exam.currentStep.description }}
       </div>
       <div class="success" *ngIf="sue.exam.status === 'success'">
-        Завершено успішно!&nbsp; {{ sue.exam.result ? 'Оцінка - ' + sue.exam.result.score + '/' + sue.exam.result.maxScore : '' }}
-        <a (click)="loadExamResult(sue)">Переглянути результати</a>
+        Завершено успішно! Дата: {{ sue.exam.finished.toLocaleString() }}&nbsp;&nbsp; {{ sue.exam.result ? 'Оцінка - ' + sue.exam.result.score + '/' + sue.exam.result.maxScore : '' }}
+        <a (click)="loadExamResult(sue)" class="no-print">Переглянути результати</a>
       </div>
       <div class="fail" *ngIf="sue.exam.status === 'failed'">
         Провалено на кроці № {{ sue.exam.currentStep.sequence }} - {{ sue.exam.currentStep.description }}
@@ -37,7 +37,7 @@
   </div>
 </div>
 <div *ngIf="showExamResult">
-  <div class="flex-container" style="justify-content: flex-end">
+  <div class="flex-container no-print" style="justify-content: flex-end">
     <a (click)="hideExamResult()">Назад до робіт</a>
   </div>
   <br>

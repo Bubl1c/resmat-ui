@@ -114,4 +114,9 @@ if [ ${RELOAD_CONFIGS} = true ]; then
   scpToRemote "config" ${REMOTE_FOLDER} "-r"
 fi
 
+echo "Restarting nginx"
+runSSH "sudo systemctl restart nginx"
+
+echo "Done!"
+
 exit

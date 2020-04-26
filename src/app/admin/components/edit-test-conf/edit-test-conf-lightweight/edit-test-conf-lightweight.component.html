@@ -1,16 +1,4 @@
-<div class="flex-container" style="flex-wrap: nowrap">
-<!--  <div style="width: 30px; margin-left: -10px; margin-right: 10px; display: flex; align-items: center; justify-content: center">-->
-<!--    <a [hidden]="preview" (click)="showPreview()"><i class="material-icons">remove_red_eye</i></a>-->
-<!--    <a [hidden]="!preview" (click)="backFromPreview()"><i class="material-icons">keyboard_backspace</i></a>-->
-<!--  </div>-->
-<!--  <div class="flex-1" [hidden]="!preview">-->
-<!--    <app-test-->
-<!--      *ngIf="preview"-->
-<!--      [test]="preview"-->
-<!--      (onContinue)="previewStub()"-->
-<!--      (onSubmitted)="previewStub()"></app-test>-->
-<!--  </div>-->
-<!--  <div class="flex-1" [hidden]="preview">-->
+<div class="flex-container flex-column" style="flex-wrap: nowrap">
   <div class="flex-1" [hidden]="preview">
 
     <div class="flex-container flex-align-center">
@@ -43,9 +31,23 @@
         </div>
         <a (click)="deleteOption(opt)"><i class="material-icons">delete_forever</i></a>
       </div>
-      <a style="margin-bottom: -15px; margin-left: -2px;" (click)="addBlankOption()">
-        <i class="material-icons">playlist_add</i>
-      </a>
+      <div class="flex-container flex-justify-space-between">
+        <a style="margin-bottom: -15px; margin-left: -2px; " (click)="addBlankOption()">
+          <i class="material-icons">playlist_add</i>
+        </a>
+        <div style="margin-bottom: -15px;">
+          <a [hidden]="preview" (click)="showPreview()" class="resmat-label"><i class="material-icons">remove_red_eye</i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex-container flex-column flex-1" *ngIf="preview">
+    <app-test
+      [test]="preview"
+      (onContinue)="previewStub()"
+      (onSubmitted)="previewStub()"></app-test>
+    <div class="flex-container" style="justify-content: flex-end; margin-bottom: -15px;">
+      <a (click)="backFromPreview()" class="link-with-icon"><i class="material-icons">keyboard_backspace</i> Назад до редагування</a>
     </div>
   </div>
 </div>

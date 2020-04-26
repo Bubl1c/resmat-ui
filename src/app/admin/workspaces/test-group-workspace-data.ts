@@ -6,19 +6,6 @@ import { GoogleAnalyticsUtils } from "../../utils/GoogleAnalyticsUtils";
 import { ITestEditDto, TestOptionValueType, TestType } from "../../exam/data/test-set.api-protocol";
 import { AdminComponent } from "../admin.component";
 import { WorkspaceData, WorkspaceDataTypes } from "./workspace-data";
-import { UserDefaults } from "../userDefaults";
-
-export interface TestGroupEditingMode {
-  id: "detailed" | "lightweight"
-  text: string
-}
-
-class TestGroupEditingModes {
-  static Detailed: TestGroupEditingMode = { id: "detailed", text: "Стандартний" };
-  static Lightweight: TestGroupEditingMode = { id: "lightweight", text: "Спрощений" };
-
-  static all = [TestGroupEditingModes.Detailed, TestGroupEditingModes.Lightweight]
-}
 
 export interface ITestGroupConfWithTestConfs extends ITestGroupConfWithChildren {
   testConfs: ITestEditDto[]
@@ -29,7 +16,7 @@ export abstract class TestGroupWorkspaceData extends WorkspaceData {
   parentGroupOptions: DropdownOption[];
   notSelectedParentGroupOption = new DropdownOption(-1, "Не вибрано");
 
-  constructor(public data: ITestGroupConfWithChildren, protected tcService: TestConfService, protected adminComponent: AdminComponent) {
+  protected constructor(public data: ITestGroupConfWithChildren, protected tcService: TestConfService, protected adminComponent: AdminComponent) {
     super();
     this.initialiseParentGroupOptions();
   }
@@ -54,9 +41,6 @@ export abstract class TestGroupWorkspaceData extends WorkspaceData {
 export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
   type = WorkspaceDataTypes.testGroup;
 
-  selectedEditingMode: DropdownOption;
-  editingModes: DropdownOption[];
-
   isBulkSaving: boolean = false;
 
   constructor(public data: ITestGroupConfWithTestConfs, tcService: TestConfService, adminComponent: AdminComponent) {
@@ -64,16 +48,7 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
     RMU.safe(() => {
       GoogleAnalyticsUtils.pageView(`/admin/test-groups/${this.data.id}/edit`, `Адмінка :: Редагування групи тестів "${this.data.name}"`)
     });
-    const lightweightEditingDO = new DropdownOption(TestGroupEditingModes.Lightweight.id, TestGroupEditingModes.Lightweight.text);
-    const detailedEditingDO = new DropdownOption(TestGroupEditingModes.Detailed.id, TestGroupEditingModes.Detailed.text);
-    this.editingModes = [detailedEditingDO, lightweightEditingDO];
-    const isLightweightEditingPossible = this.isLightweightEditingModePossible();
-    const userPreferred = UserDefaults.EditTestGroupConf.getEditingMode(this.data.id);
-    if (userPreferred) {
-      this.selectedEditingMode = userPreferred.id === "lightweight" && isLightweightEditingPossible ? lightweightEditingDO : detailedEditingDO
-    } else {
-      this.selectedEditingMode = isLightweightEditingPossible ? lightweightEditingDO : detailedEditingDO;
-    }
+
   }
 
   saveTestGroup(name: string, parentGroupId: number = this.selectedParentGroupId) {
@@ -161,43 +136,6 @@ export class EditTestGroupWorkspaceData extends TestGroupWorkspaceData {
         this.saveTestGroup(this.data.name, option.id);
       }
     }
-  }
-
-  changeEditingMode(em: DropdownOption) {
-    if (em.id === this.selectedEditingMode.id) {
-      return;
-    }
-    if (em.id === TestGroupEditingModes.Lightweight.id) {
-      const isPossible = this.isLightweightEditingModePossible();
-      if (!isPossible) {
-        alert("Спрощений режим редагування доступний лише для тестів з 1 варіантом відповіді. Зображення не підтримуються.")
-        return;
-      }
-    }
-    this.selectedEditingMode = em;
-    UserDefaults.EditTestGroupConf.setEditingMode(this.data.id, em);
-  }
-
-  isLightweightEditingModePossible() {
-    let isLightweightEditingModePossible = true;
-    for(let i = 0; i < this.data.testConfs.length; i++) {
-      const tc = this.data.testConfs[i];
-      if ([TestType.Checkbox, TestType.SingleInput].indexOf(tc.testType) > -1) {
-        isLightweightEditingModePossible = false;
-        break;
-      }
-      const optSupport = tc.options.map(o => {
-        if ([TestOptionValueType.Img, TestOptionValueType.Number].indexOf(o.valueType) > -1) {
-          return false
-        }
-        return true;
-      });
-      if (optSupport.indexOf(false) > -1) {
-        isLightweightEditingModePossible = false;
-        break;
-      }
-    }
-    return isLightweightEditingModePossible;
   }
 
 }

@@ -112,6 +112,16 @@ body {
   {
     display: none !important;
   }
+  .for-print {
+    display: block;
+  }
+  .print-scroll-container {
+    overflow: visible !important;
+  }
+}
+
+.for-print {
+  display: none;
 }
 
 a {

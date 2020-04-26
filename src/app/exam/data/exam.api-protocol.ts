@@ -42,6 +42,8 @@ export interface IExamDto {
   lockedUntil: Date;
   currentStep: IExamStepPreview;
   result?: IUserExamResult
+  started?: Date;
+  finished?: Date;
 }
 
 export interface IExamStepPreview {

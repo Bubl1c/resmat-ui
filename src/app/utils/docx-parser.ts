@@ -5,12 +5,13 @@ import {
   ParsedNumbering,
   ParsedNumberingLvl,
   SimpleTextTestData,
-  RawDocx
+  RawDocx, SimpleUserData
 } from "./docx-models";
 
 export namespace DocxParser {
+  const multipleSpacesRegex = /\s\s+/g;
   const startsWithCustomNumberedListRegex = /^([^\S\n]+)?\d+[).](\s?)+/;
-  const startsWithCustomLetteredListRegex = /^([^\S\n]+)?[\wа-яА-Я]+[).](\s?)+/;
+  const startsWithCustomLetteredListRegex = /^([^\S\n]+)?[\wа-яА-Яіїє]+[).](\s?)+/;
 
   const docx4js: { default: { load: (file: File) => Promise<RawDocx> } } = require("docx4js");
 
@@ -21,6 +22,17 @@ export namespace DocxParser {
       return parsed
     }).catch(error => {
       console.error(`Failed to load or parse tests from file ${file.name}`, error)
+      throw error
+    })
+  }
+
+  export function loadFileAndParseOutUsers(file: File): Promise<SimpleUserData[]> {
+    const loaded = docx4js.default.load(file);
+    return loaded.then(docx => {
+      const parsed = DocxParser.parseUsersInDocument(docx);
+      return parsed
+    }).catch(error => {
+      console.error(`Failed to load or parse users from file ${file.name}`, error);
       throw error
     })
   }
@@ -90,8 +102,56 @@ export namespace DocxParser {
     }
   }
 
+  export function parseUsersInDocument(docx: RawDocx): SimpleUserData[] {
+
+    //TODO: render doesn't work with documents which have formulas in them
+
+    const rendered: DocxDocument.Root = docx.render((type,props,children) => ({ type, props, children }));
+
+    let result: SimpleUserData[] = [];
+
+    rendered.children.forEach(section => {
+      //parse out paragraphs and lists from section
+      section.children.forEach(c => {
+        const text = retrieveText(c);
+        if (text && text.length > 0) {
+          const user = parseOutUser(c, text);
+          if (user) {
+            result.push(user);
+          }
+        }
+      })
+    });
+    return result;
+  }
+
+  function parseOutUser(
+    c: DocxDocument.ListNode | DocxDocument.PNode,
+    text: string
+  ): SimpleUserData | undefined {
+    if (c.type === "list" || c.type === "p") {
+      const textWithoutPrefix = text
+        .replace(multipleSpacesRegex, " ")
+        .replace(startsWithCustomNumberedListRegex, "")
+        .replace(startsWithCustomLetteredListRegex, "");
+
+      const [surname, name, accessKey] = textWithoutPrefix.split(" ")
+
+      if (name) {
+        return { name, surname, accessKey }
+      } else {
+        return undefined
+      }
+    } else {
+      return undefined;
+    }
+  }
+
   function numberingToMap(root: DocxNumbering.Root): Map<string, ParsedNumbering> {
     const map: Map<string, ParsedNumbering> = new Map();
+    if (!root) {
+      return map;
+    }
     const abstractNums: Map<string, DocxNumbering.AbstractNum> = new Map();
     root.children.filter(c => c.type === "abstractNum").forEach((an: DocxNumbering.AbstractNum) => {
       abstractNums.set(an.props.id, an)
@@ -128,7 +188,7 @@ export namespace DocxParser {
     if (node.type === "t") {
       const textNode = node as DocxDocument.TextNode;
       return textNode.children.reduce((acc, cur) => {
-        const trimmed = cur.trim();
+        const trimmed = cur.replace(multipleSpacesRegex, " ");
         if (trimmed.length > 0) {
           //trimmed is used to identify and remove empty strings
           //but we still want to keep spaces in non empty strings

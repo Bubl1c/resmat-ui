@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="side-menu mui--no-user-select mui-panel" [ngClass]="{'side-menu-collapsed': sideMenuCollapsed}">
+  <div class="side-menu mui--no-user-select mui-panel no-print" [ngClass]="{'side-menu-collapsed': sideMenuCollapsed}">
     <a (click)="sideMenuCollapsed = !sideMenuCollapsed" class="resmat-regular">
       <i class="material-icons" [hidden]="sideMenuCollapsed" style="float: right">first_page</i>
       <i class="material-icons" [hidden]="!sideMenuCollapsed">settings_ethernet</i>
@@ -64,7 +64,7 @@
       </li>
     </ul>
   </div>
-  <div class="workspace mui-container-fluid mui-panel">
+  <div class="workspace mui-container-fluid mui-panel print-scroll-container">
 
     <div *ngIf="workspaceData">
       <user *ngIf="workspaceData.type === 'user'"

@@ -1,38 +1,21 @@
+<div class="flex-container flex-align-center">
+  <span class="resmat-header resmat-label">Додати студента до групи:&nbsp;&nbsp;</span>
+  <p class="header2">{{ group.name }}</p>
+</div>
 <form (submit)="save()">
-  <div class="mui-textfield">
-    <input class="disabled" type="text" [value]="user.userType.name" disabled>
-    <label>Тип</label>
-  </div>
-  <div class="mui-textfield">
-    <input class="disabled" type="text" [value]="group.name" disabled>
-    <label>Група</label>
-  </div>
   <fieldset [disabled]="isSaving">
-    <div class="mui-textfield">
-      <input type="text" name="login" [(ngModel)]="user.username" required>
-      <label>Логін</label>
-    </div>
-    <div class="mui-textfield">
-      <input type="text" name="password" [(ngModel)]="user.password" required>
-      <label>Пароль</label>
-    </div>
     <div class="mui-textfield">
       <input type="text" name="firstName" [(ngModel)]="user.firstName" required>
       <label>Ім'я</label>
     </div>
     <div class="mui-textfield">
-      <input type="text" name="lastName" [(ngModel)]="user.lastName" required>
+      <input type="text" name="lastName" [(ngModel)]="user.lastName">
       <label>Прізвище</label>
-    </div>
-    <div class="mui-textfield">
-      <input type="text" name="email" [(ngModel)]="user.email">
-      <label>Імейл</label>
     </div>
     <div class="mui-textfield">
       <input type="text" name="accessKey" [(ngModel)]="user.accessKey" required>
       <label>Ключ доступу</label>
     </div>
-
     <button class="mui-btn mui-btn--primary"
             type="submit">
       {{ isSaving ? 'Збереження' : 'Зберегти' }}

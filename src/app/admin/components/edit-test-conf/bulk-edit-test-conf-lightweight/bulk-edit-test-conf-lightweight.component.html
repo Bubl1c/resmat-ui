@@ -12,7 +12,7 @@
       </button>
     </div>
   </div>
-  <a class="header1 add-page-btn" (click)="addTest(0)">+</a>
+  <a class="header1 add-page-btn" style="width: 50px" (click)="addTest(0)">+</a>
   <div *ngFor="let test of currentPage.tests; let idx = index; trackBy: trackTest" style="margin-bottom: -15px;">
     <a class="header1 add-page-btn" (click)="addTest(test.originalIndex)" [hidden]="idx === 0">+</a>
     <div class="mui-panel">

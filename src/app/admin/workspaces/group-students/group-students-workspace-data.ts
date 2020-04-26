@@ -179,7 +179,7 @@ export class GroupStudentsWorkspaceData extends WorkspaceData {
     });
   }
 
-  private loadStudentsByGroup() {
+  loadStudentsByGroup() {
     this.api.get("/student-groups/" + this.data.id + "/students").subscribe({
       next: (students: any[]) => {
         let mappedStudents = students.map(UserData.fromApi);
