@@ -56,7 +56,7 @@ export class GeogebraCreateObjectComponent implements OnInit {
     this.shapeJson = {
       id: -1,
       name: "",
-      rotationAngle: 0,
+      rotationAngle: this.selectedAngle.id,
       shapeType: kind.shapeType,
       root: XY(0, 0),
       dimensions: {},

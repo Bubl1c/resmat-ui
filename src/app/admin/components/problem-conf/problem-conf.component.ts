@@ -178,7 +178,7 @@ export class ProblemConfComponent implements OnInit {
       this.showInputSet = true;
     });
 
-    this.newVariantObjects.length = 0;
+    this.newVariantObjects = []
   }
 
   resetVariableValues() {

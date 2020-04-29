@@ -14,18 +14,18 @@
   <h4>Координати крайньої правої верхньої точки в базовому положенні (поворот 0 градусів)</h4>
   <div class="coords-container">
     <div class="mui-textfield">
-      <input type="number" name="object_x" [(ngModel)]="shapeJson.root.x" required>
-      <label>X</label>
+      <input type="number" step="0.01" name="object_x" [(ngModel)]="shapeJson.root.x" required>
+      <label>Y</label>
     </div>
     <div class="mui-textfield">
-      <input type="number" name="object_y" [(ngModel)]="shapeJson.root.y" required>
-      <label>Y</label>
+      <input type="number" step="0.01" name="object_y" [(ngModel)]="shapeJson.root.y" required>
+      <label>Z</label>
     </div>
   </div>
   <h4>Розміри (або номер) фігури</h4>
   <div class="props-container">
     <div class="mui-textfield" *ngFor="let prop of shapeDimensions">
-      <input type="number" step="0.1" name="{{prop.prop}}" [(ngModel)]="prop.val" required>
+      <input type="number" step="0.01" name="{{prop.prop}}" [(ngModel)]="prop.val" required>
       <label><b>{{prop.prop}}</b> ({{ prop.description }})</label>
     </div>
   </div>

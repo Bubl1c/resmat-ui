@@ -75,6 +75,7 @@ export abstract class PolygonGGO implements GeogebraObject {
     this.centerPoint.invert();
     this.isInverted = !this.isInverted;
     this.rotationAngle = GeogebraObjectUtils.invertRotationAngle(this.rotationAngle);
+    this.rotationPoint = XYCoords.fromJson(this.rotationPoint).invert().toJson();
     return this
   }
 

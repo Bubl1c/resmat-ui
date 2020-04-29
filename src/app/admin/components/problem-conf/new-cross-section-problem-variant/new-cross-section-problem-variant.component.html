@@ -20,7 +20,7 @@
       <td>{{po.name}}</td>
       <td>{{po.kind}}</td>
       <td>({{po.root.x}},{{po.root.y}})</td>
-      <td>{{po.rotationAngle}}</td>
+      <td>{{invertRO(po.rotationAngle)}}</td>
       <td><a (click)="removeGGBObject(i)"><i class="material-icons">delete_forever</i></a></td>
     </tr>
     <tr *ngIf="!variantObjects.length">

@@ -58,7 +58,7 @@ export interface GeometryShapeJson {
 }
 
 export class GeometryShapeUtils {
-  static parseGeometryShape(json: GeometryShapeJson, isInverted: boolean = true): GeogebraObject {
+  static parseGeometryShape(json: GeometryShapeJson, invert: boolean = true): GeogebraObject {
     const settings: GeogebraObjectSettings = json.settings;
     const shapeType = json.shapeType;
 
@@ -89,7 +89,7 @@ export class GeometryShapeUtils {
       }
     };
     const object = mkObject();
-    if (isInverted) {
+    if (invert) {
       object.invert();
     }
     return object

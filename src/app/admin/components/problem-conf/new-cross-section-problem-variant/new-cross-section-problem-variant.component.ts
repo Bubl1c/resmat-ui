@@ -37,8 +37,7 @@ export class NewCrossSectionProblemVariantComponent implements OnInit {
     this.variantObjects = this.variantObjects.map((o, i) => {
       const json = o.toJson();
       json.id = i + 1;
-      json.rotationAngle = GeogebraObjectUtils.invertRotationAngle(json.rotationAngle);
-      const object = GeometryShapeUtils.parseGeometryShape(json);
+      const object = GeometryShapeUtils.parseGeometryShape(json, false);
       return object
     })
   }
@@ -49,6 +48,10 @@ export class NewCrossSectionProblemVariantComponent implements OnInit {
 
   generateNextId = () => {
     return this.variantObjects && (this.variantObjects.length + 1) || 1;
+  };
+
+  invertRO(angle: number): number {
+    return GeogebraObjectUtils.invertRotationAngle(angle)
   }
 
 }

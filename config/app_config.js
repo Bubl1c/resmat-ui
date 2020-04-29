@@ -28,7 +28,7 @@ var ResmatConfig = (function () {
     };
     apiHost = "ec2-52-57-195-49.eu-central-1.compute.amazonaws.com";
     GoogleAnalyticsConfig = {
-      trackingId: "UA-125813714-1"
+      trackingId: "UA-125807048-1"
     };
   }
 
