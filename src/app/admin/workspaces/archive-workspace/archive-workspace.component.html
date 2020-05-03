@@ -8,6 +8,9 @@
     <li [ngClass]="{ 'mui--is-active': activeTab === tabs.testGroups }" class="tab resmat-tab">
       <a (click)="switchTab(tabs.testGroups)">Групи тестів</a>
     </li>
+    <li [ngClass]="{ 'mui--is-active': activeTab === tabs.examConfs }" class="tab resmat-tab">
+      <a (click)="switchTab(tabs.examConfs)">Іспити</a>
+    </li>
   </ul>
 
   <!--------------------- STUDENT GROUPS ---------------------->
@@ -45,6 +48,26 @@
       </tr>
       <tr class="mui--text-center" [hidden]="workspaceData.testGroups.length">
         <td colspan="2">Немає заархівованих груп</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!--------------------- EXAM CONFS ---------------------->
+
+  <div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.examConfs }">
+    <table class="mui-table mui-table--bordered">
+      <tbody>
+      <tr>
+        <td class="resmat-label">Назва</td>
+        <td style="width: 140px;"></td>
+      </tr>
+      <tr *ngFor="let ec of workspaceData.examConfs; let idx = index;">
+        <td class="resmat-regular">{{ ec.name }}</td>
+        <td><a (click)="workspaceData.unarchiveExamConf(ec, idx)">Розархівувавти</a></td>
+      </tr>
+      <tr class="mui--text-center" [hidden]="workspaceData.testGroups.length">
+        <td colspan="2">Немає заархівованих іспитів</td>
       </tr>
       </tbody>
     </table>

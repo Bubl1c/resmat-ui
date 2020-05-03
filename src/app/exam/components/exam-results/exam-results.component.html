@@ -52,30 +52,61 @@
       </tr>
     </table>
   </div>
-  <div class="mui-panel" *ngIf="stepInfos && stepInfos.length > 0">
-    <div *ngFor="let stepInfo of stepInfos">
-      <div [ngSwitch]="stepInfo.type">
-        <div *ngSwitchCase="InfoTypes.taskFlow" style="display: flex; flex-direction: column">
-          <div>
-            <task [problemConf]="stepInfo.data.variant.problemConf"
-                  [problemVariantConf]="stepInfo.data.variant.problemVariantConf"
-                  [hideControls]="true"></task>
+  <div *ngFor="let stepInfo of stepInfos">
+
+    <div *ngIf="stepInfo.type === InfoTypes.taskFlow && showTaskDetails"
+         style="display: flex; flex-direction: column" class="mui-panel">
+      <div>
+        <task [problemConf]="stepInfo.data.variant.problemConf"
+              [problemVariantConf]="stepInfo.data.variant.problemVariantConf"
+              [hideControls]="true"></task>
+      </div>
+      <div *ngFor="let tfStep of stepInfo.data.data">
+        <div [ngSwitch]="tfStep.stepType" class="task-data">
+          <div *ngSwitchCase="TaskFlowStepTypes.DynamicTable">
+            <h3>{{tfStep.name}}</h3>
+            <dynamic-table [data]="tfStep.data"></dynamic-table>
           </div>
-          <div *ngFor="let tfStep of stepInfo.data.data">
-            <div [ngSwitch]="tfStep.stepType" class="task-data">
-              <div *ngSwitchCase="TaskFlowStepTypes.DynamicTable">
-                <h3>{{tfStep.name}}</h3>
-                <dynamic-table [data]="tfStep.data"></dynamic-table>
-              </div>
-              <div *ngSwitchCase="TaskFlowStepTypes.Drawing" class="flex-container flex-column flex-align-center flex-justify-center">
-                <h3>{{tfStep.name}}</h3>
-                <geogebra [objects]="tfStep.data.geogebraObjects"
-                          [settings]="tfStep.data.geogebraComponentSettings"></geogebra>
-              </div>
-            </div>
+          <div *ngSwitchCase="TaskFlowStepTypes.Drawing"
+               class="flex-container flex-column flex-align-center flex-justify-center">
+            <h3>{{tfStep.name}}</h3>
+            <geogebra [objects]="tfStep.data.geogebraObjects"
+                      [settings]="tfStep.data.geogebraComponentSettings"></geogebra>
           </div>
         </div>
       </div>
     </div>
+
+    <div *ngIf="stepInfo.type === InfoTypes.testSet && showTestDetails" class="mui-panel">
+      <div class="header2 mui--text-center">Крок № {{ stepInfo.sequence }} - {{ stepInfo.name }}</div>
+      <table class="mui-table mui-table--bordered">
+        <thead>
+        <tr>
+          <th>Запитання тесту</th>
+          <th style="width: 50px">К-сть помилок</th>
+          <th style="width: 50px">Пройдено</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let tst of stepInfo.data.testSetTests">
+          <tr *ngIf="tst.isFakeToDisplayAttempt" class="mui--text-center header3 resmat-background-primary">
+            <td colspan="3">Спроба {{ tst.id }}</td>
+          </tr>
+          <tr *ngIf="!tst.isFakeToDisplayAttempt">
+            <td>
+              <span [hidden]="!tst.testConfSnapshot.question">{{ tst.testConfSnapshot.question }}</span>
+              <img *ngIf="tst.imageUrl" [src]="tst.imageUrl" style="max-height: 300px;">
+            </td>
+            <td [class.resmat-error]="tst.mistakes > 0">{{ tst.mistakes }}</td>
+            <td [class.resmat-error]="!tst.done" [class.resmat-success]="tst.done">{{ tst.done ? 'Так'  : 'Ні' }}</td>
+          </tr>
+        </ng-container>
+        <tr [hidden]="stepInfo.data.testSetTests && stepInfo.data.testSetTests.length" class="mui--text-center">
+          Немає результатів для відображення
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
 </div>

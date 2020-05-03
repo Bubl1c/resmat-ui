@@ -57,6 +57,7 @@ export interface IExamConf {
   name: string;
   description: string;
   maxScore: number;
+  isArchived: boolean;
 }
 
 export interface IExamConfDto {

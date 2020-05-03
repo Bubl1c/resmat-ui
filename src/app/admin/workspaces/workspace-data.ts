@@ -11,6 +11,7 @@ export class WorkspaceDataTypes {
   static addTestGroup = "add_test_group";
   static articles = "articles";
   static archive = "archive";
+  static admin = "admin";
   static loading = "loading";
 }
 

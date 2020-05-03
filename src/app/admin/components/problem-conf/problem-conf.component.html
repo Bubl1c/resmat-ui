@@ -1,7 +1,14 @@
+<div class="flex-container">
+  <span class="resmat-header resmat-label">Задача:&nbsp;&nbsp;</span>
+  <span class="flex-1 resmat-header">
+    {{ problemConfWithVariants.problemConf.name}}
+  </span>
+</div>
+
 <div class="mui-panel">
-  <button class="mui-btn mui-btn-primary" (click)="isProblemConfHidden = !isProblemConfHidden">
+  <a (click)="isProblemConfHidden = !isProblemConfHidden">
     {{ isProblemConfHidden ? "Показати дані задачі" : "Сховати" }}
-  </button>
+  </a>
   <pre [hidden]="isProblemConfHidden">
     {{ problemConfInfo | json }}
   </pre>

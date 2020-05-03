@@ -1,7 +1,7 @@
 <div class="login-container">
   <div class="mui-panel">
     <div class="relative">
-      <border-sticky-btn (onClick)="isStudent = !isStudent" positionH="right" positionV="top">
+      <border-sticky-btn (onClick)="switchView()" positionH="right" positionV="top">
         <i class="material-icons" [hidden]="!isStudent">vpn_key</i>
         <i class="material-icons" [hidden]="isStudent">group</i>
       </border-sticky-btn>

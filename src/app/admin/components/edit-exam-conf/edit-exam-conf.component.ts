@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import {
   ExamStepDataConf, ExamStepDataConfResultsConf, ExamStepDataConfTaskFlowConfDto, ExamStepDataConfTestSetConfDto,
   ExamStepType,
-  ExamStepTypes, IExamConfCreateDto,
+  ExamStepTypes, IExamConf, IExamConfCreateDto,
   IExamConfDto, IExamConfUpdateDto,
   IExamStepConf, IExamStepConfDataSet, IExamStepResultsDataSet, IExamStepTaskFlowDataSet,
   IExamStepTestSetDataSet, IResultsStepDataConf
@@ -33,6 +33,7 @@ export class EditExamConfComponent implements OnInit, OnChanges {
   @Input() isSaving: boolean = false;
 
   @Output() onSave = new EventEmitter<IExamConfDto>();
+  @Output() onArchived = new EventEmitter<void>();
 
   stepConfWorkspaces: IStepConfWorkspace[];
 
@@ -49,6 +50,22 @@ export class EditExamConfComponent implements OnInit, OnChanges {
     if (changes["data"]) {
       this.init()
     }
+  }
+
+  archiveExamConf() {
+    const ecId = this.data.examConf.id;
+    this.api.put(`/exam-confs/${ecId}/archive?isArchived=true`,undefined).subscribe({
+      next: () => {
+        RMU.safe(() => {
+          GoogleAnalyticsUtils.event("Admin", `Archived exam conf ${ecId}`, "ArchiveExamConf", ecId);
+        });
+        alert("Заархівовано успішно");
+        this.onArchived.emit();
+      },
+      error: err => {
+        alert(err)
+      }
+    })
   }
 
   save() {

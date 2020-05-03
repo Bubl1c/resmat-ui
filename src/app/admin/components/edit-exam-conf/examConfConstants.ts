@@ -6,7 +6,8 @@ export const newExamConf = (): IExamConf => ({
   id: -1,
   name: "",
   description: "",
-  maxScore: 100
+  maxScore: 100,
+  isArchived: false
 });
 
 export const newDefaultExamStepConfInstance = (sequence: number): IExamStepConf => ({

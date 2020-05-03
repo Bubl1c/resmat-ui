@@ -1,15 +1,14 @@
-import { Component, OnInit, Input } from "@angular/core";
-import { ExamStepResultGenericInfo, IUserExamResult } from "../../../steps/exam.results-step";
+import { Component, Input, OnInit } from "@angular/core";
+import { ExamStepResultGenericInfo, IUserExamResult, IUserExamStepResult } from "../../../steps/exam.results-step";
 import { TaskFlowDto } from "../../../steps/exam.task-flow-step";
 import { TaskVariantData } from "../task/task.component";
-import { DynamicTable } from "../dynamic-table/dynamic-table.component";
-import { SmartValue } from "../smart-value/smart-value.component";
-import { DrawingStepAnswer } from "../../../components/geogebra/custom-objects/geometry-shape";
 import { TaskFlowStepTypes } from "../../data/task-flow.api-protocol";
 import { TaskFlowStepUtils } from "../task/task-flow-step.utils";
+import { ITestEditDto } from "../../data/test-set.api-protocol";
 
 export const InfoTypes = {
-  taskFlow: 'TaskFlowStepResultStepInfo'
+  taskFlow: 'TaskFlowStepResultStepInfo',
+  testSet: 'TestSetStepResultStepInfo'
 };
 
 export interface TaskFlowStepExamResultDto {
@@ -23,18 +22,32 @@ export interface TaskFlowExamStepResultInfoDto {
   data: TaskFlowStepExamResultDto[]
   variant: TaskFlowDto
 }
-
 export interface TaskFlowExamStepResultInfoData {
   data: TaskFlowStepExamResultDto[]
   variant: TaskVariantData
 }
 
-export type ExamStepResultInfoDto = TaskFlowExamStepResultInfoDto // could also be TestSet
+export interface UserExamStepAttemptTestSetTest {
+  id: number
+  stepAttemptTestSetId: number
+  testConfId: number
+  testConfSnapshot: ITestEditDto
+  mistakeValue?: number
+  done: boolean
+  mistakes: number
+}
+export interface TestSetExamStepResultInfoDto {
+  testSetTests: UserExamStepAttemptTestSetTest[]
+}
 
-export type ExamStepResultInfoData = TaskFlowExamStepResultInfoData
+export type ExamStepResultInfoDto = TaskFlowExamStepResultInfoDto | TestSetExamStepResultInfoDto
+
+export type ExamStepResultInfoData = TaskFlowExamStepResultInfoData | TestSetExamStepResultInfoDto
 
 export interface ExamStepResultInfo {
   type: string
+  sequence: number
+  name: string
   data: ExamStepResultInfoData
 }
 
@@ -44,7 +57,8 @@ export class ExamStepResult {
               public attemptsAmount: number,
               public mistakesAmount: number,
               public durationMillis: number,
-              public info?: ExamStepResultInfo) {}
+              public info?: ExamStepResultInfo) {
+  }
 }
 
 export class ExamResult {
@@ -55,23 +69,35 @@ export class ExamResult {
               public durationMillis: number,
               public score: number,
               public maxScore: number,
-              public stepResults: ExamStepResult[]) {}
+              public stepResults: ExamStepResult[]) {
+  }
+
   static create(dto: IUserExamResult): ExamResult {
-    const getInfo = (data: ExamStepResultGenericInfo): ExamStepResultInfo => {
-      if(!data) {
+    const getInfo = (data: ExamStepResultGenericInfo, sr: IUserExamStepResult): ExamStepResultInfo => {
+      if (!data) {
         return null;
       }
       const objectType = Object.keys(data)[0];
-      if(typeof objectType !== 'string') throw new Error(`Failed to parse exam result step generic info ${data}`);
+      if (typeof objectType !== 'string') throw new Error(`Failed to parse exam result step generic info ${data}`);
       const infoDto = data[objectType];
       switch (objectType) {
         case InfoTypes.taskFlow:
+          const stepData = infoDto as TaskFlowExamStepResultInfoDto;
           return {
             type: objectType,
+            sequence: sr.sequence,
+            name: sr.name,
             data: {
-              data: infoDto.data,
-              variant: ExamResult.toTaskDataDto(infoDto.variant)
+              data: stepData.data,
+              variant: ExamResult.toTaskDataDto(stepData.variant)
             }
+          };
+        case InfoTypes.testSet:
+          return {
+            type: objectType,
+            sequence: sr.sequence,
+            name: sr.name,
+            data: infoDto as TestSetExamStepResultInfoDto
           };
         default:
           return null;
@@ -86,10 +112,11 @@ export class ExamResult {
       dto.score,
       dto.maxScore,
       dto.stepResults.map(r =>
-        new ExamStepResult(r.sequence, r.name, r.attemptsAmount, r.mistakesAmount, r.durationMillis, getInfo(r.info))
+        new ExamStepResult(r.sequence, r.name, r.attemptsAmount, r.mistakesAmount, r.durationMillis, getInfo(r.info, r))
       )
     )
   }
+
   static toTaskDataDto(taskFlowDto: TaskFlowDto): TaskVariantData {
     return {
       id: taskFlowDto.problemVariantConf.id,
@@ -110,19 +137,24 @@ export class ExamResult {
 export class ExamResultsComponent implements OnInit {
   @Input() data: ExamResult;
   @Input() showName: boolean = true;
+  @Input() showTestDetailsInput: boolean = false;
 
   InfoTypes = InfoTypes;
 
   TaskFlowStepTypes = TaskFlowStepTypes;
 
-  stepInfos: ExamStepResultInfo[];
+  stepInfos: ExamStepResultInfo[] = [];
 
   duration: string;
 
   isOneStep: boolean;
   noSteps: boolean;
 
-  constructor() { }
+  showTaskDetails: boolean;
+  showTestDetails: boolean;
+
+  constructor() {
+  }
 
   ngOnInit() {
     this.duration = this.durationToString(this.data.durationMillis);
@@ -131,6 +163,12 @@ export class ExamResultsComponent implements OnInit {
     this.data.durationMillis = this.data.durationMillis * 5;
     this.isOneStep = this.data.stepResults.length === 1;
     this.noSteps = this.data.stepResults.length === 0;
+
+    this.showTaskDetails = !!this.data.stepResults.find(sr => sr.info.type == InfoTypes.taskFlow);
+    this.showTestDetails = this.showTestDetailsInput
+      && !this.showTaskDetails
+      && !!this.data.stepResults.find(sr => sr.info.type == InfoTypes.testSet);
+
     this.prepareStepInfos();
   }
 
@@ -159,12 +197,12 @@ export class ExamResultsComponent implements OnInit {
   prepareStepInfos() {
     this.stepInfos = this.data.stepResults.filter(sr => !!sr.info).map(sr => {
       let info = sr.info.data;
-      switch(sr.info.type) {
+      switch (sr.info.type) {
         case InfoTypes.taskFlow:
           info = info as TaskFlowExamStepResultInfoData;
           info.variant.name = `Варіант ${String(info.variant.id)}`;
           info.data = info.data.map(stepData => {
-            switch(stepData.stepType) {
+            switch (stepData.stepType) {
               case TaskFlowStepTypes.DynamicTable:
                 stepData.data = TaskFlowStepUtils.prepareDynamicTable(JSON.parse(stepData.data));
                 break;
@@ -177,11 +215,37 @@ export class ExamResultsComponent implements OnInit {
             return stepData;
           });
           break;
+        case InfoTypes.testSet:
+          info = info as TestSetExamStepResultInfoDto;
+          let lastAttemptSequence = 1;
+          let lastStepAttemptTestSetId = -1;
+          info.testSetTests = info.testSetTests.reduce((acc, tst) => {
+            if (!tst.testConfSnapshot) { // Legacy, we did not store testConfSnapshot previously
+              this.showTestDetails = false;
+            }
+            if (lastStepAttemptTestSetId !== tst.stepAttemptTestSetId) {
+              acc.push({
+                id: lastAttemptSequence,
+                stepAttemptTestSetId: -1,
+                done: true,
+                mistakes: -1,
+                testConfId: -1,
+                testConfSnapshot: undefined,
+                isFakeToDisplayAttempt: true
+              } as any);
+              lastAttemptSequence++;
+            }
+            acc.push(tst);
+            lastStepAttemptTestSetId = tst.stepAttemptTestSetId;
+            return acc;
+          }, [] as UserExamStepAttemptTestSetTest[]);
+          break;
         default:
           throw new Error(`Unknown exam result step info type ${sr.info}`);
       }
       return sr.info
     })
+
   }
 
 }

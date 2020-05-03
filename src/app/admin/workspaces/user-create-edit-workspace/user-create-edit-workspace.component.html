@@ -1,0 +1,113 @@
+<div class="flex-container">
+  <span class="resmat-header resmat-label">Користувач:&nbsp;&nbsp;</span>
+  <span class="flex-1 resmat-header">
+    {{ workspaceData.data.firstName || workspaceData.data.lastName
+        ? (workspaceData.data.firstName + " " + workspaceData.data.lastName)
+        : 'Новий користувач'
+    }}
+  </span>
+</div>
+
+<ul class="mui-tabs__bar mui-tabs__bar--justified" style="margin-top: -10px">
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.userData }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.userData)">Дані користувача</a>
+  </li>
+  <li [ngClass]="{ 'mui--is-active': activeTab === tabs.access }" class="tab resmat-tab">
+    <a (click)="switchTab(tabs.access)">Доступ</a>
+  </li>
+</ul>
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.userData }">
+  <br>
+  <user [user]="workspaceData.data"
+        [config]="workspaceData.config"
+        (onSaved)="workspaceData.save($event)"
+        (onCancel)="workspaceData.cancel()"></user>
+</div>
+
+<div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.access }">
+  <table class="mui-table mui-table--bordered">
+    <thead><tr>
+      <th class="resmat-header" style="font-weight: normal">Доступ користувача до ІСПИТІВ</th>
+      <th style="width: 50px;" class="mui--text-right">
+        <input type="checkbox"
+               [checked]="workspaceData.allExamConfsAccessible"
+               (change)="workspaceData.onAllExamConfsAccessibleChanged()">
+      </th>
+    </tr></thead>
+    <tbody *ngIf="workspaceData.accessibleExamConfs && workspaceData.data.userType.id !== workspaceData.adminUserType.id">
+    <tr *ngFor="let ec of workspaceData.adminComponent.examConfs; let idx = index;">
+      <td class="resmat-regular">{{ ec.name }}</td>
+      <td class="mui--text-right">
+        <input type="checkbox"
+               [checked]="workspaceData.accessibleExamConfs.has(ec.id)"
+               [value]="ec.id"
+               (change)="workspaceData.onExamConfAccessChanged(ec.id)">
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><a (click)="workspaceData.saveAccessToExamConfs()">Зберегти</a></td>
+    </tr>
+    </tbody>
+    <div *ngIf="workspaceData.data.userType.id === workspaceData.adminUserType.id"
+         class="mui--text-center">Адміністратори мають доступ до всіх іспитів</div>
+    <div *ngIf="!workspaceData.accessibleExamConfs" class="mui--text-center">Завантаження...</div>
+  </table>
+  <table class="mui-table mui-table--bordered">
+    <thead><tr>
+      <th class="resmat-header" style="font-weight: normal">Доступ користувача до груп СТУДЕНТІВ</th>
+      <th style="width: 50px;" class="mui--text-right">
+        <input type="checkbox"
+               [checked]="workspaceData.allStudentGroupsAccessible"
+               (change)="workspaceData.onAllStudentGroupsAccessibleChanged()">
+      </th>
+    </tr></thead>
+    <tbody *ngIf="workspaceData.accessibleStudentGroups && workspaceData.data.userType.id !== workspaceData.adminUserType.id">
+    <tr *ngFor="let sg of workspaceData.adminComponent.studentGroups; let idx = index;">
+      <td class="resmat-regular">{{ sg.name }}</td>
+      <td class="mui--text-right">
+        <input type="checkbox"
+               [checked]="workspaceData.accessibleStudentGroups.has(sg.id)"
+               [value]="sg.id"
+               (change)="workspaceData.onStudentGroupAccessChanged(sg.id)">
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><a (click)="workspaceData.saveAccessToStudentGroups()">Зберегти</a></td>
+    </tr>
+    </tbody>
+    <div *ngIf="workspaceData.data.userType.id === workspaceData.adminUserType.id"
+         class="mui--text-center">Адміністратори мають доступ до всіх груп студентів</div>
+    <div *ngIf="!workspaceData.accessibleStudentGroups" class="mui--text-center">Завантаження...</div>
+  </table>
+  <table class="mui-table mui-table--bordered">
+    <thead><tr>
+      <th class="resmat-header" style="font-weight: normal">Доступ користувача до груп ТЕСТІВ</th>
+      <th style="width: 50px;" class="mui--text-right">
+        <input type="checkbox"
+               [checked]="workspaceData.allTestGroupsAccessible"
+               (change)="workspaceData.onAllTestGroupsAccessibleChanged()">
+      </th>
+    </tr></thead>
+    <tbody *ngIf="workspaceData.accessibleTestGroups && workspaceData.data.userType.id !== workspaceData.adminUserType.id">
+    <tr *ngFor="let sg of workspaceData.adminComponent.testsGroupConfsFlat; let idx = index;">
+      <td class="resmat-regular">{{ sg.name }}</td>
+      <td class="mui--text-right">
+        <input type="checkbox"
+               [checked]="workspaceData.accessibleTestGroups.has(sg.id)"
+               [value]="sg.id"
+               (change)="workspaceData.onTestGroupAccessChanged(sg.id)">
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><a (click)="workspaceData.saveAccessToTestGroups()">Зберегти</a></td>
+    </tr>
+    </tbody>
+    <div *ngIf="workspaceData.data.userType.id === workspaceData.adminUserType.id"
+         class="mui--text-center">Адміністратори мають доступ до всіх груп тестів</div>
+    <div *ngIf="!workspaceData.accessibleTestGroups" class="mui--text-center">Завантаження...</div>
+  </table>
+</div>

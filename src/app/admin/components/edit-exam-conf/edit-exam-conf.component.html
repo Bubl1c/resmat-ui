@@ -19,9 +19,14 @@
                             [createNewStepConfWorkspace]="createNewDefaultStepConfWorkspace"></exam-conf-steps-tabs>
     </div>
 
-    <button class="mui-btn mui-btn--primary"
-            type="submit" [disabled]="!examConfForm.form.valid">
-      {{ isSaving ? 'Збереження' : 'Зберегти' }}
-    </button>
+    <div class="flex-container flex-justify-space-between">
+      <button class="mui-btn mui-btn--primary"
+              type="submit" [disabled]="!examConfForm.form.valid">
+        {{ isSaving ? 'Збереження' : 'Зберегти' }}
+      </button>
+      <button class="mui-btn mui-btn--success" (click)="$event.preventDefault(); archiveExamConf()">
+        Заархівувати
+      </button>
+    </div>
   </fieldset>
 </form>

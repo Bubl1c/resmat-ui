@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, group, OnInit } from "@angular/core";
 import { ApiService } from "../api.service";
 import { Router } from "@angular/router";
 import { StudentGroup, UserData, UserType } from "../user/user.models";
@@ -20,7 +20,7 @@ import { RMU } from "../utils/utils";
 import { ProblemConf } from "../steps/exam.task-flow-step";
 import { ExamService } from "../exam/data/exam-service.service";
 import { WorkspaceData, WorkspaceDataTypes } from "./workspaces/workspace-data";
-import { UserWorkspaceData } from "./workspaces/user-workspace-data";
+import { UserWorkspaceData } from "./workspaces/user-create-edit-workspace/user-workspace-data";
 import { ArticlesWorkspaceData } from "./workspaces/articles-workspace-data";
 import { GroupStudentsWorkspaceData } from "./workspaces/group-students/group-students-workspace-data";
 import { StudentExamsWorkspaceData } from "./workspaces/student-exams-workspace-data";
@@ -36,6 +36,8 @@ import { AddStudentGroupWorkspaceData } from "./workspaces/add-student-group-wor
 import { EditTestConfWorkspaceData } from "./workspaces/edit-test-conf-workspace-data";
 import { UserComponentConfig } from "./components/user/user.component";
 import { ArchiveWorkspaceData } from "./workspaces/archive-workspace/archive-workspace-data";
+import { AdminWorkspaceData } from "./workspaces/admin-workspace/admin-workspace-data";
+import { UserDefaults } from "./userDefaults";
 
 @Component({
   selector: 'admin',
@@ -59,14 +61,12 @@ export class AdminComponent implements OnInit, AfterViewInit {
   sideMenuCollapsed: boolean = false;
 
   studentGroups: StudentGroup[];
-  users: UserData[];
   students: UserData[];
 
   examConfs: IExamConf[];
-  problemConfs: ProblemConf[];
 
-  testsGroupConfs: ITestGroupConfWithChildren[];
-  testsGroupConfsFlat: ITestGroupConfWithChildren[];
+  testsGroupConfs: ITestGroupConfWithChildren[] = [];
+  testsGroupConfsFlat: ITestGroupConfWithChildren[] = [];
 
   workspaceData: WorkspaceData;
 
@@ -88,39 +88,70 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }
 
     this.userPermission = this.currentUser.userType.rate;
-    if (this.userPermission >= UserType.admin.rate) {
-      this.loadUsers();
-      this.loadProblemConfs();
-    }
-    if (this.userPermission >= UserType.instructor.rate) {
-      this.loadTestGroupConfs();
-    }
-    this.loadExamConfs();
-    this.loadGroups();
-  }
 
-  loadUsers() {
-    this.api.get("/api-users").subscribe({
-      next: (users: any[]) => {
-        this.users = users.map(UserData.fromApi)
-      },
-      error: err => {
-        this.errorMessage = err.toString()
+    let loadGroupsCb: (studentGroups: StudentGroup[]) => void;
+    let loadTestGroupsCb: (testGroupConfs: ITestGroupConfWithChildren[]) => void;
+    let loadExamConfsCb: (examConfs: IExamConf[]) => void;
+
+    const lav = UserDefaults.Admin.getLastActiveView();
+    if (lav) {
+      switch(lav.viewId) {
+        case 'admin':
+          this.loadAdminWorkspace();
+          break;
+        case "studentGroup":
+          loadGroupsCb = groups => {
+            const g = groups.find(group => group.id === lav.itemId);
+            if (g) {
+              this.loadGroupStudentsWorkspace(g);
+            }
+          };
+          break;
+        case "testGroup":
+          loadTestGroupsCb = groups => {
+            const g = groups.find(group => group.id === lav.itemId);
+            if (g) {
+              this.loadTestGroupConf(g);
+            }
+          };
+          break;
+        case "examConf":
+          loadExamConfsCb = ecs => {
+            const examConf = ecs.find(ec => ec.id === lav.itemId);
+            if (examConf) {
+              this.loadExamConf(examConf.id);
+            }
+          };
+          break;
+        default:
+          console.error('Invalid last active view: ' + lav)
+          //no need to load anything by default
       }
-    })
+    }
+
+    this.loadTestGroupConfs(loadTestGroupsCb);
+    this.loadExamConfs(loadExamConfsCb);
+    this.loadGroups(loadGroupsCb);
   }
 
   emptyWorkspace() {
     this.workspaceData = undefined;
   }
 
-  loadCreateUser() {
-    this.workspaceData = new UserWorkspaceData(UserData.empty(), this.api, this);
+  loadAdminWorkspace() {
+    if (this.userPermission >= this.permissions.Admin) {
+      this.workspaceData = new AdminWorkspaceData(undefined, this.api, this);
+      UserDefaults.Admin.setLastActiveView('admin')
+    }
   }
 
-  loadEditUser(user: UserData, isEditStudent: boolean = false, sourceStudentGroup?: StudentGroup) {
-    this.workspaceData = new UserWorkspaceData(user, this.api, this, isEditStudent, sourceStudentGroup);
+  loadEditUserToEditStudent(user: UserData, sourceStudentGroup: StudentGroup) {
+    this.workspaceData = new UserWorkspaceData(user, this.api, this, {
+      onUserSaved: () => { this.loadGroupStudentsWorkspace(sourceStudentGroup) },
+      onCancel: () => { this.loadGroupStudentsWorkspace(sourceStudentGroup) }
+    }, true);
   }
+
   loadStudentResults(student: UserData, sourceGroup: StudentGroup) {
     this.workspaceData = new StudentExamsWorkspaceData(student, sourceGroup);
   }
@@ -140,10 +171,11 @@ export class AdminComponent implements OnInit, AfterViewInit {
     });
   }
 
-  loadGroups() {
+  loadGroups(onLoaded?: (studentGroups: StudentGroup[]) => void) {
     this.api.get("/student-groups").subscribe({
       next: (groups: any[]) => {
-        this.studentGroups = groups
+        this.studentGroups = groups;
+        onLoaded && onLoaded(groups);
       },
       error: err => {
         this.errorMessage = err.toString()
@@ -155,11 +187,11 @@ export class AdminComponent implements OnInit, AfterViewInit {
     this.workspaceData = new AddStudentGroupWorkspaceData("", this.api, this);
   }
 
-  loadExamConfs(cb?: () => void) {
-    this.api.get("/exam-confs").subscribe({
+  loadExamConfs(cb?: (examConfs: IExamConf[]) => void) {
+    this.api.get("/exam-confs?isArchived=false").subscribe({
       next: (examConfs: IExamConf[]) => {
-        this.examConfs = examConfs
-        cb && cb()
+        this.examConfs = examConfs;
+        cb && cb(examConfs)
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -171,7 +203,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
   loadExamConf(examConfId: number) {
     this.api.get("/exam-confs/" + examConfId + "/dto").subscribe({
       next: (examConfDto: IExamConfDto) => {
-        this.workspaceData = new ExamWorkspaceData(examConfDto, this.testsGroupConfsFlat, this)
+        this.workspaceData = new ExamWorkspaceData(examConfDto, this.testsGroupConfsFlat, this);
+        UserDefaults.Admin.setLastActiveView('examConf', examConfId);
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -187,32 +220,12 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }, this.testsGroupConfsFlat, this)
   }
 
-  loadProblemConfs() {
-    this.api.get("/problem-confs").subscribe({
-      next: (problemConfs: ProblemConf[]) => {
-        this.problemConfs = problemConfs
-      },
-      error: err => {
-        this.errorMessage = err.toString();
-        alert(err)
-      }
-    })
-  }
-
-  loadProblemConf(problemConfId: number) {
+  onExamConfArchived() {
+    this.loadExamConfs();
     this.workspaceData = undefined;
-    this.api.get("/problem-confs/" + problemConfId + "/with-variants").subscribe({
-      next: (problemConfWithVariants: ProblemConfWithVariants) => {
-        this.workspaceData = new ProblemWorkspaceData(problemConfWithVariants)
-      },
-      error: err => {
-        this.errorMessage = err.toString();
-        alert(err)
-      }
-    })
   }
 
-  loadTestGroupConfs(cb?: () => void) {
+  loadTestGroupConfs(cb?: (testGroupConfs: ITestGroupConfWithChildren[]) => void) {
     this.tcService.getTestGroupConfs(true).subscribe({
       next: (testGroupConfs: ITestGroupConf[]) => {
         this.testsGroupConfs = [];
@@ -230,7 +243,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
           }
         })
         this.testsGroupConfsFlat = groupsWithChildren;
-        cb && cb()
+        cb && cb(groupsWithChildren)
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -258,7 +271,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     this.tcService.getTestConfsByTestGroupConfId(testGroupConf.id).subscribe({
       next: (testGroupTestConfs: ITestEditDto[]) => {
         let copy: ITestGroupConfWithTestConfs = Object.assign({ testConfs: testGroupTestConfs }, testGroupConf);
-        this.workspaceData = new EditTestGroupWorkspaceData(copy, this.tcService, this)
+        this.workspaceData = new EditTestGroupWorkspaceData(copy, this.tcService, this);
+        UserDefaults.Admin.setLastActiveView('testGroup', testGroupConf.id);
       },
       error: err => {
         this.errorMessage = err.toString();
@@ -300,6 +314,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     } else {
       this.workspaceData = new GroupStudentsWorkspaceData(group, this.examConfs, this.api, this.examService, this);
     }
+    UserDefaults.Admin.setLastActiveView('studentGroup', group.id)
   }
 
   loadArchiveWorkspace() {

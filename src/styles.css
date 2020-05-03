@@ -106,6 +106,10 @@ body {
   background-color: #00000014;
 }
 
+.resmat-background-primary {
+  background-color: #00000014;
+}
+
 @media print
 {
   .no-print, .no-print *

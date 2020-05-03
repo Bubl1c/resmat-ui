@@ -17,6 +17,7 @@ export class UserComponent implements OnInit {
   @Input() config: UserComponentConfig;
 
   @Output() onSaved = new EventEmitter<UserData>();
+  @Output() onCancel = new EventEmitter<void>();
 
   userTypes = UserType.all.map(ut => new DropdownOption(ut.id, ut.name));
 

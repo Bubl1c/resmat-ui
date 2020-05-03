@@ -78,6 +78,8 @@ import { Docx4jsTestComponent } from './components/docx4js-test/docx4js-test.com
 import { BulkEditTestConfLightweightComponent } from './admin/components/edit-test-conf/bulk-edit-test-conf-lightweight/bulk-edit-test-conf-lightweight.component';
 import { EditTestGroupConfComponent } from './admin/workspaces/edit-test-group-conf/edit-test-group-conf.component';
 import { ArchiveWorkspaceComponent } from './admin/workspaces/archive-workspace/archive-workspace.component';
+import { UserCreateEditWorkspaceComponent } from './admin/workspaces/user-create-edit-workspace/user-create-edit-workspace.component';
+import { AdminWorkspaceComponent } from './admin/workspaces/admin-workspace/admin-workspace.component';
 
 @NgModule({
   declarations: [
@@ -145,7 +147,9 @@ import { ArchiveWorkspaceComponent } from './admin/workspaces/archive-workspace/
     Docx4jsTestComponent,
     BulkEditTestConfLightweightComponent,
     EditTestGroupConfComponent,
-    ArchiveWorkspaceComponent
+    ArchiveWorkspaceComponent,
+    UserCreateEditWorkspaceComponent,
+    AdminWorkspaceComponent
   ],
   imports: [
     BrowserModule,

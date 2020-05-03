@@ -38,9 +38,14 @@
       <label>Ключ доступу</label>
     </div>
 
-    <button class="mui-btn mui-btn--primary"
-            type="submit" [disabled]="!userForm.form.valid">
-      {{ config.isSaving ? 'Збереження' : 'Зберегти' }}
-    </button>
+    <div class="flex-container flex-justify-space-between">
+      <button class="mui-btn mui-btn--primary"
+              type="submit" [disabled]="!userForm.form.valid">
+        {{ config.isSaving ? 'Збереження' : 'Зберегти' }}
+      </button>
+      <button class="mui-btn mui-btn--success" (click)="$event.preventDefault(); onCancel.emit()">
+        Відміна
+      </button>
+    </div>
   </fieldset>
 </form>

@@ -12,7 +12,8 @@ export class ArchiveWorkspaceComponent implements OnInit {
 
   tabs = {
     studentGroups: "studentGroups",
-    testGroups: "testGroups"
+    testGroups: "testGroups",
+    examConfs: "examConfs"
   };
   activeTab: string = this.tabs.studentGroups;
 

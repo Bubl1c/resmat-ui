@@ -1,0 +1,67 @@
+<div class="flex-container flex-column">
+  <div class="flex-container flex-justify-center resmat-header">Адміністратор</div>
+
+  <user-create-edit-workspace *ngIf="workspaceData.editUserWorkspaceData"
+                              [workspaceData]="workspaceData.editUserWorkspaceData"></user-create-edit-workspace>
+
+  <problem-conf *ngIf="workspaceData.problemConfWorkspaceData"
+                [problemConfWithVariants]="workspaceData.problemConfWorkspaceData.data"></problem-conf>
+
+  <div [hidden]="workspaceData.editUserWorkspaceData || workspaceData.problemConfWorkspaceData">
+    <ul class="mui-tabs__bar mui-tabs__bar--justified" style="margin-top: -10px">
+      <li [ngClass]="{ 'mui--is-active': activeTab === tabs.users }" class="tab resmat-tab">
+        <a (click)="switchTab(tabs.users)">Користувачі</a>
+      </li>
+      <li [ngClass]="{ 'mui--is-active': activeTab === tabs.problemConfs }" class="tab resmat-tab">
+        <a (click)="switchTab(tabs.problemConfs)">Задачі</a>
+      </li>
+    </ul>
+
+    <!--------------------- USERS ---------------------->
+
+    <div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.users }">
+      <table class="mui-table mui-table--bordered">
+        <tbody>
+        <tr>
+          <td class="resmat-label">Ім'я</td>
+          <td class="resmat-label">Тип</td>
+          <th style="width: 50px;" class="mui--text-center">
+            <a (click)="workspaceData.loadCreateUser()" class="link-with-icon">
+              <i class="material-icons">playlist_add</i>Додати
+            </a>
+          </th>
+        </tr>
+        <tr *ngFor="let user of workspaceData.users; let idx = index;">
+          <td class="resmat-regular">{{ user.firstName + ' ' + user.lastName }}</td>
+          <td class="resmat-regular">{{ user.userType.name }}</td>
+          <td><a (click)="workspaceData.loadEditUser(user)"><i class="material-icons">mode_edit</i></a></td>
+        </tr>
+        <tr class="mui--text-center" [hidden]="workspaceData.users.length">
+          <td colspan="2">Немає користувачів</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!--------------------- PROBLEM CONFS ---------------------->
+
+    <div [ngClass]="{ 'mui-tabs__pane': true, 'mui--is-active': activeTab === tabs.problemConfs }">
+      <table class="mui-table mui-table--bordered">
+        <tbody>
+        <tr>
+          <td class="resmat-label">Назва</td>
+          <td style="width: 50px;"></td>
+        </tr>
+        <tr *ngFor="let pc of workspaceData.problemConfs; let idx = index;">
+          <td class="resmat-regular">{{ pc.name }}</td>
+          <td><a (click)="workspaceData.loadProblemConf(pc)"><i class="material-icons">mode_edit</i></a></td>
+        </tr>
+        <tr class="mui--text-center" [hidden]="workspaceData.problemConfs.length">
+          <td colspan="2">Немає задач</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
