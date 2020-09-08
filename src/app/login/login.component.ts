@@ -18,6 +18,8 @@ export class LoginComponent implements OnInit {
   errorMessage: string;
   isStudent: boolean = true;
 
+  isLoading: boolean = false;
+
   constructor(private router: Router, private loginService: LoginService) { }
 
   ngOnInit() {
@@ -33,7 +35,9 @@ export class LoginComponent implements OnInit {
   }
 
   login(login: string, password?: string) {
+    this.isLoading = true;
     this.loginService.login(login, password).subscribe((loggedUser: UserData) => {
+      this.isLoading = false;
       console.log('Logged user: ', loggedUser);
       RMU.safe(() => {
         GoogleAnalyticsUtils.setUserId(loggedUser.id);
@@ -53,6 +57,7 @@ export class LoginComponent implements OnInit {
           throw "Invalid user type: " + loggedUser.userType
       }
     }, error => {
+      this.isLoading = false;
       GoogleAnalyticsUtils.event("login", `failed`, `LoginFailed`);
       this.errorMessage = "Логін або пароль не вірні"
     });

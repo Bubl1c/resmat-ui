@@ -1,7 +1,7 @@
 import { Component, ViewContainerRef, OnInit } from "@angular/core";
 import { PageScrollConfig } from "ng2-page-scroll";
 import { LoginService } from "./login/login.service";
-import { Router } from "@angular/router";
+import { NavigationStart, Router } from "@angular/router";
 import { Overlay } from 'angular2-modal';
 
 @Component({
@@ -21,6 +21,11 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // this.router.events.subscribe(event => {
+    //   if (event instanceof NavigationStart) {
+    //     window['strum']('routeChange', event.url);
+    //   }
+    // });
   }
 
   logout() {

@@ -14,7 +14,7 @@ import { RMU } from "../utils/utils";
 class InitialExamStep extends ExamStep {
   loadInitialData(): void {}
   constructor() {
-    super(0, -1, "non-existing-type", "This kind of step used for initial exam condition. " +
+    super(0, -1, "initial-fake-type", "This kind of step used for initial exam condition. " +
       "To hide all other steps and show loading bar.");
   }
 }

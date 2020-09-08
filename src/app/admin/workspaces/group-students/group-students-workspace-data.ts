@@ -183,7 +183,11 @@ export class GroupStudentsWorkspaceData extends WorkspaceData {
     this.api.get("/student-groups/" + this.data.id + "/students").subscribe({
       next: (students: any[]) => {
         let mappedStudents = students.map(UserData.fromApi);
-        this.students = mappedStudents;
+        this.students = mappedStudents.sort((a, b) =>
+          a.lastName < b.lastName
+            ? -1
+            : (a.lastName > b.lastName ? 1 : 0)
+        );
       },
       error: err => {
         this.errorMessage = err.toString()

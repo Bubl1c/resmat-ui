@@ -10,7 +10,7 @@
         <div class="mui-textfield">
           <input type="text" name="login" placeholder="Введіть Ваш ключ доступу" required #loginInput>
         </div>
-        <button type="submit" class="mui-btn mui-btn-primary">Увійти</button>
+        <button type="submit" class="mui-btn mui-btn-primary" [disabled]="isLoading">Увійти</button>
       </form>
       <form class="login-form" (submit)="login(loginInput.value, passwordInput.value)" *ngIf="!isStudent">
         <legend>Вхід для викладачів</legend>
@@ -20,7 +20,7 @@
         <div class="mui-textfield" [hidden]="isStudent">
           <input type="password" name="password" placeholder="Пароль" required #passwordInput>
         </div>
-        <button type="submit" class="mui-btn mui-btn-primary">Увійти</button>
+        <button type="submit" class="mui-btn mui-btn-primary" [disabled]="isLoading">Увійти</button>
       </form>
       <div class="error-message">{{ errorMessage }}</div>
     </div>
